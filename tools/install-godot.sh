@@ -24,4 +24,10 @@ if [[ "${1:-}" == '--templates' ]]; then
   cp "$TMP"/templates/* "$DEST/"
 fi
 printf '\nGodot installed: %s/godot\n' "$BIN"
-"$BIN/godot" --headless --version
+# Termux does not provide the glibc loader expected by the official Linux
+# binary. The binary still works from a Debian proot (as used by CI/dev docs).
+if command -v proot-distro >/dev/null 2>&1 && proot-distro list 2>/dev/null | grep -q '^  \* debian'; then
+  printf 'Termux detected: run Godot through `proot-distro login debian -- %s/godot`\n' "$BIN"
+else
+  "$BIN/godot" --headless --version
+fi
