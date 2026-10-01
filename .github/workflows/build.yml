@@ -51,13 +51,11 @@ jobs:
 
           mkdir -p build/verification
 
-          timeout 90 xvfb-run -a -s '-screen 0 1280x720x24' \
+          timeout 180 xvfb-run -a -s '-screen 0 1280x720x24' \
             godot \
-              --headless \
               --audio-driver Dummy \
               --path . \
               --rendering-method gl_compatibility \
-              --rendering-driver opengl3 \
               --script tools/capture.gd \
             2>&1 | tee build/verification/render.log
 
@@ -65,22 +63,27 @@ jobs:
 
           echo "Godot render exit code: ${GODOT_EXIT}"
 
+          if [ "${GODOT_EXIT}" -eq 124 ]; then
+            echo "ERROR: Godot render smoke test timed out after 180 seconds."
+            exit 1
+          fi
+
           if [ "${GODOT_EXIT}" -ne 0 ]; then
-            echo "Godot render process failed."
+            echo "ERROR: Godot render process failed with exit code ${GODOT_EXIT}."
             exit "${GODOT_EXIT}"
           fi
 
           if grep -E 'SCRIPT ERROR|Parse Error|CRITICAL:' build/verification/render.log; then
-            echo "Fatal Godot error detected in render log."
+            echo "Fatal Godot script/parse/critical error detected."
             exit 1
           fi
 
           if ! grep -q 'ALMARAKAH RENDER SMOKE: 0 failures' build/verification/render.log; then
-            echo "Render smoke test did not report 0 failures."
+            echo "ERROR: Render smoke test did not report 0 failures."
             exit 1
           fi
 
-          echo "Render smoke test passed."
+          echo "ALMARAKAH render smoke test passed."
 
       - name: Upload rendered previews
         uses: actions/upload-artifact@v4
@@ -104,23 +107,20 @@ jobs:
 
           GODOT_EXIT=${PIPESTATUS[0]}
 
-          echo "Godot web export exit code: ${GODOT_EXIT}"
+          echo "Godot Web export exit code: ${GODOT_EXIT}"
 
           if [ "${GODOT_EXIT}" -ne 0 ]; then
-            echo "Godot Web export failed."
             exit "${GODOT_EXIT}"
           fi
 
           if grep -E 'SCRIPT ERROR|Parse Error|CRITICAL:' build/verification/web-export.log; then
-            echo "Fatal Godot error detected in Web export."
+            echo "Fatal Godot error detected during Web export."
             exit 1
           fi
 
           test -s build/web/index.html
           test -s build/web/index.wasm
           test -s build/web/index.pck
-
-          echo "Web export verified successfully."
 
       - name: Upload browser preview
         uses: actions/upload-artifact@v4
@@ -174,12 +174,11 @@ jobs:
           echo "Godot Android export exit code: ${GODOT_EXIT}"
 
           if [ "${GODOT_EXIT}" -ne 0 ]; then
-            echo "Godot Android export failed."
             exit "${GODOT_EXIT}"
           fi
 
           if grep -E 'SCRIPT ERROR|Parse Error|CRITICAL:' build/verification/android-export.log; then
-            echo "Fatal Godot error detected in Android export."
+            echo "Fatal Godot error detected during Android export."
             exit 1
           fi
 
@@ -192,8 +191,6 @@ jobs:
 
           sha256sum build/android/Almarakah-debug.apk \
             > build/android/SHA256SUMS.txt
-
-          echo "Android debug APK verified successfully."
 
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
