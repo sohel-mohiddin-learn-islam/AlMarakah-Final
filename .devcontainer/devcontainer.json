@@ -1,0 +1,9 @@
+{
+  "name": "Almarakah (separate game workspace)",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y libfontconfig1 libgl1 libasound2t64 libx11-6 libxcursor1 libxinerama1 libxi6 libxrandr2 && bash tools/install-godot.sh",
+  "forwardPorts": [8000],
+  "portsAttributes": {
+    "8000": {"label": "Almarakah browser preview", "onAutoForward": "notify"}
+  }
+}

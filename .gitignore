@@ -1,3 +1,12 @@
+# Godot caches and local editor state (keep .gd.uid files tracked)
+.godot/
+.import/
+*.tmp
+*.zip
+.env
+.env.*
+__pycache__/
+
 # Gradle files
 .gradle/
 build/
