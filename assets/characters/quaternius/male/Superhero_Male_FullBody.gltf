@@ -1336,9 +1336,6 @@
       "doubleSided": true,
       "name": "MI_Hair_1",
       "pbrMetallicRoughness": {
-        "baseColorTexture": {
-          "index": 1
-        },
         "metallicFactor": 0,
         "roughnessFactor": 0.8227272629737854
       }
@@ -1347,9 +1344,6 @@
       "doubleSided": true,
       "name": "MI_Eyes",
       "pbrMetallicRoughness": {
-        "baseColorTexture": {
-          "index": 3
-        },
         "metallicFactor": 0,
         "roughnessFactor": 0.34545454382896423
       }
@@ -1358,9 +1352,6 @@
       "doubleSided": true,
       "name": "MI_Superhero_Male",
       "pbrMetallicRoughness": {
-        "baseColorTexture": {
-          "index": 5
-        },
         "metallicFactor": 0
       }
     }
