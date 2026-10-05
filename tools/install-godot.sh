@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Linux / GitHub Codespaces. Android users can use the Godot Android editor instead.
 set -euo pipefail
-VERSION=4.4.1
+VERSION=4.5.1
 case "$(uname -m)" in
   x86_64) ARCH=x86_64 ;;
   aarch64|arm64) ARCH=arm64 ;;

@@ -34,8 +34,8 @@ jobs:
         with:
           path: |
             ~/.local/bin/godot
-            ~/.local/share/godot/export_templates/4.4.1.stable
-          key: godot-linux-x86_64-4.4.1-android-web-v1
+            ~/.local/share/godot/export_templates/4.5.1.stable
+          key: godot-linux-x86_64-4.5.1-android-web-v1
 
       - name: Install pinned Godot and export templates
         if: steps.godot-cache.outputs.cache-hit != 'true'
