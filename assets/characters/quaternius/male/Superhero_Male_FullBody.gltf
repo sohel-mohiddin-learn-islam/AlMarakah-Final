@@ -1335,9 +1335,6 @@
     {
       "doubleSided": true,
       "name": "MI_Hair_1",
-      "normalTexture": {
-        "index": 0
-      },
       "pbrMetallicRoughness": {
         "baseColorTexture": {
           "index": 1
@@ -1349,9 +1346,6 @@
     {
       "doubleSided": true,
       "name": "MI_Eyes",
-      "normalTexture": {
-        "index": 2
-      },
       "pbrMetallicRoughness": {
         "baseColorTexture": {
           "index": 3
@@ -1363,9 +1357,6 @@
     {
       "doubleSided": true,
       "name": "MI_Superhero_Male",
-      "normalTexture": {
-        "index": 4
-      },
       "pbrMetallicRoughness": {
         "baseColorTexture": {
           "index": 5
