@@ -46,13 +46,34 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
 	add_child(collider)
 	body = Node3D.new()
 	add_child(body)
-
-	var character_scene = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
-	var character_visual = character_scene.instantiate()
-	character_visual.name = "RealisticCharacter"
-	character_visual.position = Vector3(0, 0, 0)
-	character_visual.scale = Vector3.ONE
-	body.add_child(character_visual)
+	var material = StandardMaterial3D.new()
+	material.albedo_color = Color("29afa5")
+	var suit = MeshInstance3D.new()
+	var mesh = CapsuleMesh.new()
+	mesh.radius = 0.32
+	mesh.height = 1.5
+	mesh.radial_segments = 8
+	mesh.rings = 3
+	suit.mesh = mesh
+	suit.material_override = material
+	suit.position.y = 0.95
+	body.add_child(suit)
+	var visor = MeshInstance3D.new()
+	var visor_mesh = BoxMesh.new()
+	visor_mesh.size = Vector3(0.44, 0.16, 0.18)
+	visor.mesh = visor_mesh
+	visor.position = Vector3(0, 1.48, -0.27)
+	var dark = StandardMaterial3D.new()
+	dark.albedo_color = Color("122432")
+	visor.material_override = dark
+	body.add_child(visor)
+	var weapon = MeshInstance3D.new()
+	var weapon_mesh = BoxMesh.new()
+	weapon_mesh.size = Vector3(0.14, 0.16, 0.8)
+	weapon.mesh = weapon_mesh
+	weapon.position = Vector3(0.4, 1.05, -0.42)
+	weapon.material_override = dark
+	body.add_child(weapon)
 	rig = Node3D.new()
 	rig.position = Vector3(0, 1.65, 0)
 	add_child(rig)
