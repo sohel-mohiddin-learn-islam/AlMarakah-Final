@@ -16,6 +16,11 @@ var driver: CharacterBody3D = null
 var driver_parent: Node = null
 var occupied: bool = false
 
+var wheel_front_left: Node3D = null
+var wheel_front_right: Node3D = null
+var wheel_back_left: Node3D = null
+var wheel_back_right: Node3D = null
+
 func setup(spawn: Vector3) -> void:
     global_position = spawn
     collision_layer = 4
@@ -35,6 +40,11 @@ func setup(spawn: Vector3) -> void:
     vehicle_visual.position = Vector3(0.0, 0.0, 0.0)
     vehicle_visual.scale = Vector3.ONE
     add_child(vehicle_visual)
+
+    wheel_front_left = vehicle_visual.get_node_or_null("wheel-front-left")
+    wheel_front_right = vehicle_visual.get_node_or_null("wheel-front-right")
+    wheel_back_left = vehicle_visual.get_node_or_null("wheel-back-left")
+    wheel_back_right = vehicle_visual.get_node_or_null("wheel-back-right")
 
 func enter_vehicle(actor: CharacterBody3D) -> bool:
     if occupied or not is_instance_valid(actor):
@@ -93,5 +103,24 @@ func _physics_process(delta: float) -> void:
     if absf(speed) > 0.2:
         rotation.y -= steering * steering_speed * delta * signf(speed)
 
+    _update_wheels(delta)
+
     velocity = -global_transform.basis.z * speed
     move_and_slide()
+
+func _update_wheels(delta: float) -> void:
+    var steering_angle: float = steering * 0.45
+
+    if is_instance_valid(wheel_front_left):
+        wheel_front_left.rotation.y = steering_angle
+        wheel_front_left.rotation.x -= speed * delta * 0.9
+
+    if is_instance_valid(wheel_front_right):
+        wheel_front_right.rotation.y = steering_angle
+        wheel_front_right.rotation.x -= speed * delta * 0.9
+
+    if is_instance_valid(wheel_back_left):
+        wheel_back_left.rotation.x -= speed * delta * 0.9
+
+    if is_instance_valid(wheel_back_right):
+        wheel_back_right.rotation.x -= speed * delta * 0.9
