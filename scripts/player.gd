@@ -26,6 +26,7 @@ var camera: Camera3D
 var arm: SpringArm3D
 var body: Node3D
 var sound: AudioStreamPlayer
+var animator: Node
 var mouse_look: Vector2 = Vector2.ZERO
 
 func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
@@ -50,6 +51,10 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
 	var character_scene = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
 	var character_visual = character_scene.instantiate()
 	character_visual.name = "RealisticCharacter"
+	var animator_script = preload("res://scripts/character_animator.gd")
+	animator = animator_script.new()
+	character_visual.add_child(animator)
+	animator.setup(character_visual)
 	character_visual.position = Vector3(0, 0, 0)
 	character_visual.scale = Vector3.ONE
 	body.add_child(character_visual)
@@ -113,7 +118,21 @@ func _physics_process(delta: float) -> void:
 	elif Input.is_action_just_pressed("jump") or hud.jump_requested:
 		velocity.y = 8.0
 	hud.jump_requested = false
+	var animation_was_grounded: bool = is_on_floor()
+	var animation_requested_jump: bool = Input.is_action_just_pressed("jump") or hud.jump_requested
+
 	move_and_slide()
+
+	if animator != null:
+		if animation_requested_jump and animation_was_grounded:
+			animator.play_jump_start()
+		elif not animation_was_grounded and is_on_floor():
+			animator.play_jump_land()
+		elif not is_on_floor():
+			animator.play("Jump")
+		else:
+			animator.update_state(movement.length(), true, ads, delta)
+
 	if global_position.y < -12:
 		take_damage(1000)
 	shot_time = maxf(0, shot_time - delta)
@@ -136,6 +155,8 @@ func _physics_process(delta: float) -> void:
 func reload_weapon() -> void:
 	if alive and ammo < magazine_size and reserve > 0 and reload_time <= 0:
 		reload_time = reload_seconds
+		if animator != null:
+			animator.play_reload()
 
 func _configure_loadout() -> void:
 	var profile: Dictionary = Rules.weapon_profile(String(settings.data.get("weapon_id", "rifle")))
@@ -152,6 +173,8 @@ func _configure_loadout() -> void:
 	shot_time = 0.0
 
 func _shoot() -> void:
+	if animator != null:
+		animator.play_shoot()
 	ammo -= 1
 	shot_time = fire_interval
 	var forward: Vector3 = -camera.global_basis.z
