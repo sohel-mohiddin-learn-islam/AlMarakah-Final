@@ -7,6 +7,7 @@ var settings: RefCounted
 var team: int = -1
 var health: float = 100.0
 var alive: bool = true
+var in_vehicle: bool = false
 var weapon_id: String = "rifle"
 var magazine_size: int = 30
 var reserve_capacity: int = 180
@@ -106,6 +107,11 @@ func _physics_process(delta: float) -> void:
 	if not alive or not is_instance_valid(game) or not game.match_active:
 		mouse_look = Vector2.ZERO
 		return
+
+	if in_vehicle:
+		velocity = Vector3.ZERO
+		return
+
 	ads = hud.aiming or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT))
 	if ads and hud.sprinting:
 		hud.sprinting = false
@@ -169,6 +175,9 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("reload") or hud.reload_requested:
 		reload_weapon()
 	hud.reload_requested = false
+	if Input.is_action_just_pressed("vehicle_interact") or hud.vehicle_requested:
+		_handle_vehicle_interaction()
+	hud.vehicle_requested = false
 	if muzzle_flash_time > 0.0:
 		muzzle_flash_time = maxf(0.0, muzzle_flash_time - delta)
 		if muzzle_flash_time <= 0.0 and is_instance_valid(muzzle_flash):
@@ -180,6 +189,45 @@ func _physics_process(delta: float) -> void:
 			_shoot()
 		else:
 			reload_weapon()
+
+func _nearest_vehicle() -> Node:
+	if not is_instance_valid(game) or not "vehicles" in game:
+		return null
+
+	var nearest: Node = null
+	var nearest_distance: float = 9.0
+
+	for vehicle in game.vehicles:
+		if not is_instance_valid(vehicle):
+			continue
+		if vehicle.occupied:
+			continue
+
+		var distance: float = global_position.distance_to(vehicle.global_position)
+		if distance <= nearest_distance:
+			nearest_distance = distance
+			nearest = vehicle
+
+	return nearest
+
+func _handle_vehicle_interaction() -> void:
+	if not alive:
+		return
+
+	if in_vehicle:
+		for vehicle in game.vehicles:
+			if not is_instance_valid(vehicle):
+				continue
+			if vehicle.occupied and vehicle.driver == self:
+				vehicle.exit_vehicle()
+				in_vehicle = false
+				return
+		in_vehicle = false
+		return
+
+	var vehicle := _nearest_vehicle()
+	if vehicle != null and vehicle.enter_vehicle(self):
+		in_vehicle = true
 
 func reload_weapon() -> void:
 	if alive and ammo < magazine_size and reserve > 0 and reload_time <= 0:

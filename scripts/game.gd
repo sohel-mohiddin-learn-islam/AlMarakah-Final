@@ -46,7 +46,7 @@ func _ready() -> void:
 	return_to_menu()
 
 func _setup_inputs() -> void:
-	var keys = {"move_forward": KEY_W, "move_back": KEY_S, "move_left": KEY_A, "move_right": KEY_D, "jump": KEY_SPACE, "reload": KEY_R}
+	var keys = {"move_forward": KEY_W, "move_back": KEY_S, "move_left": KEY_A, "move_right": KEY_D, "jump": KEY_SPACE, "reload": KEY_R, "vehicle_accelerate": KEY_W, "vehicle_reverse": KEY_S, "vehicle_left": KEY_A, "vehicle_right": KEY_D, "vehicle_brake": KEY_SPACE, "vehicle_interact": KEY_V}
 	for action in keys:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)

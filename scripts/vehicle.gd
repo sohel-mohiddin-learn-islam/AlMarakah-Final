@@ -13,6 +13,7 @@ var throttle: float = 0.0
 var brake: float = 0.0
 
 var driver: CharacterBody3D = null
+var driver_parent: Node = null
 var occupied: bool = false
 
 func setup(spawn: Vector3) -> void:
@@ -41,16 +42,35 @@ func enter_vehicle(actor: CharacterBody3D) -> bool:
 
     driver = actor
     occupied = true
+
+    driver_parent = actor.get_parent()
+    actor.reparent(self)
+    actor.position = Vector3(0.0, 1.25, 0.25)
+    actor.rotation = Vector3.ZERO
+
     return true
 
 func exit_vehicle() -> CharacterBody3D:
     if not occupied or not is_instance_valid(driver):
         driver = null
+        driver_parent = null
         occupied = false
         return null
 
     var actor := driver
+    var exit_position := global_position + global_transform.basis.x * 2.4
+    var parent := driver_parent
+
+    if is_instance_valid(parent):
+        actor.reparent(parent)
+    else:
+        actor.reparent(get_parent())
+
+    actor.global_position = exit_position
+    actor.rotation.y = rotation.y
+
     driver = null
+    driver_parent = null
     occupied = false
     return actor
 
@@ -58,6 +78,10 @@ func _physics_process(delta: float) -> void:
     if not occupied:
         speed = move_toward(speed, 0.0, friction * delta)
         return
+
+    throttle = Input.get_axis("vehicle_reverse", "vehicle_accelerate")
+    brake = 1.0 if Input.is_action_pressed("vehicle_brake") else 0.0
+    steering = Input.get_axis("vehicle_right", "vehicle_left")
 
     speed = move_toward(speed, throttle * max_speed, acceleration * delta)
 
