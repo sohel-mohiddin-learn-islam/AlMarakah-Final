@@ -74,6 +74,9 @@ jobs:
       - name: Test Quaternius character retarget skeletons
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_character_retarget.gd
+      - name: Test real Quaternius character animation
+        run: |
+          godot --headless --path . --script tools/test_real_character_animation.gd
 
       - name: Inspect Quaternius animation library
         run: |
