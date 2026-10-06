@@ -27,6 +27,7 @@ var arm: SpringArm3D
 var body: Node3D
 var sound: AudioStreamPlayer
 var animator: Node
+var character_visual: Node3D
 var mouse_look: Vector2 = Vector2.ZERO
 
 func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
@@ -49,7 +50,7 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
 	add_child(body)
 
 	var character_scene = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
-	var character_visual = character_scene.instantiate()
+	character_visual = character_scene.instantiate()
 	character_visual.name = "RealisticCharacter"
 	var animator_script = preload("res://scripts/character_animator.gd")
 	animator = animator_script.new()
@@ -113,6 +114,14 @@ func _physics_process(delta: float) -> void:
 	var speed: float = move_speed * (0.58 if ads else 1.0)
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
+
+	if character_visual != null and movement.length() > 0.05:
+		var target_angle := atan2(direction.x, direction.z)
+		character_visual.rotation.y = lerp_angle(
+			character_visual.rotation.y,
+			target_angle,
+			minf(delta * 12.0, 1.0)
+		)
 	if not is_on_floor():
 		velocity.y -= 22.0 * delta
 	elif Input.is_action_just_pressed("jump") or hud.jump_requested:
