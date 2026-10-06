@@ -1,28 +1,32 @@
 extends SceneTree
 
 func _init():
-print("=== HUMANOID RETARGET API DETAIL ===")
+	print("=== HUMANOID RETARGET API DETAIL ===")
 
-var profile = SkeletonProfileHumanoid.new()
+	print("SkeletonProfileHumanoid class: ", ClassDB.class_exists("SkeletonProfileHumanoid"))
+	print("SkeletonProfile class: ", ClassDB.class_exists("SkeletonProfile"))
+	print("BoneMap class: ", ClassDB.class_exists("BoneMap"))
+	print("SkeletonModifier3D class: ", ClassDB.class_exists("SkeletonModifier3D"))
 
-print("PROFILE_CLASS: ", profile.get_class())
-print("PROFILE_SCRIPT: ", profile.get_script())
+	print("--- SkeletonProfileHumanoid methods ---")
+	for method in ClassDB.class_get_method_list("SkeletonProfileHumanoid"):
+		print("METHOD: ", method.name)
 
-print("--- SkeletonProfile properties ---")
-for p in SkeletonProfileHumanoid.get_property_list():
-print("PROPERTY: ", p.name, " | TYPE: ", p.type, " | USAGE: ", p.usage)
+	print("--- SkeletonProfileHumanoid properties ---")
+	for property in ClassDB.class_get_property_list("SkeletonProfileHumanoid"):
+		print("PROPERTY: ", property.name)
 
-print("--- SkeletonProfileHumanoid methods ---")
-for m in SkeletonProfileHumanoid.get_method_list():
-print("METHOD: ", m.name)
+	print("--- BoneMap methods ---")
+	for method in ClassDB.class_get_method_list("BoneMap"):
+		print("BONEMAP_METHOD: ", method.name)
 
-print("--- BoneMap methods ---")
-for m in BoneMap.get_method_list():
-print("BONEMAP_METHOD: ", m.name)
+	print("--- BoneMap properties ---")
+	for property in ClassDB.class_get_property_list("BoneMap"):
+		print("BONEMAP_PROPERTY: ", property.name)
 
-print("--- SkeletonModifier3D methods ---")
-for m in SkeletonModifier3D.get_method_list():
-print("MODIFIER_METHOD: ", m.name)
+	print("--- SkeletonModifier3D methods ---")
+	for method in ClassDB.class_get_method_list("SkeletonModifier3D"):
+		print("MODIFIER_METHOD: ", method.name)
 
-print("=== END HUMANOID RETARGET API DETAIL ===")
-quit()
+	print("=== END HUMANOID RETARGET API DETAIL ===")
+	quit()
