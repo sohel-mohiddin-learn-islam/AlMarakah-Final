@@ -55,6 +55,13 @@ jobs:
             --path . \
             --script tools/inspect_character.gd
 
+      - name: Upload character inspection report
+        uses: actions/upload-artifact@v4
+        with:
+          name: Quaternius-character-inspection
+          path: character-inspection.txt
+          if-no-files-found: error
+
       - name: Render lobby, settings and both maps/modes
         run: |
           set -o pipefail
