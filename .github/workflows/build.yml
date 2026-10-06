@@ -47,6 +47,14 @@ jobs:
       - name: Import project and run every regression suite
         run: bash tools/test.sh
 
+      - name: Inspect imported Quaternius character
+        run: |
+          godot \
+            --headless \
+            --audio-driver Dummy \
+            --path . \
+            --script tools/inspect_character.gd
+
       - name: Render lobby, settings and both maps/modes
         run: |
           set -o pipefail
