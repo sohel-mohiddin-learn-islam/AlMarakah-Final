@@ -51,7 +51,8 @@ jobs:
           cp scripts/character_animator.gd /tmp/animator-parse/scripts/character_animator.gd
           cp assets/animations/quaternius/AnimationLibrary_Godot_Standard.gltf /tmp/animator-parse/assets/animations/quaternius/AnimationLibrary_Godot_Standard.gltf
           sed -i 's#^const ANIMATION_SCENE.*#const ANIMATION_SCENE = null#' /tmp/animator-parse/scripts/character_animator.gd
-          sed -i 's#source_player = _find_animation_player(ANIMATION_SCENE.instantiate())#source_player = null#' /tmp/animator-parse/scripts/character_animator.gd
+          sed -i 's#var source_scene = ANIMATION_SCENE.instantiate()#var source_scene = null#' /tmp/animator-parse/scripts/character_animator.gd
+          sed -i 's#source_player = _find_animation_player(source_scene)#source_player = null#' /tmp/animator-parse/scripts/character_animator.gd
           cp assets/animations/quaternius/AnimationLibrary_Godot_Standard.bin /tmp/animator-parse/assets/animations/quaternius/AnimationLibrary_Godot_Standard.bin
           printf '%s\n' '[application]' 'config/name="AnimatorParse"' '[rendering]' 'renderer/rendering_method="gl_compatibility"' > /tmp/animator-parse/project.godot
           cp tools/check_character_animator_source.gd /tmp/animator-parse/check.gd
