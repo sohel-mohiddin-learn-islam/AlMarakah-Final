@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: almarakah-${{ github.ref }}
@@ -126,3 +126,12 @@ jobs:
           name: Almarakah-Android-debug
           path: build/android/Almarakah-debug.apk
           if-no-files-found: error
+
+      - name: Publish Android Debug Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-debug-${{ github.run_number }}
+          name: Almarakah Android Debug ${{ github.run_number }}
+          prerelease: true
+          generate_release_notes: false
+          files: build/android/Almarakah-debug.apk
