@@ -29,12 +29,12 @@ func setup(spawn: Vector3) -> void:
     collider.position.y = 0.6
     add_child(collider)
 
-    var mesh := MeshInstance3D.new()
-    var box := BoxMesh.new()
-    box.size = Vector3(1.8, 1.0, 3.6)
-    mesh.mesh = box
-    mesh.position.y = 0.6
-    add_child(mesh)
+    var vehicle_scene = preload("res://assets/vehicles/suv/BattleRoyaleSUV.glb")
+    var vehicle_visual = vehicle_scene.instantiate()
+    vehicle_visual.name = "RealisticSUV"
+    vehicle_visual.position = Vector3(0.0, 0.0, 0.0)
+    vehicle_visual.scale = Vector3.ONE
+    add_child(vehicle_visual)
 
 func enter_vehicle(actor: CharacterBody3D) -> bool:
     if occupied or not is_instance_valid(actor):
