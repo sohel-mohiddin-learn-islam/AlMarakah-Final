@@ -86,13 +86,13 @@ jobs:
       - name: Test Quaternius character retarget skeletons
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_character_retarget.gd
-      - name: Test retarget hierarchy mapping
-      - name: Test manual animation retarget mapping
-        run: |
-          godot --headless --audio-driver Dummy --path . --script tools/test_manual_animation_retarget.gd
+        - name: Test retarget hierarchy mapping
+          run: |
+            godot --headless --audio-driver Dummy --path . --script tools/test_retarget_hierarchy.gd
 
-        run: |
-          godot --headless --audio-driver Dummy --path . --script tools/test_retarget_hierarchy.gd
+        - name: Test manual animation retarget mapping
+          run: |
+            godot --headless --audio-driver Dummy --path . --script tools/test_manual_animation_retarget.gd
 
       - name: Test real Quaternius character animation
         run: |
