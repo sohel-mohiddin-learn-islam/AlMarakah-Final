@@ -171,7 +171,7 @@ func update_state(movement_amount: float, grounded: bool, aiming: bool, sprintin
 		elif movement_amount > 0.15:
 			play("Pistol_Aim_Neutral")
 		else:
-			play("Pistol_Idle")
+			play("Pistol_Aim_Neutral")
 		return
 
 	if sprinting and movement_amount > 0.05:
