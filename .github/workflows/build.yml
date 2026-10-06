@@ -44,9 +44,13 @@ jobs:
       - name: Add Godot to PATH
         run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: DIAGNOSE CHARACTER ANIMATOR PARSER FIRST
+      - name: ISOLATED CHARACTER ANIMATOR SOURCE PARSE
         run: |
-          godot --headless --audio-driver Dummy --path . --script tools/check_character_animator.gd
+          mkdir -p /tmp/animator-parse/scripts
+          cp scripts/character_animator.gd /tmp/animator-parse/scripts/character_animator.gd
+          printf '%s\n' '[application]' 'config/name="AnimatorParse"' '[rendering]' 'renderer/rendering_method="gl_compatibility"' > /tmp/animator-parse/project.godot
+          cp tools/check_character_animator_source.gd /tmp/animator-parse/check.gd
+          godot --headless --audio-driver Dummy --path /tmp/animator-parse --script /tmp/animator-parse/check.gd
 
       - name: Import project and run every regression suite
         run: bash tools/test.sh
