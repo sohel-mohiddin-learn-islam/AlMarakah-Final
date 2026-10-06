@@ -120,6 +120,20 @@ jobs:
           test -s build/android/Almarakah-debug.apk
           ls -lh build/android/Almarakah-debug.apk
 
+      - name: Export Web Game
+        run: |
+          mkdir -p build/web
+          godot --headless --audio-driver Dummy --path . --export-debug "Web" build/web/index.html
+          test -s build/web/index.html
+          ls -lh build/web
+
+      - name: Upload Web Game
+        uses: actions/upload-artifact@v4
+        with:
+          name: Almarakah-Web
+          path: build/web
+          if-no-files-found: error
+
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
