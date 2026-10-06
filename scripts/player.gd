@@ -16,6 +16,8 @@ var reload_seconds: float = 1.7
 var move_speed: float = 7.2
 var move_acceleration: float = 28.0
 var move_deceleration: float = 34.0
+var turn_speed: float = 14.0
+var sprint_turn_speed: float = 9.5
 var ammo: int = 30
 var reserve: int = 180
 var reload_time: float = 0.0
@@ -126,10 +128,11 @@ func _physics_process(delta: float) -> void:
 
 	if character_visual != null and movement.length() > 0.05:
 		var target_angle := atan2(direction.x, direction.z)
+		var current_turn_speed: float = sprint_turn_speed if sprinting else turn_speed
 		character_visual.rotation.y = lerp_angle(
 			character_visual.rotation.y,
 			target_angle,
-			minf(delta * 12.0, 1.0)
+			minf(delta * current_turn_speed, 1.0)
 		)
 	if not is_on_floor():
 		velocity.y -= 22.0 * delta
