@@ -38,6 +38,7 @@ func build(map_id: int, compact: bool = false) -> void:
 	_make_environment()
 	_box(Vector3(0.0, -0.6, 0.0), Vector3(extent * 2.0 + 12.0, 1.2,
 		extent * 2.0 + 12.0), "ground", true, false)
+	_make_terrain()
 	_make_boundaries()
 	if _map_id == 0:
 		_build_dunes()
@@ -191,6 +192,40 @@ func _make_environment() -> void:
 	sun.shadow_enabled = false
 	add_child(sun)
 
+
+func _make_terrain() -> void:
+	var grid_size: int = 18 if _compact else 42
+	var cell_size: float = extent * 2.0 / float(grid_size)
+	var half: float = extent
+
+	for z in range(grid_size):
+		for x in range(grid_size):
+			var px: float = -half + (float(x) + 0.5) * cell_size
+			var pz: float = -half + (float(z) + 0.5) * cell_size
+			var height: float = 0.0
+
+			if _map_id == 0:
+				height = sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4
+				height += sin((px + pz) * 0.025) * 1.1
+			else:
+				height = sin(px * 0.035) * 2.4 + cos(pz * 0.04) * 2.0
+				height += sin((px - pz) * 0.022) * 1.8
+
+			var road_distance: float = minf(absf(px), absf(pz))
+			if road_distance < (4.5 if _map_id == 0 else 3.5):
+				height *= 0.15
+
+			var reserved := false
+			for area in _reserved:
+				if area.has_point(Vector2(px, pz)):
+					reserved = true
+					break
+			if reserved:
+				height *= 0.1
+
+			var material_key: String = "ground"
+			var scale_y: float = maxf(0.25, height + 1.5)
+			_instance("box", Vector3(px, scale_y * 0.5 - 0.2, pz), Vector3(cell_size * 0.92, scale_y, cell_size * 0.92), material_key)
 
 func _make_boundaries() -> void:
 	var span: float = extent * 2.0 + 3.2
