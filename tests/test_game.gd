@@ -124,12 +124,12 @@ func _run() -> void:
 	enemy.position = Vector3(0, 15, -8)
 	await physics_frame
 	game.fire_ray(hero.position + Vector3(0, 1.1, 0), Vector3.FORWARD, hero, 26, 30)
-	check(enemy.health == 74, "hitscan damages enemy")
+	check(enemy.health == 174, "hitscan damages enemy")
 	var ally = game.actors[1]
 	ally.position = Vector3(0, 15, -4)
 	await physics_frame
 	game.fire_ray(hero.position + Vector3(0, 1.1, 0), Vector3.FORWARD, hero, 26, 30)
-	check(ally.health == 100 and enemy.health == 74, "teammate blocks ray without friendly damage")
+	check(ally.health == 200 and enemy.health == 174, "teammate blocks ray without friendly damage")
 	ally.position.x = 20
 	var wall = StaticBody3D.new()
 	wall.collision_layer = 1
@@ -142,7 +142,7 @@ func _run() -> void:
 	wall.position = Vector3(0, 16, -4)
 	await physics_frame
 	game.fire_ray(hero.position + Vector3(0, 1.1, 0), Vector3.FORWARD, hero, 26, 30)
-	check(enemy.health == 74, "solid cover blocks hitscan damage")
+	check(enemy.health == 174, "solid cover blocks hitscan damage")
 	hero.take_damage(1000, enemy)
 	check(is_instance_valid(game.spectator) and game.spectator.current, "player death activates spectator")
 	for actor in game.actors:

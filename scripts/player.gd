@@ -5,7 +5,8 @@ var game: Node
 var hud: CanvasLayer
 var settings: RefCounted
 var team: int = -1
-var health: float = 100.0
+const MAX_HEALTH: float = 200.0
+var health: float = MAX_HEALTH
 var alive: bool = true
 var in_vehicle: bool = false
 var weapon_id: String = "rifle"
@@ -281,6 +282,8 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 	if not alive or amount <= 0:
 		return
 	health = maxf(0, health - amount)
+	if is_instance_valid(hud) and hud.has_method("show_damage_indicator"):
+		hud.show_damage_indicator()
 	if health <= 0:
 		alive = false
 		set_deferred("collision_layer", 0)

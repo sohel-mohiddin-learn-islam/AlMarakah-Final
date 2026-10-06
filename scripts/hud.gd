@@ -305,7 +305,7 @@ func _build_vitals() -> void:
 	health.custom_minimum_size.x = 112
 	health.add_theme_constant_override("separation", 3)
 	_label(health, "HEALTH", 14)
-	health_label = _label(health, "HP 100", 26)
+	health_label = _label(health, "HP 200", 26)
 	health_bar = _bar(health, Color("66e1b3"), 8)
 	var ammunition = _column(row)
 	ammunition.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -408,7 +408,7 @@ func update_status(data: Dictionary) -> void:
 	if mode_text.begins_with("CS"):
 		status.text += "Round %d · %s   |   " % [int(data.get("round", 1)), String(data.get("score", "0 : 0"))]
 	status.text += String(data.get("zone", ""))
-	var health: float = clampf(float(data.get("health", 100)), 0, 100)
+	var health: float = clampf(float(data.get("health", 200)), 0, 200)
 	health_label.text = "HP %d" % ceili(health)
 	health_bar.value = health
 	var health_color: Color = Color("ff9279") if health <= 30 else Color("66e1b3")

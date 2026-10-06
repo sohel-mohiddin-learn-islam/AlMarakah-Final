@@ -171,7 +171,7 @@ func _physics_process(delta: float) -> void:
 		for item in pickups.duplicate():
 			if item.position.distance_squared_to(player.position) < 5.0:
 				player.reserve = mini(player.reserve + 30, player.reserve_capacity)
-				player.health = minf(player.health + 20, 100)
+				player.health = minf(player.health + 20, player.MAX_HEALTH)
 				pickups.erase(item)
 				item.queue_free()
 
