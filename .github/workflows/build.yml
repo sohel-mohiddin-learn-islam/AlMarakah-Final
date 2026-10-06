@@ -47,7 +47,10 @@ jobs:
       - name: ISOLATED CHARACTER ANIMATOR SOURCE PARSE
         run: |
           mkdir -p /tmp/animator-parse/scripts
+          mkdir -p /tmp/animator-parse/assets/animations/quaternius
           cp scripts/character_animator.gd /tmp/animator-parse/scripts/character_animator.gd
+          cp assets/animations/quaternius/AnimationLibrary_Godot_Standard.gltf /tmp/animator-parse/assets/animations/quaternius/AnimationLibrary_Godot_Standard.gltf
+          cp assets/animations/quaternius/AnimationLibrary_Godot_Standard.bin /tmp/animator-parse/assets/animations/quaternius/AnimationLibrary_Godot_Standard.bin
           printf '%s\n' '[application]' 'config/name="AnimatorParse"' '[rendering]' 'renderer/rendering_method="gl_compatibility"' > /tmp/animator-parse/project.godot
           cp tools/check_character_animator_source.gd /tmp/animator-parse/check.gd
           godot --headless --audio-driver Dummy --path /tmp/animator-parse --script /tmp/animator-parse/check.gd
