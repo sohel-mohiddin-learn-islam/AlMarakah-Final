@@ -5,6 +5,7 @@ const Settings = preload("res://scripts/settings.gd")
 const Arena = preload("res://scripts/arena.gd")
 const Bot = preload("res://scripts/bot.gd")
 const Player = preload("res://scripts/player.gd")
+const Vehicle = preload("res://scripts/vehicle.gd")
 const HUD = preload("res://scripts/hud.gd")
 
 var settings: RefCounted
@@ -30,6 +31,7 @@ var intermission: float = 0.0
 var zone_visual: MeshInstance3D
 var spectator: Camera3D
 var pickups: Array[Node3D] = []
+var vehicles: Array[Node3D] = []
 var tracer_count: int = 0
 
 func _ready() -> void:
@@ -73,6 +75,7 @@ func _clear_world() -> void:
 	intermission = 0
 	actors.clear()
 	pickups.clear()
+	vehicles.clear()
 	player = null
 	spectator = null
 	zone_visual = null
@@ -88,6 +91,7 @@ func _begin_round() -> void:
 	arena = Arena.new()
 	world.add_child(arena)
 	arena.build(map_id, is_cs)
+	_spawn_vehicles()
 	zone_radius = arena.extent
 	elapsed = 0
 	damage_clock = 0
@@ -110,6 +114,12 @@ func _begin_round() -> void:
 	if not OS.has_feature("mobile") and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_update_hud()
+
+func _spawn_vehicles() -> void:
+	var vehicle := Vehicle.new()
+	world.add_child(vehicle)
+	vehicle.setup(Vector3(8.0, 1.0, 8.0))
+	vehicles.append(vehicle)
 
 func return_to_menu() -> void:
 	_clear_world()
