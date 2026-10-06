@@ -112,3 +112,17 @@ jobs:
       - name: Test real Quaternius character animation
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_real_character_animation.gd
+
+      - name: Export Android APK
+        run: |
+          mkdir -p build/android
+          godot --headless --audio-driver Dummy --path . --export-debug "Android" build/android/Almarakah-debug.apk
+          test -s build/android/Almarakah-debug.apk
+          ls -lh build/android/Almarakah-debug.apk
+
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Almarakah-Android-debug
+          path: build/android/Almarakah-debug.apk
+          if-no-files-found: error
