@@ -71,6 +71,10 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_bonemap.gd
 
+      - name: Test Quaternius character retarget skeletons
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/test_character_retarget.gd
+
       - name: Inspect Quaternius animation library
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
