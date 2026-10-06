@@ -63,6 +63,10 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_retarget_modifier_properties.gd
 
+      - name: Inspect Skeleton3D retarget API
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/inspect_skeleton_retarget_api.gd
+
       - name: Inspect RetargetModifier3D API
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_retarget_modifier.gd
