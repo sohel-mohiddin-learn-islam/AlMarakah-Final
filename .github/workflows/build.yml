@@ -10,6 +10,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: almarakah-${{ github.ref }}
@@ -133,6 +135,15 @@ jobs:
           name: Almarakah-Web
           path: build/web
           if-no-files-found: error
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+      - name: Deploy Web Game
+        id: deployment
+        uses: actions/deploy-pages@v4
 
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
