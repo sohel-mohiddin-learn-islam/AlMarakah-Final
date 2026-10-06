@@ -68,6 +68,9 @@ func _init():
 
     print("TRACK_COUNT: ", source_animation.get_track_count())
 
+    for i in range(mini(source_animation.get_track_count(), 20)):
+        print("TRACK[", i, "] TYPE=", source_animation.track_get_type(i), " PATH=", source_animation.track_get_path(i))
+
     var mapped = 0
     var skipped = 0
 
