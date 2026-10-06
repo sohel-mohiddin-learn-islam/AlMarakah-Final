@@ -28,6 +28,8 @@ var camera: Camera3D
 var arm: SpringArm3D
 var body: Node3D
 var sound: AudioStreamPlayer
+var muzzle_flash: MeshInstance3D
+var muzzle_flash_time: float = 0.0
 var animator: Node
 var character_visual: Node3D
 var mouse_look: Vector2 = Vector2.ZERO
@@ -75,6 +77,7 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
 	camera.far = 380
 	arm.add_child(camera)
 	camera.make_current()
+	_create_muzzle_flash()
 	sound = AudioStreamPlayer.new()
 	sound.volume_db = -18
 	sound.stream = _shot_sound()
@@ -160,6 +163,11 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("reload") or hud.reload_requested:
 		reload_weapon()
 	hud.reload_requested = false
+	if muzzle_flash_time > 0.0:
+		muzzle_flash_time = maxf(0.0, muzzle_flash_time - delta)
+		if muzzle_flash_time <= 0.0 and is_instance_valid(muzzle_flash):
+			muzzle_flash.visible = false
+
 	var fire: bool = hud.firing or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
 	if fire and shot_time <= 0 and reload_time <= 0:
 		if ammo > 0:
@@ -190,6 +198,9 @@ func _configure_loadout() -> void:
 func _shoot() -> void:
 	if animator != null:
 		animator.play_shoot()
+	if is_instance_valid(muzzle_flash):
+		muzzle_flash.visible = true
+		muzzle_flash_time = 0.05
 	ammo -= 1
 	shot_time = fire_interval
 	var forward: Vector3 = -camera.global_basis.z
@@ -233,3 +244,24 @@ func _shot_sound() -> AudioStreamWAV:
 		bytes[i] = sample & 255
 	stream.data = bytes
 	return stream
+
+
+func _create_muzzle_flash() -> void:
+	if not is_instance_valid(camera):
+		return
+	muzzle_flash = MeshInstance3D.new()
+	muzzle_flash.name = "MuzzleFlash"
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.09
+	mesh.height = 0.18
+	muzzle_flash.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = Color(1.0, 0.72, 0.18, 1.0)
+	material.emission_enabled = true
+	material.emission = Color(1.0, 0.45, 0.05, 1.0)
+	material.emission_energy_multiplier = 8.0
+	muzzle_flash.material_override = material
+	muzzle_flash.position = Vector3(0.22, -0.12, -0.75)
+	muzzle_flash.visible = false
+	camera.add_child(muzzle_flash)
