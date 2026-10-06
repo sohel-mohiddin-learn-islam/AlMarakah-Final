@@ -172,12 +172,8 @@ func update_state(movement_amount: float, grounded: bool, aiming: bool, delta: f
 
 	if movement_amount < 0.05:
 		play("Idle")
-	elif movement_amount < 0.75:
-		play("Walk")
-	elif movement_amount < 1.5:
-		play("Jog_Fwd")
 	else:
-		play("Sprint")
+		play("Jog_Fwd")
 
 func velocity_is_falling() -> bool:
 	if character == null:
