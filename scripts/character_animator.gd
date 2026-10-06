@@ -148,7 +148,7 @@ func play(animation_name: String, blend: float = 0.12) -> void:
 	current_animation = animation_name
 	animation_player.play(animation_name, blend)
 
-func update_state(movement_amount: float, grounded: bool, aiming: bool, delta: float) -> void:
+func update_state(movement_amount: float, grounded: bool, aiming: bool, sprinting: bool, delta: float) -> void:
 	if not initialized:
 		return
 
@@ -170,7 +170,9 @@ func update_state(movement_amount: float, grounded: bool, aiming: bool, delta: f
 			play("Pistol_Idle")
 		return
 
-	if movement_amount < 0.05:
+	if sprinting and movement_amount > 0.05:
+		play("Sprint")
+	elif movement_amount < 0.05:
 		play("Idle")
 	else:
 		play("Jog_Fwd")

@@ -98,6 +98,8 @@ func _physics_process(delta: float) -> void:
 		mouse_look = Vector2.ZERO
 		return
 	ads = hud.aiming or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT))
+	if ads and hud.sprinting:
+		hud.sprinting = false
 	var sensitivity: float = float(settings.data.ads_sensitivity if ads else settings.data.camera_sensitivity)
 	var look: Vector2 = hud.look_delta + mouse_look
 	hud.look_delta = Vector2.ZERO
@@ -111,7 +113,8 @@ func _physics_process(delta: float) -> void:
 	var movement: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back") + hud.move_vector
 	movement = movement.limit_length()
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
-	var speed: float = move_speed * (0.58 if ads else 1.0)
+	var sprinting: bool = hud.sprinting and not ads and movement.length() > 0.05
+	var speed: float = move_speed * (1.35 if sprinting else (0.58 if ads else 1.0))
 	velocity.x = direction.x * speed
 	velocity.z = direction.z * speed
 
@@ -140,7 +143,7 @@ func _physics_process(delta: float) -> void:
 		elif not is_on_floor():
 			animator.play("Jump")
 		else:
-			animator.update_state(movement.length(), true, ads, delta)
+			animator.update_state(movement.length(), true, ads, sprinting, delta)
 
 	if global_position.y < -12:
 		take_damage(1000)

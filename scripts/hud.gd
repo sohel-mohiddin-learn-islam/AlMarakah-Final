@@ -9,9 +9,9 @@ const LOADOUT_LABELS = {"rifle": "Rifle", "smg": "SMG", "marksman": "Marksman"}
 
 const POSITIONS = {
 	"move": [0.14, 0.75], "fire": [0.88, 0.63], "ads": [0.75, 0.57],
-	"jump": [0.89, 0.84], "reload": [0.74, 0.83],
+	"jump": [0.89, 0.84], "reload": [0.74, 0.83], "sprint": [0.60, 0.83],
 }
-const CAPTIONS = {"move": "MOVE", "fire": "FIRE", "ads": "ADS", "jump": "JUMP", "reload": "RELOAD"}
+const CAPTIONS = {"move": "MOVE", "fire": "FIRE", "ads": "ADS", "jump": "JUMP", "reload": "RELOAD", "sprint": "SPRINT"}
 
 var move_vector: Vector2 = Vector2.ZERO
 var look_delta: Vector2 = Vector2.ZERO
@@ -19,6 +19,7 @@ var firing: bool = false
 var aiming: bool = false
 var jump_requested: bool = false
 var reload_requested: bool = false
+var sprinting: bool = false
 var settings: RefCounted
 var root: Control
 var lobby: PanelContainer
@@ -540,13 +541,16 @@ func _touch_start(index: int, point: Vector2) -> bool:
 		return true
 	touches[index] = action
 	match action:
-		"move": _move_stick(point)
+		"move":
+			sprinting = false
+			_move_stick(point)
 		"fire": firing = true
 		"ads":
 			aiming = not aiming
 			_refresh_aim()
 		"jump": jump_requested = true
 		"reload": reload_requested = true
+		"sprint": sprinting = not sprinting
 	return true
 
 func _touch_end(index: int) -> bool:
