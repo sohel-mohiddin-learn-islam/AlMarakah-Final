@@ -131,9 +131,15 @@ func _physics_process(delta: float) -> void:
     if absf(speed) > 0.2:
         rotation.y -= steering * steering_speed * delta * signf(speed)
 
+    if not is_on_floor():
+        velocity.y -= 24.0 * delta
+    else:
+        velocity.y = -0.5
+
     _update_wheels(delta)
 
-    velocity = -global_transform.basis.z * speed
+    velocity.x = -global_transform.basis.z.x * speed
+    velocity.z = -global_transform.basis.z.z * speed
     move_and_slide()
 
 func _update_wheels(delta: float) -> void:
