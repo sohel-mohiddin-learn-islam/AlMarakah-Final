@@ -29,7 +29,7 @@ func setup(spawn: Vector3) -> void:
     collider.position.y = 0.6
     add_child(collider)
 
-    var vehicle_scene = preload("res://assets/vehicles/suv/BattleRoyaleSUV.glb")
+    var vehicle_scene = preload("res://assets/vehicles/suv/AlMarakahSUV.glb")
     var vehicle_visual = vehicle_scene.instantiate()
     vehicle_visual.name = "RealisticSUV"
     vehicle_visual.position = Vector3(0.0, 0.0, 0.0)
