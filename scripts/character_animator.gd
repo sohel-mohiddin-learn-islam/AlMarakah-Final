@@ -126,7 +126,7 @@ func _retarget_animation(source_animation: Animation) -> Animation:
 			source_animation.track_get_interpolation_loop_wrap(i)
 		)
 
-		for k in range(source_animation.get_key_count(i)):
+		for k in range(source_animation.track_get_key_count(i)):
 			retargeted.track_insert_key(
 				new_track,
 				source_animation.track_get_key_time(i, k),
