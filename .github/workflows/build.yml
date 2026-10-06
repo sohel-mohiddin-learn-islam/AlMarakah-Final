@@ -67,6 +67,10 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_humanoid_bones.gd
 
+      - name: Test Godot humanoid BoneMap mapping
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/test_bonemap.gd
+
       - name: Inspect Quaternius animation library
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
