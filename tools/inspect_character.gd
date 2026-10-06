@@ -1,5 +1,7 @@
 extends SceneTree
 
+var output := ""
+
 func _init():
 	var scene = load("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
 
@@ -9,17 +11,22 @@ func _init():
 		return
 
 	var instance = scene.instantiate()
-
-	print("=== ALMARAKAH CHARACTER INSPECT ===")
-	print("ROOT: ", instance.name)
+	output += "=== ALMARAKAH CHARACTER INSPECT ===\n"
+	output += "ROOT: %s\n" % instance.name
 	_print_tree(instance, 0)
-	print("=== END CHARACTER INSPECT ===")
+	output += "=== END CHARACTER INSPECT ===\n"
+	print(output)
+
+	var file = FileAccess.open("character-inspection.txt", FileAccess.WRITE)
+	if file:
+		file.store_string(output)
+		file.close()
 
 	instance.free()
 	quit()
 
 func _print_tree(node: Node, depth: int) -> void:
-	print("%s%s [%s]" % ["  ".repeat(depth), node.name, node.get_class()])
+	output += "%s%s [%s]\n" % ["  ".repeat(depth), node.name, node.get_class()]
 
 	for child in node.get_children():
 		_print_tree(child, depth + 1)
