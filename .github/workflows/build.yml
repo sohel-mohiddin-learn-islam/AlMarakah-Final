@@ -55,6 +55,10 @@ jobs:
             --path . \
             --script tools/inspect_character.gd
 
+      - name: Inspect Godot retarget API
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/inspect_retarget_api.gd
+
       - name: Inspect Quaternius animation library
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
