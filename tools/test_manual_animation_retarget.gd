@@ -77,11 +77,11 @@ func _init():
     for track_index in range(source_animation.get_track_count()):
         var path = source_animation.track_get_path(track_index)
 
-        if path.get_name_count() < 2:
+        if path.get_subname_count() < 1:
             skipped += 1
             continue
 
-        var bone_name = str(path.get_name(path.get_name_count() - 1))
+        var bone_name = str(path.get_subname(0))
 
         if BONE_MAP.has(bone_name):
             var target_bone = BONE_MAP[bone_name]
