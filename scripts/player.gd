@@ -133,8 +133,8 @@ func _physics_process(delta: float) -> void:
 	rig.rotation = Vector3(pitch, yaw, 0)
 	var body_turn_rate: float = ads_body_turn_speed if ads else body_turn_speed
 	body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
-	camera.fov = lerpf(camera.fov, 49.0 if ads else 75.0, minf(delta * 12.0, 1.0))
-	arm.spring_length = lerpf(arm.spring_length, 2.6 if ads else 4.2, minf(delta * 10.0, 1.0))
+	camera.fov = lerpf(camera.fov, 46.0 if ads else 75.0, minf(delta * 12.0, 1.0))
+	arm.spring_length = lerpf(arm.spring_length, 2.35 if ads else 4.2, minf(delta * 10.0, 1.0))
 	var movement: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back") + hud.move_vector
 	movement = movement.limit_length()
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
