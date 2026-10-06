@@ -20,6 +20,7 @@ var wheel_front_left: Node3D = null
 var wheel_front_right: Node3D = null
 var wheel_back_left: Node3D = null
 var wheel_back_right: Node3D = null
+var vehicle_camera: Camera3D = null
 
 func setup(spawn: Vector3) -> void:
     global_position = spawn
@@ -46,6 +47,14 @@ func setup(spawn: Vector3) -> void:
     wheel_back_left = vehicle_visual.get_node_or_null("wheel-back-left")
     wheel_back_right = vehicle_visual.get_node_or_null("wheel-back-right")
 
+    vehicle_camera = Camera3D.new()
+    vehicle_camera.name = "VehicleCamera"
+    vehicle_camera.position = Vector3(0.0, 2.4, 6.5)
+    vehicle_camera.rotation_degrees = Vector3(-8.0, 0.0, 0.0)
+    vehicle_camera.fov = 78.0
+    vehicle_camera.far = 380.0
+    add_child(vehicle_camera)
+
 func enter_vehicle(actor: CharacterBody3D) -> bool:
     if occupied or not is_instance_valid(actor):
         return false
@@ -57,6 +66,12 @@ func enter_vehicle(actor: CharacterBody3D) -> bool:
     actor.reparent(self)
     actor.position = Vector3(0.0, 1.25, 0.25)
     actor.rotation = Vector3.ZERO
+
+    if actor.has_method("set_vehicle_visual_visible"):
+        actor.set_vehicle_visual_visible(false)
+
+    if is_instance_valid(vehicle_camera):
+        vehicle_camera.make_current()
 
     return true
 
@@ -78,6 +93,12 @@ func exit_vehicle() -> CharacterBody3D:
 
     actor.global_position = exit_position
     actor.rotation.y = rotation.y
+
+    if actor.has_method("set_vehicle_visual_visible"):
+        actor.set_vehicle_visual_visible(true)
+
+    if actor.has_method("restore_player_camera"):
+        actor.restore_player_camera()
 
     driver = null
     driver_parent = null
