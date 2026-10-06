@@ -135,7 +135,7 @@ func _retarget_animation(source_animation: Animation) -> Animation:
 
 	return retargeted
 
-func play(animation_name: String, blend: float = 0.12) -> void:
+func play(animation_name: String, blend: float = 0.20) -> void:
 	if not initialized or animation_player == null:
 		return
 
@@ -148,7 +148,7 @@ func play(animation_name: String, blend: float = 0.12) -> void:
 	current_animation = animation_name
 	animation_player.play(animation_name, blend)
 
-func update_state(movement_amount: float, grounded: bool, aiming: bool, sprinting: bool, delta: float) -> void:
+func update_state(movement_amount: float, grounded: bool, aiming: bool, sprinting: bool, delta: float, aim_pitch: float = 0.0) -> void:
 	if not initialized:
 		return
 
@@ -164,7 +164,11 @@ func update_state(movement_amount: float, grounded: bool, aiming: bool, sprintin
 		return
 
 	if aiming:
-		if movement_amount > 0.15:
+		if aim_pitch < -0.28:
+			play("Pistol_Aim_Up")
+		elif aim_pitch > 0.28:
+			play("Pistol_Aim_Down")
+		elif movement_amount > 0.15:
 			play("Pistol_Aim_Neutral")
 		else:
 			play("Pistol_Idle")
@@ -174,6 +178,8 @@ func update_state(movement_amount: float, grounded: bool, aiming: bool, sprintin
 		play("Sprint")
 	elif movement_amount < 0.05:
 		play("Idle")
+	elif movement_amount < 0.35:
+		play("Walk")
 	else:
 		play("Jog_Fwd")
 

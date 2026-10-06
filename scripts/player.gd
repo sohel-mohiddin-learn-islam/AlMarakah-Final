@@ -149,7 +149,7 @@ func _physics_process(delta: float) -> void:
 		elif not is_on_floor():
 			animator.play("Jump")
 		else:
-			animator.update_state(movement.length(), true, ads, sprinting, delta)
+			animator.update_state(movement.length(), true, ads, sprinting, delta, pitch)
 
 	if global_position.y < -12:
 		take_damage(1000)
