@@ -118,9 +118,15 @@ func _begin_round() -> void:
 func _spawn_vehicles() -> void:
 	var vehicle := Vehicle.new()
 	world.add_child(vehicle)
-	vehicle.setup(Vector3(8.0, 1.0, 8.0))
-	vehicles.append(vehicle)
 
+	var spawn_position := Vector3(8.0, 1.0, 8.0)
+	if is_instance_valid(arena):
+		var points: Array[Vector3] = arena.spawn_points(2, is_cs)
+		if points.size() >= 2:
+			spawn_position = points[1]
+
+	vehicle.setup(spawn_position)
+	vehicles.append(vehicle)
 func return_to_menu() -> void:
 	_clear_world()
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
