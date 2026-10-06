@@ -16,7 +16,8 @@ static var _uniforms: Array[StandardMaterial3D] = []
 static var _dark_material: StandardMaterial3D
 
 var game: Node
-var health: float = 100.0
+const MAX_HEALTH: float = 200.0
+var health: float = MAX_HEALTH
 var team: int = -1
 var alive: bool = true
 
@@ -47,7 +48,7 @@ func setup(game_ref: Node, spawn_position: Vector3, team_id: int) -> void:
 	# The caller adds us to the tree before setup, so global_position and RID are valid.
 	game = game_ref
 	team = team_id
-	health = 100.0
+	health = MAX_HEALTH
 	alive = true
 	global_position = spawn_position
 	velocity = Vector3.ZERO
