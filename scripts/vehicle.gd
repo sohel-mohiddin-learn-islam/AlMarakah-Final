@@ -111,8 +111,15 @@ func _physics_process(delta: float) -> void:
         return
 
     throttle = Input.get_axis("vehicle_reverse", "vehicle_accelerate")
-    brake = 1.0 if Input.is_action_pressed("vehicle_brake") else 0.0
     steering = Input.get_axis("vehicle_right", "vehicle_left")
+    brake = 1.0 if Input.is_action_pressed("vehicle_brake") else 0.0
+
+    var driver_hud = driver.get("hud") if is_instance_valid(driver) else null
+    if driver_hud != null:
+        var mobile_move: Vector2 = driver_hud.move_vector
+        if mobile_move.length() > 0.05:
+            throttle = -mobile_move.y
+            steering = -mobile_move.x
 
     speed = move_toward(speed, throttle * max_speed, acceleration * delta)
 
