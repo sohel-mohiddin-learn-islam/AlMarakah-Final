@@ -59,6 +59,10 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_retarget_api.gd
 
+      - name: Inspect detailed humanoid retarget API
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/inspect_humanoid_profile.gd
+
       - name: Inspect Quaternius animation library
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
