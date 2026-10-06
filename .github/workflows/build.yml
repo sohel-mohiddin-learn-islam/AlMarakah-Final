@@ -92,6 +92,9 @@ jobs:
           echo "=== RUNNING REAL WALK ANIMATION TRANSFER TEST ==="
           godot --headless --audio-driver Dummy --path . --script tools/test_manual_animation_retarget.gd
 
+      - name: DIAGNOSE CHARACTER ANIMATOR PARSER
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/check_character_animator.gd
       - name: Test real Quaternius character animation
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_real_character_animation.gd
