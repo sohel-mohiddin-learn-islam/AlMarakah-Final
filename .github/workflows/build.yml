@@ -87,8 +87,9 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_retarget_hierarchy.gd
 
-      - name: Test manual animation retarget mapping
+      - name: TEST REAL WALK ANIMATION TRANSFER
         run: |
+          echo "=== RUNNING REAL WALK ANIMATION TRANSFER TEST ==="
           godot --headless --audio-driver Dummy --path . --script tools/test_manual_animation_retarget.gd
 
       - name: Test real Quaternius character animation
