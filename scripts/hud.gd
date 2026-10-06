@@ -542,7 +542,6 @@ func _touch_start(index: int, point: Vector2) -> bool:
 	touches[index] = action
 	match action:
 		"move":
-			sprinting = false
 			_move_stick(point)
 		"fire": firing = true
 		"ads":
