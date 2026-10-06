@@ -14,6 +14,8 @@ var weapon_damage: float = 26.0
 var fire_interval: float = 0.14
 var reload_seconds: float = 1.7
 var move_speed: float = 7.2
+var move_acceleration: float = 28.0
+var move_deceleration: float = 34.0
 var ammo: int = 30
 var reserve: int = 180
 var reload_time: float = 0.0
@@ -115,8 +117,9 @@ func _physics_process(delta: float) -> void:
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
 	var sprinting: bool = hud.sprinting and not ads and movement.length() > 0.05
 	var speed: float = move_speed * (1.35 if sprinting else (0.58 if ads else 1.0))
-	velocity.x = direction.x * speed
-	velocity.z = direction.z * speed
+	var acceleration: float = move_acceleration if movement.length() > 0.05 else move_deceleration
+	velocity.x = move_toward(velocity.x, direction.x * speed, acceleration * delta)
+	velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
 
 	if character_visual != null and movement.length() > 0.05:
 		var target_angle := atan2(direction.x, direction.z)
