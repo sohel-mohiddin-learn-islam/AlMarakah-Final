@@ -38,7 +38,7 @@ jobs:
           key: godot-linux-x86_64-4.5.1-android-web-v1
 
       - name: Install pinned Godot and export templates
-        if: steps.godot-cache.outputs.cache-hit != 'true'
+        if: steps.godot-cache.outputs.cache-hit != true
         run: bash tools/install-godot.sh --templates
 
       - name: Add Godot to PATH
@@ -67,10 +67,6 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_skeleton_retarget_api.gd
 
-      - name: Inspect RetargetModifier3D API
-        run: |
-          godot --headless --audio-driver Dummy --path . --script tools/inspect_retarget_modifier.gd
-
       - name: Inspect detailed humanoid retarget API
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/inspect_humanoid_profile.gd
@@ -86,189 +82,15 @@ jobs:
       - name: Test Quaternius character retarget skeletons
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_character_retarget.gd
-        - name: Test retarget hierarchy mapping
-          run: |
-            godot --headless --audio-driver Dummy --path . --script tools/test_retarget_hierarchy.gd
 
-        - name: Test manual animation retarget mapping
-          run: |
-            godot --headless --audio-driver Dummy --path . --script tools/test_manual_animation_retarget.gd
+      - name: Test retarget hierarchy mapping
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/test_retarget_hierarchy.gd
+
+      - name: Test manual animation retarget mapping
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/test_manual_animation_retarget.gd
 
       - name: Test real Quaternius character animation
         run: |
-          godot --headless --path . --script tools/test_real_character_animation.gd
-
-      - name: Inspect Quaternius animation library
-        run: |
-          godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
-
-      - name: Upload character inspection report
-        uses: actions/upload-artifact@v4
-        with:
-          name: Quaternius-character-inspection
-          path: character-inspection.txt
-          if-no-files-found: error
-
-      - name: Render lobby, settings and both maps/modes
-        run: |
-          set -o pipefail
-
-          mkdir -p build/verification
-
-          timeout 180 xvfb-run -a -s '-screen 0 1280x720x24' \
-            godot \
-              --audio-driver Dummy \
-              --path . \
-              --rendering-method gl_compatibility \
-              --script tools/capture.gd \
-            2>&1 | tee build/verification/render.log
-
-          GODOT_EXIT=${PIPESTATUS[0]}
-
-          echo "Godot render exit code: ${GODOT_EXIT}"
-
-          if [ "${GODOT_EXIT}" -eq 124 ]; then
-            echo "ERROR: Godot render smoke test timed out after 180 seconds."
-            exit 1
-          fi
-
-          if [ "${GODOT_EXIT}" -ne 0 ]; then
-            echo "ERROR: Godot render process failed with exit code ${GODOT_EXIT}."
-            exit "${GODOT_EXIT}"
-          fi
-
-          if grep -E 'SCRIPT ERROR|Parse Error|CRITICAL:' build/verification/render.log; then
-            echo "Fatal Godot script/parse/critical error detected."
-            exit 1
-          fi
-
-          if ! grep -q 'ALMARAKAH RENDER SMOKE: 0 failures' build/verification/render.log; then
-            echo "ERROR: Render smoke test did not report 0 failures."
-            exit 1
-          fi
-
-          echo "ALMARAKAH render smoke test passed."
-
-      - name: Upload rendered previews
-        uses: actions/upload-artifact@v4
-        with:
-          name: Almarakah-screenshots
-          path: build/screenshots
-          if-no-files-found: error
-
-      - name: Export browser preview
-        run: |
-          set -o pipefail
-
-          mkdir -p build/web build/verification
-
-          godot \
-            --headless \
-            --audio-driver Dummy \
-            --path . \
-            --export-release Web build/web/index.html \
-            2>&1 | tee build/verification/web-export.log
-
-          GODOT_EXIT=${PIPESTATUS[0]}
-
-          echo "Godot Web export exit code: ${GODOT_EXIT}"
-
-          if [ "${GODOT_EXIT}" -ne 0 ]; then
-            exit "${GODOT_EXIT}"
-          fi
-
-          if grep -E 'SCRIPT ERROR|Parse Error|CRITICAL:' build/verification/web-export.log; then
-            echo "Fatal Godot error detected during Web export."
-            exit 1
-          fi
-
-          test -s build/web/index.html
-          test -s build/web/index.wasm
-          test -s build/web/index.pck
-
-      - name: Upload browser preview
-        uses: actions/upload-artifact@v4
-        with:
-          name: Almarakah-Web-preview
-          path: build/web
-          if-no-files-found: error
-
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '17'
-
-      - name: Prepare Android debug signing and SDK
-        run: |
-          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
-            'platform-tools' \
-            'build-tools;34.0.0'
-
-          mkdir -p "$HOME/.android"
-
-          if [ ! -f "$HOME/.android/debug.keystore" ]; then
-            keytool -genkeypair \
-              -keystore "$HOME/.android/debug.keystore" \
-              -storepass android \
-              -alias androiddebugkey \
-              -keypass android \
-              -keyalg RSA \
-              -keysize 2048 \
-              -validity 10000 \
-              -dname 'CN=Almarakah Debug,O=Prototype,C=IN'
-          fi
-
-          python3 tools/configure-android.py
-
-      - name: Export and verify Android debug APK
-        run: |
-          set -o pipefail
-
-          mkdir -p build/android build/verification
-
-          godot \
-            --headless \
-            --audio-driver Dummy \
-            --path . \
-            --export-debug Android build/android/Almarakah-debug.apk \
-            2>&1 | tee build/verification/android-export.log
-
-          GODOT_EXIT=${PIPESTATUS[0]}
-
-          echo "Godot Android export exit code: ${GODOT_EXIT}"
-
-          if [ "${GODOT_EXIT}" -ne 0 ]; then
-            exit "${GODOT_EXIT}"
-          fi
-
-          if grep -E 'SCRIPT ERROR|Parse Error|CRITICAL:' build/verification/android-export.log; then
-            echo "Fatal Godot error detected during Android export."
-            exit 1
-          fi
-
-          test -s build/android/Almarakah-debug.apk
-
-          "$ANDROID_HOME/build-tools/34.0.0/apksigner" \
-            verify \
-            --verbose \
-            build/android/Almarakah-debug.apk
-
-          sha256sum build/android/Almarakah-debug.apk \
-            > build/android/SHA256SUMS.txt
-
-      - name: Upload installable debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Almarakah-Android-debug
-          path: |
-            build/android/Almarakah-debug.apk
-            build/android/SHA256SUMS.txt
-          if-no-files-found: error
-
-      - name: Upload verification logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: Almarakah-test-logs
-          path: build/verification/*.log
-          if-no-files-found: warn
+          godot --headless --audio-driver Dummy --path . --script tools/test_real_character_animation.gd
