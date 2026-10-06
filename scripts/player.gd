@@ -37,15 +37,15 @@ var muzzle_flash: MeshInstance3D
 var muzzle_flash_time: float = 0.0
 var animator: Node
 var character_visual: Node3D
+var mouse_look: Vector2 = Vector2.ZERO
 
 func set_vehicle_visual_visible(value: bool) -> void:
-    if is_instance_valid(character_visual):
-        character_visual.visible = value
+	if is_instance_valid(character_visual):
+		character_visual.visible = value
 
 func restore_player_camera() -> void:
-    if is_instance_valid(camera):
-        camera.make_current()
-var mouse_look: Vector2 = Vector2.ZERO
+	if is_instance_valid(camera):
+		camera.make_current()
 
 func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
 	game = game_ref
