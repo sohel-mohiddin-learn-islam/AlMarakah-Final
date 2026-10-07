@@ -42,6 +42,12 @@ var character_visual: Node3D
 var mouse_look: Vector2 = Vector2.ZERO
 var network_movement: Vector2 = Vector2.ZERO
 var network_input_received: bool = false
+var network_position: Vector3 = Vector3.ZERO
+var network_velocity: Vector3 = Vector3.ZERO
+var network_yaw: float = 0.0
+var network_pitch: float = -0.12
+var network_alive: bool = true
+
 
 func set_vehicle_visual_visible(value: bool) -> void:
 	if is_instance_valid(character_visual):
@@ -104,6 +110,11 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int, peer_id: int = 0) -> vo
 	# Team 1 faces toward the middle as well.
 	yaw = PI if spawn.z < 0 else 0.0
 	rig.rotation = Vector3(pitch, yaw, 0)
+	network_position = global_position
+	network_velocity = velocity
+	network_yaw = yaw
+	network_pitch = pitch
+	network_alive = alive
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not alive or not is_instance_valid(game) or not game.match_active:
@@ -132,15 +143,39 @@ func receive_network_movement(input_vector: Vector2) -> void:
 	network_movement = input_vector.limit_length()
 	network_input_received = true
 
+@rpc("authority", "unreliable", "call_remote")
+func receive_network_snapshot(snapshot_position: Vector3, snapshot_velocity: Vector3, snapshot_yaw: float, snapshot_pitch: float, snapshot_alive: bool) -> void:
+	if not is_instance_valid(game) or not game.networked_match:
+		return
+	if multiplayer.get_remote_sender_id() != 1:
+		return
+	if network_peer_id == multiplayer.get_unique_id():
+		return
+	network_position = snapshot_position
+	network_velocity = snapshot_velocity
+	network_yaw = snapshot_yaw
+	network_pitch = snapshot_pitch
+	network_alive = snapshot_alive
+
 func _simulation_movement_input() -> Vector2:
 	if is_instance_valid(game) and game.networked_match and multiplayer.is_server() and network_input_received and network_peer_id != multiplayer.get_unique_id():
 		return network_movement
 	return _get_movement_input()
 
+func _is_local_player() -> bool:
+	return network_peer_id == multiplayer.get_unique_id()
+
 func _send_network_movement() -> void:
 	if not is_instance_valid(game) or not game.networked_match or multiplayer.is_server():
 		return
 	receive_network_movement.rpc_id(1, _get_movement_input())
+
+func _send_network_snapshot() -> void:
+	if not is_instance_valid(game) or not game.networked_match or not multiplayer.is_server():
+		return
+	var snapshot := [global_position, velocity, yaw, pitch, alive]
+	for peer_id in multiplayer.get_peers():
+		receive_network_snapshot.rpc_id(peer_id, snapshot[0], snapshot[1], snapshot[2], snapshot[3], snapshot[4])
 
 func _physics_process(delta: float) -> void:
 	if not alive or not is_instance_valid(game) or not game.match_active:
@@ -149,6 +184,17 @@ func _physics_process(delta: float) -> void:
 
 	if in_vehicle:
 		velocity = Vector3.ZERO
+		return
+
+	if game.networked_match and not multiplayer.is_server() and not _is_local_player():
+		global_position = global_position.lerp(network_position, minf(delta * 14.0, 1.0))
+		velocity = network_velocity
+		yaw = lerp_angle(yaw, network_yaw, minf(delta * 14.0, 1.0))
+		pitch = lerpf(pitch, network_pitch, minf(delta * 14.0, 1.0))
+		alive = network_alive
+		rig.rotation = Vector3(pitch, yaw, 0)
+		if is_instance_valid(body):
+			body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_speed, 1.0))
 		return
 
 	_send_network_movement()
@@ -192,6 +238,7 @@ func _physics_process(delta: float) -> void:
 	var animation_requested_jump: bool = Input.is_action_just_pressed("jump") or hud.jump_requested
 
 	move_and_slide()
+	_send_network_snapshot()
 
 	if animator != null:
 		if animation_requested_jump and animation_was_grounded:

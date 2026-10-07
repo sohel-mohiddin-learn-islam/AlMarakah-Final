@@ -58,6 +58,10 @@ func _on_network_peer_joined(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
 	_spawn_network_player(peer_id)
+	for existing_peer_id in network_players:
+		var existing_player: Node = network_players[existing_peer_id]
+		if is_instance_valid(existing_player):
+			network_spawn_player.rpc_id(peer_id, existing_peer_id, existing_player.global_position)
 
 func _on_network_peer_left(peer_id: int) -> void:
 	if not networked_match:
@@ -71,6 +75,18 @@ func _on_network_peer_left(peer_id: int) -> void:
 	actors.erase(remote_player)
 	if is_instance_valid(remote_player):
 		remote_player.queue_free()
+
+@rpc("authority", "reliable", "call_local")
+func network_spawn_player(peer_id: int, spawn: Vector3) -> void:
+	if not networked_match:
+		return
+	if network_players.has(peer_id):
+		return
+	var remote_player := Player.new()
+	world.add_child(remote_player)
+	remote_player.setup(self, spawn, -1, peer_id)
+	actors.append(remote_player)
+	network_players[peer_id] = remote_player
 
 func _spawn_network_player(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
@@ -87,6 +103,7 @@ func _spawn_network_player(peer_id: int) -> void:
 	remote_player.setup(self, network_spawn_points[spawn_index], -1, peer_id)
 	actors.append(remote_player)
 	network_players[peer_id] = remote_player
+	network_spawn_player.rpc(peer_id, network_spawn_points[spawn_index])
 
 func _setup_network_state() -> void:
 	if multiplayer.multiplayer_peer == null:
