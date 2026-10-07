@@ -244,10 +244,11 @@ func _physics_process(delta: float) -> void:
 	arm.spring_length = lerpf(arm.spring_length, 2.35 if ads else 4.2, minf(delta * 10.0, 1.0))
 	var movement: Vector2 = _simulation_movement_input()
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
-	var body_turn_rate: float = ads_body_turn_speed if ads else body_turn_speed
-	if movement.length() > 0.05 or ads:
-		body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
 	var sprinting: bool = ((hud.sprinting if is_local_player else network_sprinting_input) and not ads and movement.length() > 0.05)
+	var fire: bool = hud.firing or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
+	var body_turn_rate: float = ads_body_turn_speed if ads or fire else body_turn_speed
+	if movement.length() > 0.05 or ads or fire:
+		body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
 	_send_network_movement(ads, sprinting)
 	var speed: float = move_speed * (1.35 if sprinting else (0.58 if ads else 1.0))
 	var acceleration: float = move_acceleration if movement.length() > 0.05 else move_deceleration
@@ -257,13 +258,14 @@ func _physics_process(delta: float) -> void:
 	if character_visual != null:
 		var target_local_angle: float = last_movement_local_angle
 		var current_turn_speed: float = ads_body_turn_speed if ads else body_turn_speed
-		if movement.length() > 0.05 and not ads:
+		if movement.length() > 0.05 and not ads and not fire:
 			var movement_angle: float = atan2(direction.x, direction.z)
 			last_movement_local_angle = angle_difference(yaw, movement_angle)
 			target_local_angle = last_movement_local_angle
 			current_turn_speed = sprint_turn_speed if sprinting else turn_speed
-		elif ads:
-			target_local_angle = 0.0
+		elif ads or fire:
+				target_local_angle = 0.0
+				last_movement_local_angle = 0.0
 		character_visual.rotation.y = lerp_angle(
 			character_visual.rotation.y,
 			target_local_angle,
@@ -314,7 +316,6 @@ func _physics_process(delta: float) -> void:
 		if muzzle_flash_time <= 0.0 and is_instance_valid(muzzle_flash):
 			muzzle_flash.visible = false
 
-	var fire: bool = hud.firing or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
 	if fire and shot_time <= 0 and reload_time <= 0:
 		if ammo > 0:
 			_shoot()
