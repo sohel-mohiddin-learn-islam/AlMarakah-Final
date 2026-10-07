@@ -122,6 +122,8 @@ func _spawn_clear(point: Vector3, others: Array[Vector3], spacing: float) -> boo
 func _make_palette() -> void:
 	var colors: Dictionary = {
 		"ground": Color("d8b47a") if _map_id == 0 else Color("68855c"),
+                "ground_alt": Color("c9a66d") if _map_id == 0 else Color("5f7d54"),
+                "ground_light": Color("e2c18a") if _map_id == 0 else Color("789568"),
 		"road": Color("e8ca91") if _map_id == 0 else Color("9c9a7b"),
 		"wall": Color("c99760") if _map_id == 0 else Color("697b78"),
 		"plaster": Color("f0d7ab"), "plaster_dark": Color("c48055"),
@@ -224,6 +226,13 @@ func _make_terrain() -> void:
 				height *= 0.1
 
 			var material_key: String = "ground"
+			if road_distance >= (4.5 if _map_id == 0 else 3.5) and not reserved:
+				var terrain_roll: float = _rng.randf()
+				if terrain_roll < 0.16:
+					material_key = "ground_alt"
+				elif terrain_roll < 0.28:
+					material_key = "ground_light"
+
 			var scale_y: float = maxf(0.25, height + 1.5)
 			_instance("box", Vector3(px, scale_y * 0.5 - 0.2, pz), Vector3(cell_size * 0.92, scale_y, cell_size * 0.92), material_key)
 
