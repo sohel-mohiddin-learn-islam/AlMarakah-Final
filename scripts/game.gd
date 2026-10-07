@@ -342,7 +342,9 @@ func fire_ray(origin: Vector3, direction: Vector3, attacker: Node, damage: float
 	if not hit.is_empty():
 		end = hit.position
 		var victim = hit.collider
-		if victim.has_method("take_damage") and are_enemies(attacker, victim):
+		if attacker == player:
+			print("PLAYER SHOT HIT: ", victim.name, " type=", victim.get_class(), " has_damage=", victim.has_method("take_damage"))
+	if victim.has_method("take_damage") and are_enemies(attacker, victim):
 			victim.take_damage(damage, attacker)
 	# Only draw nearby traces. AI can fire far away without spawning effects.
 	if is_instance_valid(player) and (attacker == player or origin.distance_squared_to(player.position) < 2500):
