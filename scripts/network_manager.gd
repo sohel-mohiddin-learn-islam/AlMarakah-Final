@@ -20,7 +20,7 @@ func host(port: int = DEFAULT_PORT) -> int:
         return ERR_ALREADY_IN_USE
 
     var peer := ENetMultiplayerPeer.new()
-    var error := peer.create_server(port, MAX_PLAYERS)
+    var error := peer.create_server(port, MAX_PLAYERS - 1)
 
     if error != OK:
         return error
