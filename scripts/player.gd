@@ -51,9 +51,9 @@ func restore_player_camera() -> void:
 	if is_instance_valid(camera):
 		camera.make_current()
 
-func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
+func setup(game_ref: Node, spawn: Vector3, team_id: int, peer_id: int = 0) -> void:
 	game = game_ref
-	network_peer_id = multiplayer.get_unique_id()
+	network_peer_id = peer_id if peer_id > 0 else multiplayer.get_unique_id()
 	hud = game.hud
 	settings = game.settings
 	team = team_id
