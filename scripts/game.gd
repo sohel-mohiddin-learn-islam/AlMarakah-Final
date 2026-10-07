@@ -62,6 +62,15 @@ func _on_network_peer_joined(peer_id: int) -> void:
 func _on_network_peer_left(peer_id: int) -> void:
 	if not networked_match:
 		return
+	if not NetworkManager.is_host:
+		return
+	if not network_players.has(peer_id):
+		return
+	var remote_player: Node = network_players[peer_id]
+	network_players.erase(peer_id)
+	actors.erase(remote_player)
+	if is_instance_valid(remote_player):
+		remote_player.queue_free()
 
 func _spawn_network_player(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
