@@ -253,6 +253,7 @@ func _make_boundaries() -> void:
 
 
 func _build_dunes() -> void:
+        _secondary_paths(4.0 if _compact else 7.0)
 	# A crossroads, shaded market, adobe compounds, tanks and delivery crates.
 	_box(Vector3(0.0, 0.012, 0.0), Vector3(8.0, 0.02, extent * 2.0), "road", false)
 	_box(Vector3(0.0, 0.014, 0.0), Vector3(extent * 2.0, 0.02, 8.0), "road", false)
@@ -282,6 +283,16 @@ func _build_dunes() -> void:
 	_rock_formation(Vector3(-62.0, 0.0, 58.0), 0.9)
 	_landmark_formation(Vector3(72.0, 0.0, -62.0), 1.8)
 
+
+func _secondary_paths(width: float) -> void:
+        var reach: float = 42.0 if _compact else 84.0
+        var offset: float = 24.0 if _compact else 42.0
+        var length: float = reach + offset
+        for side in [-1.0, 1.0]:
+                _box(Vector3(side * reach * 0.5, 0.018, side * offset), Vector3(length, 0.035, width), "road", false)
+                _box(Vector3(side * offset, 0.018, side * reach * 0.5), Vector3(width, 0.035, length), "road", false)
+                _box(Vector3(side * reach * 0.5, 0.019, -side * offset), Vector3(length, 0.035, width), "road", false)
+                _box(Vector3(-side * offset, 0.019, side * reach * 0.5), Vector3(width, 0.035, length), "road", false)
 
 func _adobe_building(center: Vector3, size: Vector3) -> void:
 	if not _footprint_available(center, Vector2(size.x + 2.0, size.z + 2.0), 3.0):
@@ -320,6 +331,7 @@ func _add_water_tank(center: Vector3) -> void:
 
 
 func _build_highlands() -> void:
+        _secondary_paths(3.2 if _compact else 5.5)
 	# Green valley outpost, slate cabins, evergreen clusters and low rock cover.
 	_box(Vector3(0.0, 0.012, 0.0), Vector3(6.0, 0.02, extent * 2.0), "road", false)
 	_box(Vector3(0.0, 0.015, 0.0), Vector3(extent * 2.0, 0.02, 6.0), "road", false)
