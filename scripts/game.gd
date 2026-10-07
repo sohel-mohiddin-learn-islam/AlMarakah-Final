@@ -57,6 +57,7 @@ func _ready() -> void:
 func _on_network_peer_joined(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
+	_spawn_network_player(peer_id)
 
 func _on_network_peer_left(peer_id: int) -> void:
 	if not networked_match:
