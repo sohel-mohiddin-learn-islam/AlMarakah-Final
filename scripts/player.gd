@@ -130,7 +130,7 @@ func receive_network_movement(input_vector: Vector2) -> void:
 	network_input_received = true
 
 func _send_network_movement() -> void:
-	if not is_instance_valid(game) or not game.networked_match or NetworkManager.is_host:
+	if not is_instance_valid(game) or not game.networked_match or multiplayer.is_server():
 		return
 	receive_network_movement.rpc_id(1, _get_movement_input())
 
