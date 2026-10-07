@@ -27,6 +27,8 @@ var wheel_front_left: Node3D = null
 var wheel_front_right: Node3D = null
 var wheel_back_left: Node3D = null
 var wheel_back_right: Node3D = null
+var vehicle_camera_transition: float = 0.0
+var vehicle_camera_transition_speed: float = 7.0
 var vehicle_camera: Camera3D = null
 
 func setup(spawn: Vector3) -> void:
@@ -112,7 +114,16 @@ func exit_vehicle() -> CharacterBody3D:
     occupied = false
     return actor
 
+func _update_vehicle_camera(delta: float) -> void:
+    if not is_instance_valid(vehicle_camera):
+        return
+
+    var target_transition: float = 1.0 if occupied else 0.0
+    vehicle_camera_transition = lerpf(vehicle_camera_transition, target_transition, minf(delta * vehicle_camera_transition_speed, 1.0))
+    vehicle_camera.fov = lerpf(75.0, 82.0, vehicle_camera_transition)
+
 func _physics_process(delta: float) -> void:
+    _update_vehicle_camera(delta)
     if not occupied:
         speed = move_toward(speed, 0.0, friction * delta)
         return
