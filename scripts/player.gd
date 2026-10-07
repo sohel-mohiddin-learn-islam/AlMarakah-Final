@@ -114,6 +114,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		if not OS.has_feature("mobile"):
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
+func _get_movement_input() -> Vector2:
+	var movement: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back") + hud.move_vector
+	return movement.limit_length()
+
 func _physics_process(delta: float) -> void:
 	if not alive or not is_instance_valid(game) or not game.match_active:
 		mouse_look = Vector2.ZERO
@@ -137,8 +141,7 @@ func _physics_process(delta: float) -> void:
 	body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
 	camera.fov = lerpf(camera.fov, 46.0 if ads else 75.0, minf(delta * 12.0, 1.0))
 	arm.spring_length = lerpf(arm.spring_length, 2.35 if ads else 4.2, minf(delta * 10.0, 1.0))
-	var movement: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back") + hud.move_vector
-	movement = movement.limit_length()
+	var movement: Vector2 = _get_movement_input()
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
 	var sprinting: bool = hud.sprinting and not ads and movement.length() > 0.05
 	var speed: float = move_speed * (1.35 if sprinting else (0.58 if ads else 1.0))
