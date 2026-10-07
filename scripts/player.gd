@@ -316,7 +316,7 @@ func _nearest_vehicle() -> Node:
 		return null
 
 	var nearest: Node = null
-	var nearest_distance: float = 9.0
+	var nearest_distance: float = 3.0
 
 	for vehicle in game.vehicles:
 		if not is_instance_valid(vehicle):
