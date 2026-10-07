@@ -182,7 +182,7 @@ func _make_environment() -> void:
 	environment.sky = sky
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color("fff0d4") if _map_id == 0 else Color("d9e9f2")
-	environment.ambient_light_energy = 0.65
+	environment.ambient_light_energy = 0.58 if _map_id == 0 else 0.70
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	world.environment = environment
 	add_child(world)
@@ -190,7 +190,7 @@ func _make_environment() -> void:
 	sun.name = "AfternoonSun"
 	sun.rotation_degrees = Vector3(-52.0, -32.0 if _map_id == 0 else 38.0, 0.0)
 	sun.light_color = Color("ffe3b5") if _map_id == 0 else Color("fff2db")
-	sun.light_energy = 1.15
+	sun.light_energy = 1.22 if _map_id == 0 else 1.08
 	# No realtime shadow atlas, SSAO or fog: works with the mobile compatibility renderer.
 	sun.shadow_enabled = false
 	add_child(sun)
