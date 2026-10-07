@@ -398,9 +398,9 @@ func _shoot() -> void:
 	var target_direction: Vector3 = target - global_position
 	target_direction.y = 0.0
 	if target_direction.length_squared() > 0.001:
-	        var target_yaw: float = atan2(target_direction.x, target_direction.z)
-	        body.rotation.y = lerp_angle(body.rotation.y, target_yaw, 0.45)
-	        character_visual.rotation.y = 0.0
+		var target_yaw: float = atan2(target_direction.x, target_direction.z)
+		body.rotation.y = lerp_angle(body.rotation.y, target_yaw, 0.45)
+		character_visual.rotation.y = 0.0
 	# Start at the character, not the camera, so cover blocks third-person shots.
 	var origin: Vector3 = global_position + Vector3(0, 1.35, 0)
 	game.fire_ray(origin, (target - origin).normalized(), self, weapon_damage, 200.0)
