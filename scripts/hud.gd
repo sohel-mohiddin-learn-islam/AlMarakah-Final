@@ -9,9 +9,9 @@ const LOADOUT_LABELS = {"rifle": "Rifle", "smg": "SMG", "marksman": "Marksman"}
 
 const POSITIONS = {
 	"move": [0.14, 0.75], "fire": [0.88, 0.63], "ads": [0.75, 0.57],
-	"jump": [0.89, 0.84], "reload": [0.74, 0.83], "sprint": [0.60, 0.83], "vehicle": [0.48, 0.83],
+	"jump": [0.84, 0.76], "reload": [0.68, 0.76], "sprint": [0.54, 0.76], "vehicle": [0.40, 0.76],
 }
-var CAPTIONS: Dictionary = {"move": String.chr(9673), "fire": String.chr(10022), "ads": String.chr(8998), "jump": String.chr(8593), "reload": String.chr(8635), "sprint": String.chr(10140), "vehicle": String.chr(9632)}
+var CAPTIONS: Dictionary = {"move": "MOVE", "fire": "FIRE", "ads": "AIM", "jump": "JUMP", "reload": "RELOAD", "sprint": "SPRINT", "vehicle": "CAR"}
 
 var move_vector: Vector2 = Vector2.ZERO
 var look_delta: Vector2 = Vector2.ZERO

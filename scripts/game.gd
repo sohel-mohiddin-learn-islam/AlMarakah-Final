@@ -446,6 +446,7 @@ func _update_hud() -> void:
 	if not is_cs and player.alive and Vector2(player.position.x, player.position.z).length() > zone_radius:
 		zone_text = "OUTSIDE SAFE ZONE — move toward the center!"
 	hud.update_status({"health": player.health, "ammo": player.ammo, "reserve": player.reserve, "alive": living, "kills": kills, "zone": zone_text, "mode": Rules.mode_label(mode_id), "score": "%d : %d" % [score[0], score[1]], "round": round_number, "reloading": player.reload_time > 0, "reload_progress": 1.0 - player.reload_time / maxf(player.reload_seconds, 0.01), "weapon": player.weapon_id, "magazine_size": player.magazine_size, "eliminated": not player.alive})
+		hud.update_radar(player.position, player.yaw, zone_radius, arena.extent, [], is_cs)
 
 func _create_zone() -> void:
 	zone_visual = MeshInstance3D.new()
