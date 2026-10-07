@@ -1,11 +1,11 @@
 extends CharacterBody3D
 ## Local vehicle controller. Networking and authoritative vehicle state are future work.
 
-var max_speed: float = 24.0
-var acceleration: float = 18.0
-var braking: float = 28.0
-var steering_speed: float = 2.4
-var friction: float = 8.0
+var max_speed: float = 26.0
+var acceleration: float = 14.0
+var braking: float = 32.0
+var steering_speed: float = 2.1
+var friction: float = 6.0
 
 var speed: float = 0.0
 var steering: float = 0.0
@@ -129,7 +129,9 @@ func _physics_process(delta: float) -> void:
     steering = move_toward(steering, 0.0, 4.0 * delta)
 
     if absf(speed) > 0.2:
-        rotation.y -= steering * steering_speed * delta * signf(speed)
+        var speed_ratio: float = clampf(absf(speed) / max_speed, 0.0, 1.0)
+        var steering_response: float = lerpf(steering_speed, steering_speed * 0.42, speed_ratio)
+        rotation.y -= steering * steering_response * delta * signf(speed)
 
     if not is_on_floor():
         velocity.y -= 24.0 * delta
