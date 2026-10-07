@@ -79,6 +79,8 @@ func _on_network_peer_left(peer_id: int) -> void:
 func network_spawn_player(peer_id: int, spawn: Vector3) -> void:
 	if not networked_match:
 		return
+	if peer_id == multiplayer.get_unique_id():
+		return
 	if network_players.has(peer_id):
 		return
 	var remote_player := Player.new()
