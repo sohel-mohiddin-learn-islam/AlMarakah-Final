@@ -126,6 +126,8 @@ func receive_network_movement(input_vector: Vector2) -> void:
 		return
 	if not NetworkManager.is_host:
 		return
+	if multiplayer.get_remote_sender_id() != network_peer_id:
+		return
 	network_movement = input_vector.limit_length()
 	network_input_received = true
 
