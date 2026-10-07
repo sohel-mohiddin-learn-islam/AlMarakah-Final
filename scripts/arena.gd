@@ -132,6 +132,7 @@ func _make_palette() -> void:
 		"blue": Color("348f9b"), "orange": Color("df8c46"),
 		"rock": Color("b18c68") if _map_id == 0 else Color("7d8986"),
 		"rock_light": Color("d0ad7e") if _map_id == 0 else Color("a1aaa0"),
+                "landmark": Color("8f6f55") if _map_id == 0 else Color("5b6968"),
 		"leaf": Color("3b7059"), "leaf_light": Color("639466"),
 		"water": Color("488f9a"), "sandbag": Color("b4ad83"),
 	}
@@ -275,6 +276,7 @@ func _build_dunes() -> void:
 	_rock_formation(Vector3(-48.0, 0.0, -52.0), 1.4)
 	_rock_formation(Vector3(54.0, 0.0, 38.0), 1.1)
 	_rock_formation(Vector3(-62.0, 0.0, 58.0), 0.9)
+	_landmark_formation(Vector3(72.0, 0.0, -62.0), 1.8)
 
 
 func _adobe_building(center: Vector3, size: Vector3) -> void:
@@ -338,6 +340,7 @@ func _build_highlands() -> void:
 	_rock_formation(Vector3(-52.0, 0.0, -48.0), 1.25)
 	_rock_formation(Vector3(48.0, 0.0, 44.0), 1.05)
 	_rock_formation(Vector3(-64.0, 0.0, 62.0), 0.85)
+	_landmark_formation(Vector3(68.0, 0.0, -58.0), 1.7)
 	for side in [-1.0, 1.0]:
 		var center: Vector3 = Vector3(side * 12.0, 0.0, side * 9.0)
 		if _footprint_available(center, Vector2(6.0, 1.2), 1.0):
@@ -357,6 +360,17 @@ func _outpost(center: Vector3) -> void:
 	_box(center + Vector3(-2.8, 5.3, 0.0), Vector3(0.09, 2.8, 0.09), "dark", false)
 	_box(center + Vector3(-2.2, 6.25, 0.0), Vector3(1.2, 0.45, 0.08), "orange", false)
 
+
+func _landmark_formation(center: Vector3, scale: float) -> void:
+	var pieces: int = 4 if _compact else 7
+	for index in range(pieces):
+		var angle: float = (TAU / float(pieces)) * float(index) + _rng.randf_range(-0.25, 0.25)
+		var distance: float = _rng.randf_range(1.0, 2.4) * scale
+		var width: float = _rng.randf_range(1.6, 2.6) * scale
+		var height: float = _rng.randf_range(2.8, 4.8) * scale
+		var rock_center := center + Vector3(cos(angle) * distance, height * 0.5, sin(angle) * distance)
+		_box(rock_center, Vector3(width, height, width * 0.82), "landmark")
+		_instance("rock", rock_center + Vector3.UP * (height * 0.5 + 0.18), Vector3(width * 0.72, 0.7 * scale, width * 0.58), "rock_light")
 
 func _rock_formation(center: Vector3, scale: float) -> void:
 	var pieces: int = 3 if _compact else 5
