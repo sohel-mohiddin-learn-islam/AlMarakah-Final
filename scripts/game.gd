@@ -88,7 +88,11 @@ func network_spawn_player(peer_id: int, spawn: Vector3) -> void:
 func _sync_existing_network_players(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
+	if is_instance_valid(player):
+		network_spawn_player.rpc_id(peer_id, multiplayer.get_unique_id(), player.global_position)
 	for existing_peer_id in network_players:
+		if int(existing_peer_id) == peer_id:
+			continue
 		var existing_player: Node = network_players[existing_peer_id]
 		if not is_instance_valid(existing_player):
 			continue
