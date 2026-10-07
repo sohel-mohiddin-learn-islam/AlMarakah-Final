@@ -84,6 +84,19 @@ func enter_vehicle(actor: CharacterBody3D) -> bool:
 
     return true
 
+func _get_safe_exit_position() -> Vector3:
+    var candidates: Array[Vector3] = [
+        global_position + global_transform.basis.x * 2.4,
+        global_position - global_transform.basis.x * 2.4
+    ]
+    var space_state := get_world_3d().direct_space_state
+    for candidate in candidates:
+        var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.8, candidate + Vector3.UP * 0.8, 1, [get_rid()])
+        var hit: Dictionary = space_state.intersect_ray(query)
+        if hit.is_empty():
+            return candidate
+    return global_position + global_transform.basis.x * 2.4
+
 func exit_vehicle() -> CharacterBody3D:
     if not occupied or not is_instance_valid(driver):
         driver = null
@@ -92,7 +105,7 @@ func exit_vehicle() -> CharacterBody3D:
         return null
 
     var actor := driver
-    var exit_position := global_position + global_transform.basis.x * 2.4
+    var exit_position := _get_safe_exit_position()
     var parent := driver_parent
 
     if is_instance_valid(parent):
