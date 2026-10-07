@@ -23,6 +23,7 @@ var turn_speed: float = 14.0
 var sprint_turn_speed: float = 9.5
 var body_turn_speed: float = 10.0
 var ads_body_turn_speed: float = 16.0
+var last_movement_local_angle: float = 0.0
 var ammo: int = 30
 var reserve: int = 180
 var reload_time: float = 0.0
@@ -252,12 +253,15 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
 
 	if character_visual != null:
-		var target_local_angle: float = 0.0
+		var target_local_angle: float = last_movement_local_angle
 		var current_turn_speed: float = ads_body_turn_speed if ads else body_turn_speed
 		if movement.length() > 0.05 and not ads:
 			var movement_angle: float = atan2(direction.x, direction.z)
-			target_local_angle = angle_difference(yaw, movement_angle)
+			last_movement_local_angle = angle_difference(yaw, movement_angle)
+			target_local_angle = last_movement_local_angle
 			current_turn_speed = sprint_turn_speed if sprinting else turn_speed
+		elif ads:
+			target_local_angle = 0.0
 		character_visual.rotation.y = lerp_angle(
 			character_visual.rotation.y,
 			target_local_angle,
