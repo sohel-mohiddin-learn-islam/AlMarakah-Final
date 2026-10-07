@@ -272,6 +272,9 @@ func _build_dunes() -> void:
 			_box(point + Vector3(0.0, size.y + 0.045, 0.0),
 				Vector3(size.x + 0.08, 0.09, size.z + 0.08), "trim", false)
 	_add_water_tank(Vector3(13.0, 0.0, -12.0))
+	_rock_formation(Vector3(-48.0, 0.0, -52.0), 1.4)
+	_rock_formation(Vector3(54.0, 0.0, 38.0), 1.1)
+	_rock_formation(Vector3(-62.0, 0.0, 58.0), 0.9)
 
 
 func _adobe_building(center: Vector3, size: Vector3) -> void:
@@ -332,6 +335,9 @@ func _build_highlands() -> void:
 			_tree(point, _rng.randf_range(4.8, 7.2))
 	# A blue, shallow painted cistern is visual only; the ground stays walkable.
 	_box(Vector3(12.0, 0.024, -12.0), Vector3(7.0, 0.025, 5.0), "water", false)
+	_rock_formation(Vector3(-52.0, 0.0, -48.0), 1.25)
+	_rock_formation(Vector3(48.0, 0.0, 44.0), 1.05)
+	_rock_formation(Vector3(-64.0, 0.0, 62.0), 0.85)
 	for side in [-1.0, 1.0]:
 		var center: Vector3 = Vector3(side * 12.0, 0.0, side * 9.0)
 		if _footprint_available(center, Vector2(6.0, 1.2), 1.0):
@@ -351,6 +357,17 @@ func _outpost(center: Vector3) -> void:
 	_box(center + Vector3(-2.8, 5.3, 0.0), Vector3(0.09, 2.8, 0.09), "dark", false)
 	_box(center + Vector3(-2.2, 6.25, 0.0), Vector3(1.2, 0.45, 0.08), "orange", false)
 
+
+func _rock_formation(center: Vector3, scale: float) -> void:
+	var pieces: int = 3 if _compact else 5
+	for index in range(pieces):
+		var angle: float = _rng.randf_range(0.0, TAU)
+		var distance: float = _rng.randf_range(0.2, 1.4) * scale
+		var rock_scale: float = _rng.randf_range(0.7, 1.35) * scale
+		var rock_height: float = _rng.randf_range(1.4, 2.8) * scale
+		var rock_center := center + Vector3(cos(angle) * distance, rock_height * 0.5, sin(angle) * distance)
+		_box(rock_center, Vector3(rock_scale * 1.8, rock_height, rock_scale * 1.5), "rock")
+		_instance("rock", rock_center + Vector3.UP * (rock_height * 0.5 + 0.12), Vector3(rock_scale * 1.25, 0.5, rock_scale), "rock_light")
 
 func _tree(center: Vector3, height: float) -> void:
 	_cylinder(center + Vector3.UP * 1.1, 0.38, 2.2, "wood")
