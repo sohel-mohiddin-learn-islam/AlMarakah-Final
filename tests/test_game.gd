@@ -34,6 +34,18 @@ func _run() -> void:
 	check(Rules.cs_winner([3, 2], [80.0, 200.0], true) == 0, "CS timeout compares survivors first")
 	check(Rules.cs_winner([2, 2], [120.0, 180.0], true) == 1, "CS timeout health tie-break")
 	check(Rules.cs_winner([4, 4], [400.0, 400.0], true) == -1, "timeout draw")
+	var NetworkManagerScript = load("res://scripts/network_manager.gd")
+	var matchmaking = NetworkManagerScript.new()
+	root.add_child(matchmaking)
+	matchmaking.is_host = true
+	matchmaking.connected = true
+	check(not matchmaking.matchmaking_active, "matchmaking starts idle")
+	matchmaking.request_matchmaking_ready("br_classic", 0)
+	check(matchmaking.matchmaking_active, "START opens matchmaking window")
+	check(matchmaking.matchmaking_ready.size() == 1, "START adds exactly one ready player")
+	check(matchmaking.matchmaking_mode == "br_classic", "matchmaking locks selected mode")
+	matchmaking.queue_free()
+	await process_frame
 	var prefs = Settings.new()
 	prefs.storage_path = "user://almarakah_test_settings.json"
 	prefs.data.camera_sensitivity = 2.2

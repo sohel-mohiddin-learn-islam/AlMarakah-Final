@@ -39,12 +39,17 @@ var local_peer_id: int = 1
 var network_spawn_points: Array[Vector3] = []
 var network_players: Dictionary = {}
 var network_spawn_indices: Dictionary = {}
+var network_local_spawn_index: int = 0
+var network_ready_peer_ids: Array = []
+var network_match_locked: bool = false
+var network_bot_slots: Dictionary = {}
 
 func _ready() -> void:
 	_setup_network_state()
 	if NetworkManager != null:
 		NetworkManager.peer_joined.connect(_on_network_peer_joined)
 		NetworkManager.peer_left.connect(_on_network_peer_left)
+		NetworkManager.matchmaking_locked.connect(_on_matchmaking_locked)
 	_setup_inputs()
 	settings = Settings.new()
 	settings.load_settings()
@@ -55,11 +60,20 @@ func _ready() -> void:
 	hud.back_to_menu.connect(return_to_menu)
 	return_to_menu()
 
+func _on_matchmaking_locked(selected_mode: String, selected_map: int, ready_peer_ids: Array) -> void:
+	if not networked_match or not NetworkManager.is_host:
+		return
+	network_ready_peer_ids = ready_peer_ids.duplicate()
+	if not network_ready_peer_ids.has(multiplayer.get_unique_id()):
+		network_ready_peer_ids.push_front(multiplayer.get_unique_id())
+	network_match_locked = true
+	print("MATCHMAKING LOCKED: mode=", selected_mode, " map=", selected_map, " humans=", network_ready_peer_ids)
+	network_start_match.rpc(selected_mode, selected_map, network_ready_peer_ids)
+
 func _on_network_peer_joined(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
-	_spawn_network_player(peer_id)
-	_sync_existing_network_players(peer_id)
+	print("PLAYER CONNECTED TO LOBBY: peer=", peer_id)
 
 func _on_network_peer_left(peer_id: int) -> void:
 	if not networked_match:
@@ -139,8 +153,30 @@ func _spawn_network_player(peer_id: int) -> void:
 	network_players[peer_id] = remote_player
 	network_spawn_player.rpc(peer_id, network_spawn_points[spawn_index])
 
+func _spawn_locked_human_players() -> void:
+	if not networked_match or not NetworkManager.is_host:
+		return
+	if network_spawn_points.is_empty():
+		return
+	network_players.clear()
+	network_spawn_indices.clear()
+	for index in range(network_ready_peer_ids.size()):
+		var peer_id: int = int(network_ready_peer_ids[index])
+		if index >= network_spawn_points.size():
+			break
+		var spawn_position: Vector3 = network_spawn_points[index]
+		network_spawn_indices[peer_id] = index
+		if peer_id == multiplayer.get_unique_id():
+			continue
+		var remote_player := Player.new()
+		world.add_child(remote_player)
+		remote_player.setup(self, spawn_position, -1, peer_id)
+		actors.append(remote_player)
+		network_players[peer_id] = remote_player
+		network_spawn_player.rpc(peer_id, spawn_position)
+
 func _setup_network_state() -> void:
-	if multiplayer.multiplayer_peer == null:
+	if not NetworkManager.connected:
 		networked_match = false
 		network_role = "offline"
 		local_peer_id = 1
@@ -164,12 +200,19 @@ func request_start_match(selected_mode: String, selected_map: int) -> void:
 		return
 	if multiplayer.get_remote_sender_id() == 0:
 		return
-	network_start_match.rpc(selected_mode, selected_map)
+	network_start_match.rpc(selected_mode, selected_map, network_ready_peer_ids)
 
 @rpc("authority", "reliable", "call_local")
-func network_start_match(selected_mode: String, selected_map: int) -> void:
+func network_start_match(selected_mode: String, selected_map: int, locked_peer_ids: Array) -> void:
 	if not networked_match:
 		return
+	network_ready_peer_ids = locked_peer_ids.duplicate()
+	var my_peer_id: int = multiplayer.get_unique_id()
+	var local_index: int = network_ready_peer_ids.find(my_peer_id)
+	if local_index < 0:
+		return
+	network_local_spawn_index = local_index
+	network_match_locked = true
 	_start_match_local(selected_mode, selected_map)
 
 func _start_match_local(selected_mode: String, selected_map: int) -> void:
@@ -191,12 +234,9 @@ func _start_match_local(selected_mode: String, selected_map: int) -> void:
 func start_match(selected_mode: String, selected_map: int) -> void:
 	if networked_match:
 		if NetworkManager.is_host:
-			network_start_match.rpc(selected_mode, selected_map)
+			NetworkManager.request_matchmaking_ready(selected_mode, selected_map)
 		else:
-			if multiplayer.get_peers().is_empty():
-				_start_match_local(selected_mode, selected_map)
-			else:
-				request_start_match.rpc_id(1, selected_mode, selected_map)
+			NetworkManager.request_matchmaking_ready.rpc_id(1, selected_mode, selected_map)
 		return
 	_start_match_local(selected_mode, selected_map)
 
@@ -206,6 +246,8 @@ func _clear_world() -> void:
 	actors.clear()
 	network_players.clear()
 	network_spawn_indices.clear()
+	network_local_spawn_index = 0
+	network_bot_slots.clear()
 	pickups.clear()
 	vehicles.clear()
 	player = null
@@ -233,14 +275,27 @@ func _begin_round() -> void:
 		network_spawn_points = spawns.duplicate()
 	player = Player.new()
 	world.add_child(player)
-	player.setup(self, spawns[0], 0 if is_cs else -1)
+	var local_spawn_index: int = 0
+	if networked_match and network_match_locked:
+		local_spawn_index = network_local_spawn_index
+	player.setup(self, spawns[local_spawn_index], 0 if is_cs else -1)
 	actors.append(player)
-	for i in range(1, count):
-		var bot = Bot.new()
-		world.add_child(bot)
-		var side: int = (0 if i < Rules.CS_TEAM_SIZE else 1) if is_cs else i
-		bot.setup(self, spawns[i], side)
-		actors.append(bot)
+	if networked_match and NetworkManager.is_host and network_match_locked:
+		_spawn_locked_human_players()
+		var human_count: int = network_ready_peer_ids.size()
+		for i in range(human_count, count):
+			var bot = Bot.new()
+			world.add_child(bot)
+			var side: int = (0 if i < Rules.CS_TEAM_SIZE else 1) if is_cs else i
+			bot.setup(self, spawns[i], side)
+			actors.append(bot)
+	elif not networked_match:
+		for i in range(1, count):
+			var bot = Bot.new()
+			world.add_child(bot)
+			var side: int = (0 if i < Rules.CS_TEAM_SIZE else 1) if is_cs else i
+			bot.setup(self, spawns[i], side)
+			actors.append(bot)
 	if not is_cs:
 		_create_zone()
 	match_active = true
