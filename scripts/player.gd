@@ -150,6 +150,17 @@ func receive_network_movement(input_vector: Vector2, aiming_input: bool, sprinti
 	network_aiming_input = aiming_input
 	network_sprinting_input = sprinting_input
 	network_input_received = true
+@rpc("any_peer", "unreliable", "call_remote")
+func receive_network_look(input_yaw: float, input_pitch: float) -> void:
+	if not is_instance_valid(game) or not game.networked_match:
+		return
+	if not NetworkManager.is_host:
+		return
+	if multiplayer.get_remote_sender_id() != network_peer_id:
+		return
+	yaw = input_yaw
+	pitch = input_pitch
+
 @rpc("authority", "unreliable", "call_remote")
 func receive_network_snapshot(snapshot_position: Vector3, snapshot_velocity: Vector3, snapshot_yaw: float, snapshot_pitch: float, snapshot_alive: bool, snapshot_movement_amount: float, snapshot_aiming: bool, snapshot_sprinting: bool, snapshot_grounded: bool) -> void:
 	if not is_instance_valid(game) or not game.networked_match:
@@ -180,6 +191,11 @@ func _send_network_movement(aiming_input: bool, sprinting_input: bool) -> void:
 	if not is_instance_valid(game) or not game.networked_match or multiplayer.is_server():
 		return
 	receive_network_movement.rpc_id(1, _get_movement_input(), aiming_input, sprinting_input)
+
+func _send_network_look() -> void:
+	if not is_instance_valid(game) or not game.networked_match or multiplayer.is_server():
+		return
+	receive_network_look.rpc_id(1, yaw, pitch)
 
 func _send_network_snapshot() -> void:
 	if not is_instance_valid(game) or not game.networked_match or not multiplayer.is_server():
@@ -220,6 +236,7 @@ func _physics_process(delta: float) -> void:
 	mouse_look = Vector2.ZERO
 	yaw -= look.x * 0.003 * sensitivity
 	pitch = clampf(pitch - look.y * 0.003 * sensitivity, -1.1, 0.85)
+	_send_network_look()
 	rig.rotation = Vector3(pitch, yaw, 0)
 	var body_turn_rate: float = ads_body_turn_speed if ads else body_turn_speed
 	body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
