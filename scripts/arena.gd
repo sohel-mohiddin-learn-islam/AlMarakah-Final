@@ -288,11 +288,16 @@ func _secondary_paths(width: float) -> void:
 	var reach: float = 42.0 if _compact else 84.0
 	var offset: float = 24.0 if _compact else 42.0
 	var length: float = reach + offset
+	var edge_width: float = width + 0.9
 	for side in [-1.0, 1.0]:
-		_box(Vector3(side * reach * 0.5, 0.018, side * offset), Vector3(length, 0.035, width), "road", false)
-		_box(Vector3(side * offset, 0.018, side * reach * 0.5), Vector3(width, 0.035, length), "road", false)
-		_box(Vector3(side * reach * 0.5, 0.019, -side * offset), Vector3(length, 0.035, width), "road", false)
-		_box(Vector3(-side * offset, 0.019, side * reach * 0.5), Vector3(width, 0.035, length), "road", false)
+		_box(Vector3(side * reach * 0.5, 0.012, side * offset), Vector3(length, 0.018, edge_width), "ground_alt", false)
+		_box(Vector3(side * offset, 0.012, side * reach * 0.5), Vector3(edge_width, 0.018, length), "ground_alt", false)
+		_box(Vector3(side * reach * 0.5, 0.013, -side * offset), Vector3(length, 0.018, edge_width), "ground_alt", false)
+		_box(Vector3(-side * offset, 0.013, side * reach * 0.5), Vector3(edge_width, 0.018, length), "ground_alt", false)
+		_box(Vector3(side * reach * 0.5, 0.020, side * offset), Vector3(length, 0.035, width), "road", false)
+		_box(Vector3(side * offset, 0.020, side * reach * 0.5), Vector3(width, 0.035, length), "road", false)
+		_box(Vector3(side * reach * 0.5, 0.021, -side * offset), Vector3(length, 0.035, width), "road", false)
+		_box(Vector3(-side * offset, 0.021, side * reach * 0.5), Vector3(width, 0.035, length), "road", false)
 
 func _adobe_building(center: Vector3, size: Vector3) -> void:
 	if not _footprint_available(center, Vector2(size.x + 2.0, size.z + 2.0), 3.0):
