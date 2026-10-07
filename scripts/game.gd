@@ -58,10 +58,7 @@ func _on_network_peer_joined(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
 	_spawn_network_player(peer_id)
-	for existing_peer_id in network_players:
-		var existing_player: Node = network_players[existing_peer_id]
-		if is_instance_valid(existing_player):
-			network_spawn_player.rpc_id(peer_id, existing_peer_id, existing_player.global_position)
+	_sync_existing_network_players(peer_id)
 
 func _on_network_peer_left(peer_id: int) -> void:
 	if not networked_match:
@@ -87,6 +84,15 @@ func network_spawn_player(peer_id: int, spawn: Vector3) -> void:
 	remote_player.setup(self, spawn, -1, peer_id)
 	actors.append(remote_player)
 	network_players[peer_id] = remote_player
+
+func _sync_existing_network_players(peer_id: int) -> void:
+	if not networked_match or not NetworkManager.is_host:
+		return
+	for existing_peer_id in network_players:
+		var existing_player: Node = network_players[existing_peer_id]
+		if not is_instance_valid(existing_player):
+			continue
+		network_spawn_player.rpc_id(peer_id, int(existing_peer_id), existing_player.global_position)
 
 func _spawn_network_player(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
