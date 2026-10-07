@@ -272,6 +272,10 @@ func _build_dunes() -> void:
 			_box(point + Vector3.UP * size.y * 0.5, size, "wood")
 			_box(point + Vector3(0.0, size.y + 0.045, 0.0),
 				Vector3(size.x + 0.08, 0.09, size.z + 0.08), "trim", false)
+	for scrub_index in range(8 if _compact else 28):
+		var scrub_point: Vector3 = _random_prop_position()
+		if _footprint_available(scrub_point, Vector2(3.2, 3.2), 1.5):
+			_vegetation_cluster(scrub_point, _rng.randf_range(0.8, 1.35))
 	_add_water_tank(Vector3(13.0, 0.0, -12.0))
 	_rock_formation(Vector3(-48.0, 0.0, -52.0), 1.4)
 	_rock_formation(Vector3(54.0, 0.0, 38.0), 1.1)
