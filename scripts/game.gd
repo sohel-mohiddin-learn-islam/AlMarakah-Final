@@ -37,6 +37,7 @@ var networked_match: bool = false
 var network_role: String = "offline"
 var local_peer_id: int = 1
 var network_spawn_points: Array[Vector3] = []
+var network_players: Dictionary = {}
 
 func _ready() -> void:
 	_setup_network_state()
