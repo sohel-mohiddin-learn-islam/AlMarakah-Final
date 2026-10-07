@@ -38,6 +38,7 @@ var network_role: String = "offline"
 var local_peer_id: int = 1
 var network_spawn_points: Array[Vector3] = []
 var network_players: Dictionary = {}
+var network_spawn_indices: Dictionary = {}
 
 func _ready() -> void:
 	_setup_network_state()
@@ -69,6 +70,7 @@ func _on_network_peer_left(peer_id: int) -> void:
 		return
 	var remote_player: Node = network_players[peer_id]
 	network_players.erase(peer_id)
+	network_spawn_indices.erase(peer_id)
 	actors.erase(remote_player)
 	if is_instance_valid(remote_player):
 		remote_player.queue_free()
@@ -105,9 +107,14 @@ func _spawn_network_player(peer_id: int) -> void:
 		return
 	if not match_active or network_spawn_points.is_empty():
 		return
-	var spawn_index: int = network_players.size() + 1
-	if spawn_index >= network_spawn_points.size():
+	var spawn_index: int = -1
+	for candidate in range(1, network_spawn_points.size()):
+		if not network_spawn_indices.values().has(candidate):
+			spawn_index = candidate
+			break
+	if spawn_index < 0:
 		return
+	network_spawn_indices[peer_id] = spawn_index
 	var remote_player := Player.new()
 	world.add_child(remote_player)
 	remote_player.setup(self, network_spawn_points[spawn_index], -1, peer_id)
@@ -172,6 +179,7 @@ func _clear_world() -> void:
 	intermission = 0
 	actors.clear()
 	network_players.clear()
+	network_spawn_indices.clear()
 	pickups.clear()
 	vehicles.clear()
 	player = null
