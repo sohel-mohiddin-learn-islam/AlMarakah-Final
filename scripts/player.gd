@@ -94,7 +94,8 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int, peer_id: int = 0) -> vo
 	camera.fov = 75
 	camera.far = 380
 	arm.add_child(camera)
-	camera.make_current()
+	if network_peer_id == multiplayer.get_unique_id():
+		camera.make_current()
 	_create_muzzle_flash()
 	sound = AudioStreamPlayer.new()
 	sound.volume_db = -18
