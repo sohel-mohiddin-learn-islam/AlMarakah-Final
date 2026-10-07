@@ -118,6 +118,7 @@ func _clear_world() -> void:
 	match_active = false
 	intermission = 0
 	actors.clear()
+	network_players.clear()
 	pickups.clear()
 	vehicles.clear()
 	player = null
