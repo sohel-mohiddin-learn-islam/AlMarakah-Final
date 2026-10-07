@@ -246,8 +246,8 @@ func _physics_process(delta: float) -> void:
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
 	var sprinting: bool = ((hud.sprinting if is_local_player else network_sprinting_input) and not ads and movement.length() > 0.05)
 	var fire: bool = hud.firing or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
-	var body_turn_rate: float = ads_body_turn_speed if ads or fire else body_turn_speed
-	if movement.length() > 0.05 or ads or fire:
+	var body_turn_rate: float = ads_body_turn_speed if ads else body_turn_speed
+	if movement.length() > 0.05 or ads:
 		body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
 	_send_network_movement(ads, sprinting)
 	var speed: float = move_speed * (1.35 if sprinting else (0.58 if ads else 1.0))
@@ -395,6 +395,12 @@ func _shoot() -> void:
 	var query = PhysicsRayQueryParameters3D.create(camera.global_position, camera.global_position + forward * 200, 3, [get_rid()])
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	var target: Vector3 = hit.get("position", camera.global_position + forward * 200)
+	var target_direction: Vector3 = target - global_position
+	target_direction.y = 0.0
+	if target_direction.length_squared() > 0.001:
+	        var target_yaw: float = atan2(target_direction.x, target_direction.z)
+	        body.rotation.y = lerp_angle(body.rotation.y, target_yaw, 0.45)
+	        character_visual.rotation.y = 0.0
 	# Start at the character, not the camera, so cover blocks third-person shots.
 	var origin: Vector3 = global_position + Vector3(0, 1.35, 0)
 	game.fire_ray(origin, (target - origin).normalized(), self, weapon_damage, 200.0)
