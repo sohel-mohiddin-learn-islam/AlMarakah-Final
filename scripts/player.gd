@@ -252,14 +252,15 @@ func _physics_process(delta: float) -> void:
 	velocity.z = move_toward(velocity.z, direction.z * speed, acceleration * delta)
 
 	if character_visual != null:
-		var target_angle: float = yaw
+		var target_local_angle: float = 0.0
 		var current_turn_speed: float = ads_body_turn_speed if ads else body_turn_speed
 		if movement.length() > 0.05 and not ads:
-			target_angle = atan2(direction.x, direction.z)
+			var movement_angle: float = atan2(direction.x, direction.z)
+			target_local_angle = angle_difference(yaw, movement_angle)
 			current_turn_speed = sprint_turn_speed if sprinting else turn_speed
 		character_visual.rotation.y = lerp_angle(
 			character_visual.rotation.y,
-			target_angle,
+			target_local_angle,
 			minf(delta * current_turn_speed, 1.0)
 		)
 	if not is_on_floor():
