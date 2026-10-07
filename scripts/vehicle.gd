@@ -8,6 +8,10 @@ var steering_speed: float = 2.1
 var body_lean: float = 0.0
 var body_pitch: float = 0.0
 var body_lean_speed: float = 5.5
+var suspension_offset: float = 0.0
+var suspension_velocity: float = 0.0
+var suspension_strength: float = 18.0
+var suspension_damping: float = 6.0
 var friction: float = 6.0
 
 var speed: float = 0.0
@@ -143,10 +147,26 @@ func _physics_process(delta: float) -> void:
 
     _update_wheels(delta)
     _update_body_lean(delta)
+    _update_suspension(delta)
 
     velocity.x = -global_transform.basis.z.x * speed
     velocity.z = -global_transform.basis.z.z * speed
     move_and_slide()
+
+func _update_suspension(delta: float) -> void:
+    var vehicle_visual := get_node_or_null("RealisticSUV")
+    if not is_instance_valid(vehicle_visual):
+        return
+
+    var suspension_target: float = 0.0
+    if is_on_floor():
+        suspension_target = -velocity.y * 0.012
+
+    suspension_velocity += (suspension_target - suspension_offset) * suspension_strength * delta
+    suspension_velocity = move_toward(suspension_velocity, 0.0, suspension_damping * delta)
+    suspension_offset += suspension_velocity * delta
+    suspension_offset = clampf(suspension_offset, -0.12, 0.12)
+    vehicle_visual.position.y = suspension_offset
 
 func _update_body_lean(delta: float) -> void:
     var vehicle_visual := get_node_or_null("RealisticSUV")
