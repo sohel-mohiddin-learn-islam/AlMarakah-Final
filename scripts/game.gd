@@ -141,11 +141,17 @@ func _setup_inputs() -> void:
 			event.physical_keycode = keys[action]
 			InputMap.action_add_event(action, event)
 
-@rpc("any_peer", "reliable", "call_local")
+@rpc("any_peer", "reliable")
+func request_start_match(selected_mode: String, selected_map: int) -> void:
+	if not networked_match or not NetworkManager.is_host:
+		return
+	if multiplayer.get_remote_sender_id() == 0:
+		return
+	network_start_match.rpc(selected_mode, selected_map)
+
+@rpc("authority", "reliable", "call_local")
 func network_start_match(selected_mode: String, selected_map: int) -> void:
 	if not networked_match:
-		return
-	if not NetworkManager.is_host and multiplayer.get_remote_sender_id() != 1:
 		return
 	_start_match_local(selected_mode, selected_map)
 
@@ -170,7 +176,7 @@ func start_match(selected_mode: String, selected_map: int) -> void:
 		if NetworkManager.is_host:
 			network_start_match.rpc(selected_mode, selected_map)
 		else:
-			network_start_match.rpc_id(1, selected_mode, selected_map)
+			request_start_match.rpc_id(1, selected_mode, selected_map)
 		return
 	_start_match_local(selected_mode, selected_map)
 
