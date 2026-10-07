@@ -129,6 +129,11 @@ func receive_network_movement(input_vector: Vector2) -> void:
 	network_movement = input_vector.limit_length()
 	network_input_received = true
 
+func _simulation_movement_input() -> Vector2:
+	if is_instance_valid(game) and game.networked_match and multiplayer.is_server() and network_input_received and network_peer_id != multiplayer.get_unique_id():
+		return network_movement
+	return _get_movement_input()
+
 func _send_network_movement() -> void:
 	if not is_instance_valid(game) or not game.networked_match or multiplayer.is_server():
 		return
@@ -159,7 +164,7 @@ func _physics_process(delta: float) -> void:
 	body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
 	camera.fov = lerpf(camera.fov, 46.0 if ads else 75.0, minf(delta * 12.0, 1.0))
 	arm.spring_length = lerpf(arm.spring_length, 2.35 if ads else 4.2, minf(delta * 10.0, 1.0))
-	var movement: Vector2 = _get_movement_input()
+	var movement: Vector2 = _simulation_movement_input()
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
 	var sprinting: bool = hud.sprinting and not ads and movement.length() > 0.05
 	var speed: float = move_speed * (1.35 if sprinting else (0.58 if ads else 1.0))
