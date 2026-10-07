@@ -5,6 +5,7 @@ var game: Node
 var hud: CanvasLayer
 var settings: RefCounted
 var team: int = -1
+var network_peer_id: int = 1
 const MAX_HEALTH: float = 200.0
 var health: float = MAX_HEALTH
 var alive: bool = true
@@ -50,6 +51,7 @@ func restore_player_camera() -> void:
 
 func setup(game_ref: Node, spawn: Vector3, team_id: int) -> void:
 	game = game_ref
+	network_peer_id = multiplayer.get_unique_id()
 	hud = game.hud
 	settings = game.settings
 	team = team_id
