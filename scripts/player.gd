@@ -40,6 +40,8 @@ var muzzle_flash_time: float = 0.0
 var animator: Node
 var character_visual: Node3D
 var mouse_look: Vector2 = Vector2.ZERO
+var network_movement: Vector2 = Vector2.ZERO
+var network_input_received: bool = false
 
 func set_vehicle_visual_visible(value: bool) -> void:
 	if is_instance_valid(character_visual):
@@ -118,6 +120,20 @@ func _get_movement_input() -> Vector2:
 	var movement: Vector2 = Input.get_vector("move_left", "move_right", "move_forward", "move_back") + hud.move_vector
 	return movement.limit_length()
 
+@rpc("any_peer", "unreliable", "call_remote")
+func receive_network_movement(input_vector: Vector2) -> void:
+	if not is_instance_valid(game) or not game.networked_match:
+		return
+	if not NetworkManager.is_host:
+		return
+	network_movement = input_vector.limit_length()
+	network_input_received = true
+
+func _send_network_movement() -> void:
+	if not is_instance_valid(game) or not game.networked_match or NetworkManager.is_host:
+		return
+	receive_network_movement.rpc_id(1, _get_movement_input())
+
 func _physics_process(delta: float) -> void:
 	if not alive or not is_instance_valid(game) or not game.match_active:
 		mouse_look = Vector2.ZERO
@@ -126,6 +142,8 @@ func _physics_process(delta: float) -> void:
 	if in_vehicle:
 		velocity = Vector3.ZERO
 		return
+
+	_send_network_movement()
 
 	ads = hud.aiming or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT))
 	if ads and hud.sprinting:
