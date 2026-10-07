@@ -239,12 +239,14 @@ func _physics_process(delta: float) -> void:
 	pitch = clampf(pitch - look.y * 0.003 * sensitivity, -1.1, 0.85)
 	_send_network_look()
 	rig.rotation = Vector3(pitch, yaw, 0)
-	var body_turn_rate: float = ads_body_turn_speed if ads else body_turn_speed
-	body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
+
 	camera.fov = lerpf(camera.fov, 46.0 if ads else 75.0, minf(delta * 12.0, 1.0))
 	arm.spring_length = lerpf(arm.spring_length, 2.35 if ads else 4.2, minf(delta * 10.0, 1.0))
 	var movement: Vector2 = _simulation_movement_input()
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
+	var body_turn_rate: float = ads_body_turn_speed if ads else body_turn_speed
+	if movement.length() > 0.05 or ads:
+		body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
 	var sprinting: bool = ((hud.sprinting if is_local_player else network_sprinting_input) and not ads and movement.length() > 0.05)
 	_send_network_movement(ads, sprinting)
 	var speed: float = move_speed * (1.35 if sprinting else (0.58 if ads else 1.0))
