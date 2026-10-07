@@ -107,7 +107,15 @@ func _setup_inputs() -> void:
 			event.physical_keycode = keys[action]
 			InputMap.action_add_event(action, event)
 
-func start_match(selected_mode: String, selected_map: int) -> void:
+@rpc("any_peer", "reliable", "call_local")
+func network_start_match(selected_mode: String, selected_map: int) -> void:
+	if not networked_match:
+		return
+	if not NetworkManager.is_host and multiplayer.get_remote_sender_id() != 1:
+		return
+	_start_match_local(selected_mode, selected_map)
+
+func _start_match_local(selected_mode: String, selected_map: int) -> void:
 	# Keep the short IDs as a small compatibility convenience for tests/tools.
 	if selected_mode == "br" or selected_mode == "cs":
 		selected_mode += "_classic"
@@ -122,6 +130,15 @@ func start_match(selected_mode: String, selected_map: int) -> void:
 	score = [0, 0]
 	round_number = 1
 	_begin_round()
+
+func start_match(selected_mode: String, selected_map: int) -> void:
+	if networked_match:
+		if NetworkManager.is_host:
+			network_start_match.rpc(selected_mode, selected_map)
+		else:
+			network_start_match.rpc_id(1, selected_mode, selected_map)
+		return
+	_start_match_local(selected_mode, selected_map)
 
 func _clear_world() -> void:
 	match_active = false
