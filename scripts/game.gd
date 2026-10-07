@@ -176,7 +176,10 @@ func start_match(selected_mode: String, selected_map: int) -> void:
 		if NetworkManager.is_host:
 			network_start_match.rpc(selected_mode, selected_map)
 		else:
-			request_start_match.rpc_id(1, selected_mode, selected_map)
+			if multiplayer.get_peers().is_empty():
+				_start_match_local(selected_mode, selected_map)
+			else:
+				request_start_match.rpc_id(1, selected_mode, selected_map)
 		return
 	_start_match_local(selected_mode, selected_map)
 
