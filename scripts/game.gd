@@ -36,6 +36,7 @@ var tracer_count: int = 0
 var networked_match: bool = false
 var network_role: String = "offline"
 var local_peer_id: int = 1
+var network_spawn_points: Array[Vector3] = []
 
 func _ready() -> void:
 	_setup_network_state()
@@ -122,6 +123,8 @@ func _begin_round() -> void:
 	damage_clock = 0
 	var count: int = Rules.participant_count(mode_id)
 	var spawns: Array[Vector3] = arena.spawn_points(count, is_cs)
+	if networked_match:
+		network_spawn_points = spawns.duplicate()
 	player = Player.new()
 	world.add_child(player)
 	player.setup(self, spawns[0], 0 if is_cs else -1)
