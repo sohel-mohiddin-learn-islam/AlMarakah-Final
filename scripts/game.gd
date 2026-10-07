@@ -33,8 +33,12 @@ var spectator: Camera3D
 var pickups: Array[Node3D] = []
 var vehicles: Array[Node3D] = []
 var tracer_count: int = 0
+var networked_match: bool = false
+var network_role: String = "offline"
+var local_peer_id: int = 1
 
 func _ready() -> void:
+	_setup_network_state()
 	_setup_inputs()
 	settings = Settings.new()
 	settings.load_settings()
@@ -44,6 +48,16 @@ func _ready() -> void:
 	hud.start_match.connect(start_match)
 	hud.back_to_menu.connect(return_to_menu)
 	return_to_menu()
+
+func _setup_network_state() -> void:
+	if multiplayer.multiplayer_peer == null:
+		networked_match = false
+		network_role = "offline"
+		local_peer_id = 1
+		return
+	networked_match = true
+	network_role = "host" if NetworkManager.is_host else "client"
+	local_peer_id = multiplayer.get_unique_id()
 
 func _setup_inputs() -> void:
 	var keys = {"move_forward": KEY_W, "move_back": KEY_S, "move_left": KEY_A, "move_right": KEY_D, "jump": KEY_SPACE, "reload": KEY_R, "vehicle_accelerate": KEY_W, "vehicle_reverse": KEY_S, "vehicle_left": KEY_A, "vehicle_right": KEY_D, "vehicle_brake": KEY_SPACE, "vehicle_interact": KEY_V}
