@@ -74,6 +74,21 @@ func _on_network_peer_left(peer_id: int) -> void:
 	actors.erase(remote_player)
 	if is_instance_valid(remote_player):
 		remote_player.queue_free()
+	network_remove_player.rpc(peer_id)
+
+@rpc("authority", "reliable", "call_local")
+func network_remove_player(peer_id: int) -> void:
+	if not networked_match:
+		return
+	if peer_id == multiplayer.get_unique_id():
+		return
+	if not network_players.has(peer_id):
+		return
+	var player_to_remove: Node = network_players[peer_id]
+	network_players.erase(peer_id)
+	actors.erase(player_to_remove)
+	if is_instance_valid(player_to_remove):
+		player_to_remove.queue_free()
 
 @rpc("authority", "reliable", "call_local")
 func network_spawn_player(peer_id: int, spawn: Vector3) -> void:
