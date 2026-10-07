@@ -39,6 +39,9 @@ var local_peer_id: int = 1
 
 func _ready() -> void:
 	_setup_network_state()
+	if NetworkManager != null:
+		NetworkManager.peer_joined.connect(_on_network_peer_joined)
+		NetworkManager.peer_left.connect(_on_network_peer_left)
 	_setup_inputs()
 	settings = Settings.new()
 	settings.load_settings()
@@ -48,6 +51,14 @@ func _ready() -> void:
 	hud.start_match.connect(start_match)
 	hud.back_to_menu.connect(return_to_menu)
 	return_to_menu()
+
+func _on_network_peer_joined(peer_id: int) -> void:
+	if not networked_match or not NetworkManager.is_host:
+		return
+
+func _on_network_peer_left(peer_id: int) -> void:
+	if not networked_match:
+		return
 
 func _setup_network_state() -> void:
 	if multiplayer.multiplayer_peer == null:
