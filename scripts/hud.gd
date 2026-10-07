@@ -11,7 +11,7 @@ const POSITIONS = {
 	"move": [0.14, 0.75], "fire": [0.88, 0.63], "ads": [0.75, 0.57],
 	"jump": [0.89, 0.84], "reload": [0.74, 0.83], "sprint": [0.60, 0.83], "vehicle": [0.48, 0.83],
 }
-const CAPTIONS = {"move": "MOVE", "fire": "FIRE", "ads": "ADS", "jump": "JUMP", "reload": "RELOAD", "sprint": "SPRINT", "vehicle": "VEHICLE"}
+var CAPTIONS: Dictionary = {"move": String.chr(9673), "fire": String.chr(10022), "ads": String.chr(8998), "jump": String.chr(8593), "reload": String.chr(8635), "sprint": String.chr(10140), "vehicle": String.chr(9632)}
 
 var move_vector: Vector2 = Vector2.ZERO
 var look_delta: Vector2 = Vector2.ZERO
@@ -277,11 +277,17 @@ func _build_match() -> void:
 	for key in POSITIONS:
 		var pad = PanelContainer.new()
 		pad.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		pad.add_theme_stylebox_override("panel", _style(Color(0.05, 0.13, 0.18, 0.85)))
+		var pad_style = StyleBoxFlat.new()
+		pad_style.bg_color = Color(0.035, 0.09, 0.13, 0.82)
+		pad_style.border_color = Color(0.35, 0.75, 0.78, 0.55)
+		pad_style.set_border_width_all(2)
+		pad_style.set_corner_radius_all(1000)
+		pad.add_theme_stylebox_override("panel", pad_style)
 		match_ui.add_child(pad)
-		var caption = _label(pad, CAPTIONS[key], 20)
+		var caption = _label(pad, CAPTIONS[key], 30 if key != "move" else 36)
 		caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		caption.add_theme_color_override("font_color", Color(0.9, 0.98, 1.0, 0.96))
 		pads[key] = pad
 
 func _build_vitals() -> void:
@@ -511,7 +517,9 @@ func reset_inputs() -> void:
 
 func _refresh_aim() -> void:
 	if pads.has("ads"):
-		pads.ads.get_child(0).text = "ADS ON" if aiming else "ADS"
+		var icon = pads.ads.get_child(0)
+		icon.text = CAPTIONS["ads"]
+		icon.modulate = Color(1.0, 0.95, 0.65, 1.0) if aiming else Color(0.9, 0.98, 1.0, 0.96)
 
 func _pad_at(point: Vector2) -> String:
 	# Reverse drawing order makes hit testing agree with overlapping controls.
