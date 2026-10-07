@@ -62,6 +62,22 @@ func _on_network_peer_left(peer_id: int) -> void:
 	if not networked_match:
 		return
 
+func _spawn_network_player(peer_id: int) -> void:
+	if not networked_match or not NetworkManager.is_host:
+		return
+	if network_players.has(peer_id):
+		return
+	if not match_active or network_spawn_points.is_empty():
+		return
+	var spawn_index: int = network_players.size() + 1
+	if spawn_index >= network_spawn_points.size():
+		return
+	var remote_player := Player.new()
+	world.add_child(remote_player)
+	remote_player.setup(self, network_spawn_points[spawn_index], -1, peer_id)
+	actors.append(remote_player)
+	network_players[peer_id] = remote_player
+
 func _setup_network_state() -> void:
 	if multiplayer.multiplayer_peer == null:
 		networked_match = false
