@@ -5,6 +5,9 @@ var max_speed: float = 26.0
 var acceleration: float = 14.0
 var braking: float = 32.0
 var steering_speed: float = 2.1
+var body_lean: float = 0.0
+var body_pitch: float = 0.0
+var body_lean_speed: float = 5.5
 var friction: float = 6.0
 
 var speed: float = 0.0
@@ -139,10 +142,25 @@ func _physics_process(delta: float) -> void:
         velocity.y = -0.5
 
     _update_wheels(delta)
+    _update_body_lean(delta)
 
     velocity.x = -global_transform.basis.z.x * speed
     velocity.z = -global_transform.basis.z.z * speed
     move_and_slide()
+
+func _update_body_lean(delta: float) -> void:
+    var vehicle_visual := get_node_or_null("RealisticSUV")
+    if not is_instance_valid(vehicle_visual):
+        return
+
+    var speed_ratio: float = clampf(absf(speed) / max_speed, 0.0, 1.0)
+    var target_lean: float = -steering * 0.10 * speed_ratio
+    var target_pitch: float = -throttle * 0.035 * clampf(absf(speed) / 8.0, 0.0, 1.0)
+
+    body_lean = lerpf(body_lean, target_lean, minf(delta * body_lean_speed, 1.0))
+    body_pitch = lerpf(body_pitch, target_pitch, minf(delta * body_lean_speed, 1.0))
+    vehicle_visual.rotation.x = body_pitch
+    vehicle_visual.rotation.z = body_lean
 
 func _update_wheels(delta: float) -> void:
     var steering_angle: float = steering * 0.45
