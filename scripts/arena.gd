@@ -341,6 +341,10 @@ func _build_highlands() -> void:
 			_tree(point, _rng.randf_range(4.8, 7.2))
 			if index % 4 == 1:
 				_vegetation_cluster(point + Vector3(0.0, 0.02, 0.0), _rng.randf_range(1.0, 1.7))
+	for grass_index in range(18 if _compact else 55):
+		var grass_point: Vector3 = _random_prop_position()
+		if _footprint_available(grass_point, Vector2(2.2, 2.2), 1.0):
+			_grass_patch(grass_point, _rng.randf_range(0.8, 1.4))
 	# A blue, shallow painted cistern is visual only; the ground stays walkable.
 	_box(Vector3(12.0, 0.024, -12.0), Vector3(7.0, 0.025, 5.0), "water", false)
 	_rock_formation(Vector3(-52.0, 0.0, -48.0), 1.25)
@@ -397,6 +401,15 @@ func _vegetation_cluster(center: Vector3, scale: float) -> void:
 		var height: float = _rng.randf_range(0.7, 1.35) * scale
 		var blade_center := center + Vector3(cos(angle) * distance, height * 0.5, sin(angle) * distance)
 		_instance("cone", blade_center, Vector3(0.65 * scale, height, 0.65 * scale), "leaf_light")
+
+func _grass_patch(center: Vector3, scale: float) -> void:
+	var blades: int = 3 if _compact else 5
+	for index in range(blades):
+		var angle: float = _rng.randf_range(0.0, TAU)
+		var distance: float = _rng.randf_range(0.1, 0.8) * scale
+		var height: float = _rng.randf_range(0.35, 0.75) * scale
+		var blade_center := center + Vector3(cos(angle) * distance, height * 0.5, sin(angle) * distance)
+		_instance("cone", blade_center, Vector3(0.32 * scale, height, 0.32 * scale), "leaf_light")
 
 func _tree(center: Vector3, height: float) -> void:
 	_cylinder(center + Vector3.UP * 1.1, 0.38, 2.2, "wood")
