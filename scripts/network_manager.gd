@@ -25,6 +25,11 @@ var matchmaking_map: int = 0
 var matchmaking_ready: Dictionary = {}
 var matchmaking_time_left: float = 0.0
 
+var active_match: bool = false
+var active_match_mode: String = ""
+var active_match_map: int = 0
+var active_match_players: Array = []
+
 func host(port: int = DEFAULT_PORT) -> int:
     if multiplayer.multiplayer_peer != null:
         return ERR_ALREADY_IN_USE
@@ -89,7 +94,11 @@ func _process(delta: float) -> void:
     matchmaking_time_left -= delta
     if matchmaking_time_left <= 0.0:
         matchmaking_time_left = 0.0
-        matchmaking_locked.emit(matchmaking_mode, matchmaking_map, matchmaking_ready.keys())
+        active_match = true
+        active_match_mode = matchmaking_mode
+        active_match_map = matchmaking_map
+        active_match_players = matchmaking_ready.keys().duplicate()
+        matchmaking_locked.emit(active_match_mode, active_match_map, active_match_players)
         matchmaking_ready.clear()
         matchmaking_active = false
         matchmaking_updated.emit()
