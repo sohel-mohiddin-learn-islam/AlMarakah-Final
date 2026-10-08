@@ -54,6 +54,8 @@ var network_movement_amount: float = 0.0
 var network_aiming: bool = false
 var network_sprinting: bool = false
 var network_grounded: bool = true
+var network_fire_requested: bool = false
+var network_fire_aiming: bool = false
 
 
 func set_vehicle_visual_visible(value: bool) -> void:
@@ -152,6 +154,17 @@ func receive_network_movement(input_vector: Vector2, aiming_input: bool, sprinti
 	network_sprinting_input = sprinting_input
 	network_input_received = true
 @rpc("any_peer", "unreliable", "call_remote")
+func receive_network_fire(firing: bool, aiming_input: bool) -> void:
+	if not is_instance_valid(game) or not game.networked_match:
+		return
+	if not NetworkManager.is_host:
+		return
+	if multiplayer.get_remote_sender_id() != network_peer_id:
+		return
+	network_fire_requested = firing
+	network_fire_aiming = aiming_input
+
+@rpc("any_peer", "unreliable", "call_remote")
 func receive_network_look(input_yaw: float, input_pitch: float) -> void:
 	if not is_instance_valid(game) or not game.networked_match:
 		return
@@ -198,6 +211,11 @@ func _send_network_look() -> void:
 		return
 	receive_network_look.rpc_id(1, yaw, pitch)
 
+func _send_network_fire(firing: bool, aiming_input: bool) -> void:
+	if not is_instance_valid(game) or not game.networked_match or multiplayer.is_server():
+		return
+	receive_network_fire.rpc_id(1, firing, aiming_input)
+
 func _send_network_snapshot() -> void:
 	if not is_instance_valid(game) or not game.networked_match or not multiplayer.is_server():
 		return
@@ -228,7 +246,7 @@ func _physics_process(delta: float) -> void:
 		return
 
 	var is_local_player: bool = _is_local_player()
-	ads = (hud.aiming or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT))) if is_local_player else network_aiming_input
+	ads = (hud.aiming or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT))) if is_local_player else (network_fire_aiming if network_fire_requested else network_aiming_input)
 	if is_local_player and ads and hud.sprinting:
 		hud.sprinting = false
 	var sensitivity: float = float(settings.data.ads_sensitivity if ads else settings.data.camera_sensitivity)
@@ -245,7 +263,9 @@ func _physics_process(delta: float) -> void:
 	var movement: Vector2 = _simulation_movement_input()
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
 	var sprinting: bool = ((hud.sprinting if is_local_player else network_sprinting_input) and not ads and movement.length() > 0.05)
-	var fire: bool = hud.firing or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))
+	var fire: bool = (hud.firing or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))) if is_local_player else network_fire_requested
+	if is_local_player:
+		_send_network_fire(fire, ads)
 	var body_turn_rate: float = ads_body_turn_speed if ads else body_turn_speed
 	if movement.length() > 0.05 or ads:
 		body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_rate, 1.0))
@@ -317,10 +337,14 @@ func _physics_process(delta: float) -> void:
 			muzzle_flash.visible = false
 
 	if fire and shot_time <= 0 and reload_time <= 0:
-		if ammo > 0:
+		if is_local_player and game.networked_match and not multiplayer.is_server():
+			pass
+		elif ammo > 0:
 			_shoot()
 		else:
 			reload_weapon()
+		if network_fire_requested:
+			network_fire_requested = false
 
 func _nearest_vehicle() -> Node:
 	if not is_instance_valid(game) or not "vehicles" in game:
@@ -389,12 +413,19 @@ func _shoot() -> void:
 		muzzle_flash_time = 0.05
 	ammo -= 1
 	shot_time = fire_interval
-	var forward: Vector3 = -camera.global_basis.z
-	if ads and bool(settings.data.aim_assist):
-		forward = game.assisted_direction(camera.global_position, forward, self)
-	var query = PhysicsRayQueryParameters3D.create(camera.global_position, camera.global_position + forward * 200, 3, [get_rid()])
+	var forward: Vector3
+	var ray_origin: Vector3
+	if game.networked_match and multiplayer.is_server() and not _is_local_player():
+		forward = Vector3(sin(yaw) * cos(pitch), -sin(pitch), -cos(yaw) * cos(pitch)).normalized()
+		ray_origin = global_position + Vector3(0, 1.35, 0)
+	else:
+		forward = -camera.global_basis.z
+		ray_origin = camera.global_position
+		if ads and bool(settings.data.aim_assist):
+			forward = game.assisted_direction(ray_origin, forward, self)
+	var query = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + forward * 200, 3, [get_rid()])
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
-	var target: Vector3 = hit.get("position", camera.global_position + forward * 200)
+	var target: Vector3 = hit.get("position", ray_origin + forward * 200)
 	var target_direction: Vector3 = target - global_position
 	target_direction.y = 0.0
 	if target_direction.length_squared() > 0.001:
