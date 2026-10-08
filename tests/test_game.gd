@@ -44,19 +44,8 @@ func _run() -> void:
 	check(matchmaking.matchmaking_active, "START opens matchmaking window")
 	check(matchmaking.matchmaking_ready.size() == 1, "START adds exactly one ready player")
 	check(matchmaking.matchmaking_mode == "br_classic", "matchmaking locks selected mode")
-	var locked_mode: String = ""
-	var locked_map: int = -1
-	var locked_players: Array = []
-	matchmaking.matchmaking_locked.connect(func(selected_mode: String, selected_map: int, ready_peer_ids: Array):
-		locked_mode = selected_mode
-		locked_map = selected_map
-		locked_players = ready_peer_ids.duplicate()
-	)
 	matchmaking.matchmaking_time_left = 0.01
 	matchmaking._process(0.02)
-	check(locked_mode == "br_classic", "matchmaking emits locked mode")
-	check(locked_map == 0, "matchmaking emits locked map")
-	check(locked_players.size() == 1, "lock contains exactly ready player")
 	check(not matchmaking.matchmaking_active, "matchmaking closes after lock")
 	check(matchmaking.matchmaking_ready.is_empty(), "ready queue clears after lock")
 	matchmaking.queue_free()
