@@ -286,10 +286,30 @@ func _try_fire() -> void:
 	game.fire_ray(origin, direction, self, 9.0, SIGHT_RANGE)
 
 
+@rpc("authority", "reliable", "call_remote")
+func receive_network_damage(new_health: float, new_alive: bool) -> void:
+	if not network_replica:
+		return
+	health = clampf(new_health, 0.0, MAX_HEALTH)
+	alive = new_alive
+	network_alive = new_alive
+	if not alive:
+		velocity = Vector3.ZERO
+		collision_layer = 0
+		collision_mask = 0
+		if is_instance_valid(_collider):
+			_collider.set_deferred("disabled", true)
+		if is_instance_valid(_visual):
+			_visual.rotation.z = PI * 0.5
+			_visual.position.y = 0.35
+		set_physics_process(false)
+
 func take_damage(amount: float, attacker: Node = null) -> void:
 	if not alive or amount <= 0.0 or not is_finite(amount):
 		return
 	health = maxf(0.0, health - amount)
+	if is_instance_valid(game) and game.networked_match and NetworkManager.is_host:
+		receive_network_damage.rpc(health, health > 0.0)
 	if health > 0.0:
 		return
 	alive = false
@@ -307,7 +327,6 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 	# Keep the actor and its corpse for the roster; the match owns eventual cleanup.
 	if is_instance_valid(game):
 		game.actor_eliminated(self, attacker)
-
 
 func _make_body() -> void:
 	if _body_mesh == null:

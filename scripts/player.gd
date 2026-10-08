@@ -412,13 +412,31 @@ func _shoot() -> void:
 	pitch = clampf(pitch + 0.008, -1.1, 0.85)
 	sound.play()
 
+@rpc("authority", "reliable", "call_remote")
+func receive_network_damage(new_health: float, new_alive: bool) -> void:
+	if not is_instance_valid(game) or not game.networked_match:
+		return
+	if NetworkManager.is_host:
+		return
+	health = clampf(new_health, 0.0, MAX_HEALTH)
+	alive = new_alive
+	if network_peer_id == multiplayer.get_unique_id():
+		if is_instance_valid(hud) and hud.has_method("show_damage_indicator"):
+			hud.show_damage_indicator()
+	if not alive:
+		set_deferred("collision_layer", 0)
+		if is_instance_valid(body):
+			body.visible = false
+
 func take_damage(amount: float, attacker: Node = null) -> void:
 	if not alive or amount <= 0:
 		return
-	health = maxf(0, health - amount)
+	health = maxf(0.0, health - amount)
 	if is_instance_valid(hud) and hud.has_method("show_damage_indicator"):
 		hud.show_damage_indicator()
-	if health <= 0:
+	if is_instance_valid(game) and game.networked_match and NetworkManager.is_host:
+		receive_network_damage.rpc(health, health > 0.0)
+	if health <= 0.0:
 		alive = false
 		set_deferred("collision_layer", 0)
 		body.visible = false
