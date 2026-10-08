@@ -324,8 +324,8 @@ func start_match(selected_mode: String, selected_map: int) -> void:
 	_start_match_local(selected_mode, selected_map)
 
 func _clear_world() -> void:
-    network_resolution_sent = false
-    network_round_pending = false
+	network_resolution_sent = false
+	network_round_pending = false
 	match_active = false
 	intermission = 0
 	actors.clear()
