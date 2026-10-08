@@ -304,6 +304,21 @@ func receive_network_damage(new_health: float, new_alive: bool) -> void:
 			_visual.position.y = 0.35
 		set_physics_process(false)
 
+func set_network_eliminated() -> void:
+        network_alive = false
+        alive = false
+        velocity = Vector3.ZERO
+        _target = null
+        _visible_target = false
+        collision_layer = 0
+        collision_mask = 0
+        if is_instance_valid(_collider):
+                _collider.set_deferred("disabled", true)
+        if is_instance_valid(_visual):
+                _visual.rotation.z = PI * 0.5
+                _visual.position.y = 0.35
+        set_physics_process(false)
+
 func take_damage(amount: float, attacker: Node = null) -> void:
 	if not alive or amount <= 0.0 or not is_finite(amount):
 		return

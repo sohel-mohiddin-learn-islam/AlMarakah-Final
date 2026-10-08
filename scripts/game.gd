@@ -150,6 +150,38 @@ func network_draw_tracer(origin: Vector3, end: Vector3) -> void:
                 return
         _draw_tracer(origin, end, false)
 
+@rpc("authority", "reliable", "call_remote")
+func network_eliminate_actor(actor_id: int, actor_is_bot: bool) -> void:
+        if not networked_match:
+                return
+        if multiplayer.get_remote_sender_id() != 1:
+                return
+        if actor_is_bot:
+                if not network_bots.has(actor_id):
+                        return
+                var bot_replica: Node = network_bots[actor_id]
+                if not is_instance_valid(bot_replica):
+                        return
+                bot_replica.network_alive = false
+                bot_replica.alive = false
+                bot_replica.collision_layer = 0
+                bot_replica.collision_mask = 0
+                if bot_replica.has_method("set_network_eliminated"):
+                        bot_replica.set_network_eliminated()
+                return
+        if actor_id == multiplayer.get_unique_id():
+                return
+        if not network_players.has(actor_id):
+                return
+        var player_replica: Node = network_players[actor_id]
+        if not is_instance_valid(player_replica):
+                return
+        player_replica.network_alive = false
+        player_replica.alive = false
+        player_replica.set_deferred("collision_layer", 0)
+        if is_instance_valid(player_replica.body):
+                player_replica.body.visible = false
+
 func _sync_existing_network_players(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
@@ -548,6 +580,15 @@ func assisted_direction(origin: Vector3, direction: Vector3, attacker: Node) -> 
 func actor_eliminated(actor: Node, attacker: Node) -> void:
 	if not match_active:
 		return
+        if networked_match and NetworkManager.is_host:
+                if actor is Bot:
+                        if actor.network_id > 0:
+                                for peer_id in multiplayer.get_peers():
+                                        network_eliminate_actor.rpc_id(peer_id, actor.network_id, true)
+                elif actor is Player:
+                        if actor.network_peer_id > 0:
+                                for peer_id in multiplayer.get_peers():
+                                        network_eliminate_actor.rpc_id(peer_id, actor.network_peer_id, false)
 	if attacker == player:
 		kills += 1
 	if actor == player:
