@@ -35,7 +35,7 @@ var result_text: Label
 var crosshair: Label
 var menu: Button
 var spectator_prev: Button
-var spectator_next: Button
+var spectator_next_button: Button
 var spectator_label: Label
 var spectator_target_label: Label
 var map_picker: OptionButton
@@ -294,15 +294,15 @@ func _build_match() -> void:
 	spectator_prev.offset_bottom = 72
 	spectator_prev.hide()
 
-	spectator_next = _button(match_ui, "NEXT ›", func():
+	spectator_next_button = _button(match_ui, "NEXT ›", func():
 		spectator_next.emit()
 	)
-	spectator_next.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	spectator_next.offset_left = -440
-	spectator_next.offset_right = -304
-	spectator_next.offset_top = 20
-	spectator_next.offset_bottom = 72
-	spectator_next.hide()
+	spectator_next_button.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	spectator_next_button.offset_left = -440
+	spectator_next_button.offset_right = -304
+	spectator_next_button.offset_top = 20
+	spectator_next_button.offset_bottom = 72
+	spectator_next_button.hide()
 
 	crosshair = _label(match_ui, "+", 32)
 	crosshair.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
@@ -463,8 +463,8 @@ func update_status(data: Dictionary) -> void:
 	var eliminated: bool = bool(data.get("eliminated", false))
 	if is_instance_valid(spectator_prev):
 		spectator_prev.visible = eliminated
-	if is_instance_valid(spectator_next):
-		spectator_next.visible = eliminated
+	if is_instance_valid(spectator_next_button):
+		spectator_next_button.visible = eliminated
 	if is_instance_valid(spectator_label):
 		spectator_label.visible = eliminated
 	if is_instance_valid(spectator_target_label):
