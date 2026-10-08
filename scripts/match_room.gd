@@ -1,7 +1,7 @@
 extends Node
 signal match_locked(room_session_id: int, selected_mode: String, selected_map: int, locked_human_peer_ids: Array)
 
-## Owns the identity and locked player roster for one isolated match room.
+## Owns the identity, locked player roster, and lifecycle for one isolated match room.
 
 var session_id: int = 0
 var mode_id: String = ""
@@ -18,6 +18,18 @@ func setup(room_session_id: int, selected_mode: String, selected_map: int, locke
     bot_count = maxi(total_players - human_peer_ids.size(), 0)
     state = "locked"
     match_locked.emit(session_id, mode_id, map_id, human_peer_ids.duplicate())
+
+func start_match() -> bool:
+    if state != "locked":
+        return false
+    state = "running"
+    return true
+
+func finish_match() -> bool:
+    if state != "running":
+        return false
+    state = "finished"
+    return true
 
 func is_active() -> bool:
     return state == "locked" or state == "running"

@@ -43,7 +43,8 @@ func _run() -> void:
 	check(room_test.bot_count == 47, "MatchRoom calculates BR bot count")
 	check(room_test.human_peer_ids.size() == 3, "MatchRoom stores BR humans")
 	check(room_test.is_active(), "locked MatchRoom is active")
-	room_test.state = "finished"
+	check(room_test.start_match(), "MatchRoom starts from locked state")
+	check(room_test.finish_match(), "MatchRoom finishes running state")
 	check(not room_test.is_active(), "finished MatchRoom is inactive")
 	room_test.queue_free()
 	await process_frame
@@ -82,7 +83,8 @@ func _run() -> void:
 	check(room_lock_events[0]["map"] == 0, "room lock signal has map")
 	check(room_lock_events[0]["humans"].size() == 1, "room lock signal has human roster")
 	check(not matchmaking.is_match_room_active(999999), "unknown room is inactive")
-	matchmaking.match_rooms[matchmaking.active_match_session_id].state = "finished"
+	check(matchmaking.match_rooms[matchmaking.active_match_session_id].start_match(), "network room starts from locked state")
+	check(matchmaking.match_rooms[matchmaking.active_match_session_id].finish_match(), "network room finishes running state")
 	check(not matchmaking.is_match_room_active(matchmaking.active_match_session_id), "finished room is inactive")
 	var room_game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(room_game)
