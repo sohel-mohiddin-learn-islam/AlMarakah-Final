@@ -220,6 +220,8 @@ func _physics_process(delta: float) -> void:
 		rig.rotation = Vector3(pitch, yaw, 0)
 		if is_instance_valid(body):
 			body.rotation.y = lerp_angle(body.rotation.y, yaw, minf(delta * body_turn_speed, 1.0))
+		if character_visual != null:
+			character_visual.rotation.y = lerp_angle(character_visual.rotation.y, 0.0, minf(delta * body_turn_speed, 1.0))
 		if animator != null:
 			animator.update_state(network_movement_amount, network_grounded, network_aiming, network_sprinting, delta, network_pitch)
 		return
@@ -413,6 +415,9 @@ func _shoot() -> void:
 	# Start at the character, not the camera, so cover blocks third-person shots.
 	var origin: Vector3 = global_position + Vector3(0, 1.35, 0)
 	game.fire_ray(origin, (target - origin).normalized(), self, weapon_damage, 200.0)
+	if game.networked_match and multiplayer.is_server() and not _is_local_player():
+		for peer_id in multiplayer.get_peers():
+			game.network_play_remote_fire.rpc_id(peer_id, network_peer_id, pitch)
 	pitch = clampf(pitch + 0.008, -1.1, 0.85)
 	sound.play()
 

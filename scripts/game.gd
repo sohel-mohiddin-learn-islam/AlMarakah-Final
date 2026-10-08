@@ -148,6 +148,23 @@ func network_spawn_bot(bot_id: int, spawn: Vector3, team_id: int) -> void:
 	network_bots[bot_id] = replica
 
 @rpc("authority", "unreliable", "call_remote")
+func network_play_remote_fire(peer_id: int, fire_pitch: float) -> void:
+	if not networked_match:
+		return
+	if multiplayer.get_remote_sender_id() != 1:
+		return
+	if peer_id == multiplayer.get_unique_id():
+		return
+	if not network_players.has(peer_id):
+		return
+	var remote_player: Node = network_players[peer_id]
+	if not is_instance_valid(remote_player):
+		return
+	remote_player.pitch = fire_pitch
+	if remote_player.animator != null:
+		remote_player.animator.play_shoot()
+
+@rpc("authority", "unreliable", "call_remote")
 func network_draw_tracer(origin: Vector3, end: Vector3) -> void:
 	if not networked_match:
 		return
