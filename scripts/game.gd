@@ -421,7 +421,7 @@ func _send_network_snapshot_batch() -> void:
 	var snapshots: Array = []
 	for peer_id in network_players:
 		var remote_player: Node = network_players[peer_id]
-			if not is_instance_valid(remote_player):
+		if not is_instance_valid(remote_player):
 			continue
 		snapshots.append([int(peer_id), remote_player.global_position, remote_player.velocity, remote_player.yaw, remote_player.pitch, remote_player.alive, remote_player.network_movement_amount, remote_player.network_aiming, remote_player.network_sprinting, remote_player.network_grounded])
 	if is_instance_valid(player):
@@ -474,7 +474,6 @@ func receive_network_snapshot_batch(snapshots: Array) -> void:
 		remote_player.network_aiming = bool(snapshot[7])
 		remote_player.network_sprinting = bool(snapshot[8])
 		remote_player.network_grounded = bool(snapshot[9])
-
 func _process(delta: float) -> void:
 	hud_clock += delta
 	if is_instance_valid(player) and hud_clock > 0.1:
