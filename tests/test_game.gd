@@ -48,6 +48,20 @@ func _run() -> void:
 	matchmaking._process(0.02)
 	check(not matchmaking.matchmaking_active, "matchmaking closes after lock")
 	check(matchmaking.matchmaking_ready.is_empty(), "ready queue clears after lock")
+	var br_room: Dictionary = matchmaking.get_match_room(matchmaking.active_match_session_id)
+	check(br_room.get("mode", "") == "br_classic", "locked BR room stores mode")
+	check(br_room.get("bot_count", -1) == 49, "one BR player gets 49 bots")
+	check(br_room.get("human_peer_ids", []).size() == 1, "BR room stores one human")
+	matchmaking.matchmaking_ready.clear()
+	matchmaking.matchmaking_active = false
+	matchmaking.matchmaking_session_id = 0
+	matchmaking.request_matchmaking_ready("cs_classic", 0)
+	matchmaking.matchmaking_time_left = 0.01
+	matchmaking._process(0.02)
+	var cs_room: Dictionary = matchmaking.get_match_room(matchmaking.active_match_session_id)
+	check(cs_room.get("mode", "") == "cs_classic", "locked CS room stores mode")
+	check(cs_room.get("bot_count", -1) == 7, "one CS player gets 7 bots")
+	check(cs_room.get("human_peer_ids", []).size() == 1, "CS room stores one human")
 	matchmaking.queue_free()
 	await process_frame
 	var prefs = Settings.new()

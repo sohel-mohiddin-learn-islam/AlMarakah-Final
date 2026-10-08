@@ -32,6 +32,24 @@ var active_match_players: Array = []
 var next_match_session_id: int = 1
 var matchmaking_session_id: int = 0
 var active_match_session_id: int = 0
+var match_rooms: Dictionary = {}
+
+func _register_match_room(session_id: int, selected_mode: String, selected_map: int, human_peer_ids: Array) -> void:
+    var total_players: int = 8 if selected_mode.begins_with("cs") else 50
+    var room := {
+        "session_id": session_id,
+        "mode": selected_mode,
+        "map": selected_map,
+        "human_peer_ids": human_peer_ids.duplicate(),
+        "bot_count": maxi(total_players - human_peer_ids.size(), 0),
+        "state": "locked"
+    }
+    match_rooms[session_id] = room
+
+func get_match_room(session_id: int) -> Dictionary:
+    if not match_rooms.has(session_id):
+        return {}
+    return match_rooms[session_id].duplicate(true)
 
 func host(port: int = DEFAULT_PORT) -> int:
     if multiplayer.multiplayer_peer != null:
@@ -104,6 +122,7 @@ func _process(delta: float) -> void:
         active_match_map = matchmaking_map
         active_match_players = matchmaking_ready.keys().duplicate()
         active_match_session_id = matchmaking_session_id
+        _register_match_room(active_match_session_id, active_match_mode, active_match_map, active_match_players)
         matchmaking_locked.emit(active_match_mode, active_match_map, active_match_players, active_match_session_id)
         matchmaking_ready.clear()
         matchmaking_active = false
