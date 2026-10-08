@@ -43,7 +43,11 @@ var network_local_spawn_index: int = 0
 var network_ready_peer_ids: Array = []
 var network_match_locked: bool = false
 var network_match_session_id: int = 0
+var network_room_session_id: int = 0
 var network_bot_slots: Dictionary = {}
+
+func is_in_network_room() -> bool:
+	return networked_match and network_room_session_id > 0
 
 func _ready() -> void:
 	_setup_network_state()
@@ -67,6 +71,7 @@ func _on_matchmaking_locked(selected_mode: String, selected_map: int, ready_peer
 	network_ready_peer_ids = ready_peer_ids.duplicate()
 	network_match_locked = true
 	network_match_session_id = session_id
+	network_room_session_id = session_id
 	print("MATCHMAKING LOCKED: mode=", selected_mode, " map=", selected_map, " humans=", network_ready_peer_ids)
 	network_start_match.rpc(selected_mode, selected_map, network_ready_peer_ids, network_match_session_id)
 
@@ -209,6 +214,7 @@ func network_start_match(selected_mode: String, selected_map: int, locked_peer_i
 	if session_id <= 0:
 		return
 	network_match_session_id = session_id
+	network_room_session_id = session_id
 	network_ready_peer_ids = locked_peer_ids.duplicate()
 	var my_peer_id: int = multiplayer.get_unique_id()
 	var local_index: int = network_ready_peer_ids.find(my_peer_id)

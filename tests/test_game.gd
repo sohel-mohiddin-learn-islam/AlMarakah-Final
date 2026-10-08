@@ -52,6 +52,16 @@ func _run() -> void:
 	check(br_room.get("mode", "") == "br_classic", "locked BR room stores mode")
 	check(br_room.get("bot_count", -1) == 49, "one BR player gets 49 bots")
 	check(br_room.get("human_peer_ids", []).size() == 1, "BR room stores one human")
+	var room_game = load("res://scenes/main.tscn").instantiate()
+	root.add_child(room_game)
+	await process_frame
+	room_game.networked_match = true
+	room_game.network_room_session_id = matchmaking.active_match_session_id
+	check(room_game.is_in_network_room(), "Game recognizes active room session")
+	room_game.network_room_session_id = 0
+	check(not room_game.is_in_network_room(), "Game rejects empty room session")
+	room_game.queue_free()
+	await process_frame
 	matchmaking.matchmaking_ready.clear()
 	matchmaking.matchmaking_active = false
 	matchmaking.matchmaking_session_id = 0
