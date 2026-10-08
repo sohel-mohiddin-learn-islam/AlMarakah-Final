@@ -89,6 +89,13 @@ func _run() -> void:
 	check(cs_room.get("mode", "") == "cs_classic", "locked CS room stores mode")
 	check(cs_room.get("bot_count", -1) == 7, "one CS player gets 7 bots")
 	check(cs_room.get("human_peer_ids", []).size() == 1, "CS room stores one human")
+	var room_a = matchmaking.create_match_room(201, "br_classic", 0, [10])
+	var room_b = matchmaking.create_match_room(202, "br_classic", 1, [20, 21])
+	check(room_a != room_b, "two match rooms are separate objects")
+	check(matchmaking.get_match_room(201).get("bot_count", -1) == 49, "room A keeps 49 bots")
+	check(matchmaking.get_match_room(202).get("bot_count", -1) == 48, "room B keeps 48 bots")
+	check(matchmaking.get_match_room(201).get("map", -1) == 0, "room A keeps its map")
+	check(matchmaking.get_match_room(202).get("map", -1) == 1, "room B keeps its map")
 	matchmaking.queue_free()
 	await process_frame
 	var prefs = Settings.new()

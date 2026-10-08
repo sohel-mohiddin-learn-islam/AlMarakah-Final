@@ -42,6 +42,10 @@ func _register_match_room(session_id: int, selected_mode: String, selected_map: 
     room.setup(session_id, selected_mode, selected_map, human_peer_ids, total_players)
     match_rooms[session_id] = room
 
+func create_match_room(session_id: int, selected_mode: String, selected_map: int, human_peer_ids: Array) -> Node:
+    _register_match_room(session_id, selected_mode, selected_map, human_peer_ids)
+    return match_rooms[session_id]
+
 func is_match_room_active(session_id: int) -> bool:
     if not match_rooms.has(session_id):
         return false
