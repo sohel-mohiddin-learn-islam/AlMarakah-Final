@@ -64,8 +64,6 @@ func _on_matchmaking_locked(selected_mode: String, selected_map: int, ready_peer
 	if not networked_match or not NetworkManager.is_host:
 		return
 	network_ready_peer_ids = ready_peer_ids.duplicate()
-	if not network_ready_peer_ids.has(multiplayer.get_unique_id()):
-		network_ready_peer_ids.push_front(multiplayer.get_unique_id())
 	network_match_locked = true
 	print("MATCHMAKING LOCKED: mode=", selected_mode, " map=", selected_map, " humans=", network_ready_peer_ids)
 	network_start_match.rpc(selected_mode, selected_map, network_ready_peer_ids)
