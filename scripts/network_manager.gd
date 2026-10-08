@@ -46,6 +46,12 @@ func _register_match_room(session_id: int, selected_mode: String, selected_map: 
     }
     match_rooms[session_id] = room
 
+func is_match_room_active(session_id: int) -> bool:
+    if not match_rooms.has(session_id):
+        return false
+    var state: String = str(match_rooms[session_id].get("state", ""))
+    return state == "locked" or state == "running"
+
 func get_match_room(session_id: int) -> Dictionary:
     if not match_rooms.has(session_id):
         return {}

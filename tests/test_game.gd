@@ -52,6 +52,11 @@ func _run() -> void:
 	check(br_room.get("mode", "") == "br_classic", "locked BR room stores mode")
 	check(br_room.get("bot_count", -1) == 49, "one BR player gets 49 bots")
 	check(br_room.get("human_peer_ids", []).size() == 1, "BR room stores one human")
+	check(matchmaking.is_match_room_active(matchmaking.active_match_session_id), "locked room is active")
+	check(not matchmaking.is_match_room_active(999999), "unknown room is inactive")
+	br_room["state"] = "finished"
+	matchmaking.match_rooms[matchmaking.active_match_session_id] = br_room
+	check(not matchmaking.is_match_room_active(matchmaking.active_match_session_id), "finished room is inactive")
 	var room_game = load("res://scenes/main.tscn").instantiate()
 	root.add_child(room_game)
 	await process_frame
