@@ -532,39 +532,39 @@ func _on_spectator_next() -> void:
 
 @rpc("authority", "reliable", "call_remote")
 func network_begin_round() -> void:
-    if not networked_match:
-        return
-    if multiplayer.get_remote_sender_id() != 1:
-        return
-    network_round_pending = false
-    _begin_round()
+	if not networked_match:
+		return
+	if multiplayer.get_remote_sender_id() != 1:
+		return
+	network_round_pending = false
+	_begin_round()
 
 func _process(delta: float) -> void:
-    hud_clock += delta
+	hud_clock += delta
 
-    if is_instance_valid(player) and hud_clock > 0.1:
-        hud_clock = 0
-        _update_hud()
+	if is_instance_valid(player) and hud_clock > 0.1:
+		hud_clock = 0
+		_update_hud()
 
-    # CS round intermission is controlled by the host.
-    if is_cs and networked_match and network_round_pending and intermission > 0:
-        intermission = maxf(intermission - delta, 0.0)
+	# CS round intermission is controlled by the host.
+	if is_cs and networked_match and network_round_pending and intermission > 0:
+		intermission = maxf(intermission - delta, 0.0)
 
-        if NetworkManager.is_host and intermission <= 0.0:
-            network_round_pending = false
-            network_begin_round.rpc()
-            _begin_round()
+		if NetworkManager.is_host and intermission <= 0.0:
+			network_round_pending = false
+			network_begin_round.rpc()
+			_begin_round()
 
-    if is_instance_valid(spectator) and (match_active or intermission > 0):
-        if not _is_valid_spectator_target():
-            _set_spectator_target(_find_spectator_target(1))
-        if is_instance_valid(spectator_target):
-            var point: Vector3 = spectator_target.global_position
-            spectator.global_position = spectator.global_position.lerp(
-                point + Vector3(0, 12, 14),
-                minf(delta * 3, 1)
-            )
-            spectator.look_at(point + Vector3.UP)
+	if is_instance_valid(spectator) and (match_active or intermission > 0):
+		if not _is_valid_spectator_target():
+			_set_spectator_target(_find_spectator_target(1))
+		if is_instance_valid(spectator_target):
+			var point: Vector3 = spectator_target.global_position
+			spectator.global_position = spectator.global_position.lerp(
+				point + Vector3(0, 12, 14),
+				minf(delta * 3, 1)
+			)
+			spectator.look_at(point + Vector3.UP)
 
 func are_enemies(a: Node, b: Node) -> bool:
 	return a != b and Rules.enemies(is_cs, a.team, b.team)
@@ -697,213 +697,213 @@ func _start_spectator_camera() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _check_resolution() -> void:
-    if not match_active:
-        return
+	if not match_active:
+		return
 
-    # In a network match the host is the only authority allowed
-    # to decide the outcome. Clients only receive the result RPC.
-    if networked_match and not NetworkManager.is_host:
-        return
+	# In a network match the host is the only authority allowed
+	# to decide the outcome. Clients only receive the result RPC.
+	if networked_match and not NetworkManager.is_host:
+		return
 
-    if is_cs:
-        var living: Array[int] = [0, 0]
-        var health_sum: Array[float] = [0.0, 0.0]
+	if is_cs:
+		var living: Array[int] = [0, 0]
+		var health_sum: Array[float] = [0.0, 0.0]
 
-        for actor in actors:
-            if actor.alive:
-                living[actor.team] += 1
-                health_sum[actor.team] += actor.health
+		for actor in actors:
+			if actor.alive:
+				living[actor.team] += 1
+				health_sum[actor.team] += actor.health
 
-        var winner: int = Rules.cs_winner(
-            living,
-            health_sum,
-            elapsed >= Rules.CS_ROUND_SECONDS
-        )
+		var winner: int = Rules.cs_winner(
+			living,
+			health_sum,
+			elapsed >= Rules.CS_ROUND_SECONDS
+		)
 
-        if winner == -2:
-            return
+		if winner == -2:
+			return
 
-        match_active = false
+		match_active = false
 
-        if winner >= 0:
-            score[winner] += 1
+		if winner >= 0:
+			score[winner] += 1
 
-        var final_match: bool = (
-            score[0] >= Rules.CS_ROUNDS_TO_WIN
-            or score[1] >= Rules.CS_ROUNDS_TO_WIN
-        )
+		var final_match: bool = (
+			score[0] >= Rules.CS_ROUNDS_TO_WIN
+			or score[1] >= Rules.CS_ROUNDS_TO_WIN
+		)
 
-        if final_match:
-            var title: String = "TEAM VICTORY" if score[0] > score[1] else "TEAM DEFEAT"
-            _finish_match(title)
-        else:
-            round_number += 1
-            intermission = 3.0
-            network_round_pending = true
+		if final_match:
+			var title: String = "TEAM VICTORY" if score[0] > score[1] else "TEAM DEFEAT"
+			_finish_match(title)
+		else:
+			round_number += 1
+			intermission = 3.0
+			network_round_pending = true
 
-            if networked_match and NetworkManager.is_host:
-                network_round_state.rpc(
-                    score[0],
-                    score[1],
-                    round_number,
-                    intermission
-                )
+			if networked_match and NetworkManager.is_host:
+				network_round_state.rpc(
+					score[0],
+					score[1],
+					round_number,
+					intermission
+				)
 
-    else:
-        var survivors: Array[Node3D] = []
+	else:
+		var survivors: Array[Node3D] = []
 
-        for actor in actors:
-            if actor.alive:
-                survivors.append(actor)
+		for actor in actors:
+			if actor.alive:
+				survivors.append(actor)
 
-        if survivors.size() <= 1:
-            var title: String = "MATCH COMPLETE"
+		if survivors.size() <= 1:
+			var title: String = "MATCH COMPLETE"
 
-            if survivors.size() == 1 and survivors[0] == player:
-                title = "LAST SURVIVOR — VICTORY"
+			if survivors.size() == 1 and survivors[0] == player:
+				title = "LAST SURVIVOR — VICTORY"
 
-            _finish_match(title)
+			_finish_match(title)
 
 
 @rpc("authority", "reliable", "call_remote")
 func network_round_state(
-    score_zero: int,
-    score_one: int,
-    next_round: int,
-    delay: float
+	score_zero: int,
+	score_one: int,
+	next_round: int,
+	delay: float
 ) -> void:
-    if not networked_match:
-        return
+	if not networked_match:
+		return
 
-    if multiplayer.get_remote_sender_id() != 1:
-        return
+	if multiplayer.get_remote_sender_id() != 1:
+		return
 
-    score[0] = score_zero
-    score[1] = score_one
-    round_number = next_round
-    intermission = maxf(delay, 0.0)
-    network_round_pending = true
-    match_active = false
+	score[0] = score_zero
+	score[1] = score_one
+	round_number = next_round
+	intermission = maxf(delay, 0.0)
+	network_round_pending = true
+	match_active = false
 
 
 @rpc("authority", "reliable", "call_remote")
 func network_match_result(
-    title: String,
-    score_zero: int,
-    score_one: int,
-    final_kills: int
+	title: String,
+	score_zero: int,
+	score_one: int,
+	final_kills: int
 ) -> void:
-    if not networked_match:
-        return
+	if not networked_match:
+		return
 
-    if multiplayer.get_remote_sender_id() != 1:
-        return
+	if multiplayer.get_remote_sender_id() != 1:
+		return
 
-    if network_resolution_sent:
-        return
+	if network_resolution_sent:
+		return
 
-    network_resolution_sent = true
-    score[0] = score_zero
-    score[1] = score_one
-    kills = final_kills
-    match_active = false
-    intermission = 0
-    network_round_pending = false
+	network_resolution_sent = true
+	score[0] = score_zero
+	score[1] = score_one
+	kills = final_kills
+	match_active = false
+	intermission = 0
+	network_round_pending = false
 
-    _show_network_match_result(title)
+	_show_network_match_result(title)
 
 
 func _show_network_match_result(title: String) -> void:
-    Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-    var detail: String = (
-        "Team score %d : %d" % [score[0], score[1]]
-        if is_cs
-        else "%d eliminations" % kills
-    )
+	var detail: String = (
+		"Team score %d : %d" % [score[0], score[1]]
+		if is_cs
+		else "%d eliminations" % kills
+	)
 
-    var rating_text: String = "Offline bot practice • no competitive rating"
+	var rating_text: String = "Offline bot practice • no competitive rating"
 
-    if ranked:
-        var won: bool = title.contains("VICTORY")
-        var rating_key: String = "cs_rating" if is_cs else "br_rating"
-        var delta: int = Rules.rating_delta(mode_id, won)
-        var rating: int = clampi(
-            int(settings.data.get(rating_key, 1000)) + delta,
-            0,
-            5000
-        )
-        settings.data[rating_key] = rating
-        settings.save()
-        rating_text = "Local %s rating %d (%+d) • offline practice" % [
-            "CS" if is_cs else "BR",
-            rating,
-            delta
-        ]
+	if ranked:
+		var won: bool = title.contains("VICTORY")
+		var rating_key: String = "cs_rating" if is_cs else "br_rating"
+		var delta: int = Rules.rating_delta(mode_id, won)
+		var rating: int = clampi(
+			int(settings.data.get(rating_key, 1000)) + delta,
+			0,
+			5000
+		)
+		settings.data[rating_key] = rating
+		settings.save()
+		rating_text = "Local %s rating %d (%+d) • offline practice" % [
+			"CS" if is_cs else "BR",
+			rating,
+			delta
+		]
 
-    hud.show_result(title + "\\n" + detail + "\\n" + rating_text)
+	hud.show_result(title + "\\n" + detail + "\\n" + rating_text)
 
 
 func _finish_match(title: String) -> void:
-    if networked_match:
-        if not NetworkManager.is_host:
-            return
+	if networked_match:
+		if not NetworkManager.is_host:
+			return
 
-        if network_resolution_sent:
-            return
+		if network_resolution_sent:
+			return
 
-        network_resolution_sent = true
-        match_active = false
-        intermission = 0
-        network_round_pending = false
+		network_resolution_sent = true
+		match_active = false
+		intermission = 0
+		network_round_pending = false
 
-        if network_room_session_id > 0:
-            NetworkManager.finish_match_room(network_room_session_id)
+		if network_room_session_id > 0:
+			NetworkManager.finish_match_room(network_room_session_id)
 
-        # Host displays the same authoritative result locally.
-        _show_network_match_result(title)
+		# Host displays the same authoritative result locally.
+		_show_network_match_result(title)
 
-        # Every connected client receives exactly the same result.
-        for peer_id in multiplayer.get_peers():
-            network_match_result.rpc_id(
-                peer_id,
-                title,
-                score[0],
-                score[1],
-                kills
-            )
-        return
+		# Every connected client receives exactly the same result.
+		for peer_id in multiplayer.get_peers():
+			network_match_result.rpc_id(
+				peer_id,
+				title,
+				score[0],
+				score[1],
+				kills
+			)
+		return
 
-    # Offline match behavior remains local.
-    match_active = false
-    intermission = 0
-    Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	# Offline match behavior remains local.
+	match_active = false
+	intermission = 0
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
-    var detail: String = (
-        "Team score %d : %d" % [score[0], score[1]]
-        if is_cs
-        else "%d eliminations" % kills
-    )
+	var detail: String = (
+		"Team score %d : %d" % [score[0], score[1]]
+		if is_cs
+		else "%d eliminations" % kills
+	)
 
-    var rating_text: String = "Offline bot practice • no competitive rating"
+	var rating_text: String = "Offline bot practice • no competitive rating"
 
-    if ranked:
-        var won: bool = title.contains("VICTORY")
-        var rating_key: String = "cs_rating" if is_cs else "br_rating"
-        var delta: int = Rules.rating_delta(mode_id, won)
-        var rating: int = clampi(
-            int(settings.data.get(rating_key, 1000)) + delta,
-            0,
-            5000
-        )
-        settings.data[rating_key] = rating
-        rating_text = "Local %s rating %d (%+d) • offline practice" % [
-            "CS" if is_cs else "BR",
-            rating,
-            delta
-        ]
+	if ranked:
+		var won: bool = title.contains("VICTORY")
+		var rating_key: String = "cs_rating" if is_cs else "br_rating"
+		var delta: int = Rules.rating_delta(mode_id, won)
+		var rating: int = clampi(
+			int(settings.data.get(rating_key, 1000)) + delta,
+			0,
+			5000
+		)
+		settings.data[rating_key] = rating
+		rating_text = "Local %s rating %d (%+d) • offline practice" % [
+			"CS" if is_cs else "BR",
+			rating,
+			delta
+		]
 
-    hud.show_result(title + "\\n" + detail + "\\n" + rating_text)
+	hud.show_result(title + "\\n" + detail + "\\n" + rating_text)
 
 func _update_hud() -> void:
 	var living: int = 0
