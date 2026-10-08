@@ -142,6 +142,14 @@ func network_spawn_bot(bot_id: int, spawn: Vector3, team_id: int) -> void:
 	replica.setup_network_replica(self, spawn, team_id, bot_id)
 	network_bots[bot_id] = replica
 
+@rpc("authority", "unreliable", "call_remote")
+func network_draw_tracer(origin: Vector3, end: Vector3) -> void:
+        if not networked_match:
+                return
+        if multiplayer.get_remote_sender_id() != 1:
+                return
+        _draw_tracer(origin, end, false)
+
 func _sync_existing_network_players(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
@@ -514,6 +522,9 @@ func fire_ray(origin: Vector3, direction: Vector3, attacker: Node, damage: float
 	# Only draw nearby traces. AI can fire far away without spawning effects.
 	if is_instance_valid(player) and (attacker == player or origin.distance_squared_to(player.position) < 2500):
 		_draw_tracer(origin, end, attacker == player)
+        if networked_match and NetworkManager.is_host and attacker != player:
+                for peer_id in multiplayer.get_peers():
+                        network_draw_tracer.rpc_id(peer_id, origin, end)
 
 func assisted_direction(origin: Vector3, direction: Vector3, attacker: Node) -> Vector3:
 	var best_dot: float = cos(deg_to_rad(3.5))
