@@ -51,15 +51,15 @@ func _run() -> void:
 	var matchmaking = NetworkManagerScript.new()
 	root.add_child(matchmaking)
 
-        var room_lock_events: Array = []
-        matchmaking.room_match_locked.connect(func(session_id: int, mode: String, map_index: int, human_ids: Array) -> void:
-                room_lock_events.append({
-                        "session_id": session_id,
-                        "mode": mode,
-                        "map": map_index,
-                        "humans": human_ids.duplicate()
-                })
-        )
+	var room_lock_events: Array = []
+	matchmaking.room_match_locked.connect(func(session_id: int, mode: String, map_index: int, human_ids: Array) -> void:
+		room_lock_events.append({
+			"session_id": session_id,
+			"mode": mode,
+			"map": map_index,
+			"humans": human_ids.duplicate()
+		})
+	)
 	matchmaking.is_host = true
 	matchmaking.connected = true
 	check(not matchmaking.matchmaking_active, "matchmaking starts idle")
