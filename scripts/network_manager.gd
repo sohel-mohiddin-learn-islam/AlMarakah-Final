@@ -8,7 +8,7 @@ signal server_disconnected
 signal peer_joined(peer_id: int)
 signal peer_left(peer_id: int)
 signal matchmaking_updated
-signal matchmaking_locked(selected_mode: String, selected_map: int, ready_peer_ids: Array)
+signal matchmaking_locked(selected_mode: String, selected_map: int, ready_peer_ids: Array, session_id: int)
 
 const DEFAULT_PORT: int = 7777
 const MAX_PLAYERS: int = 60
@@ -29,6 +29,9 @@ var active_match: bool = false
 var active_match_mode: String = ""
 var active_match_map: int = 0
 var active_match_players: Array = []
+var next_match_session_id: int = 1
+var matchmaking_session_id: int = 0
+var active_match_session_id: int = 0
 
 func host(port: int = DEFAULT_PORT) -> int:
     if multiplayer.multiplayer_peer != null:
@@ -71,6 +74,8 @@ func request_matchmaking_ready(selected_mode: String, selected_map: int) -> void
         peer_id = multiplayer.get_unique_id()
     if not matchmaking_active:
         matchmaking_active = true
+        matchmaking_session_id = next_match_session_id
+        next_match_session_id += 1
         matchmaking_mode = selected_mode
         matchmaking_map = selected_map
         matchmaking_time_left = MATCHMAKING_SECONDS
@@ -98,7 +103,8 @@ func _process(delta: float) -> void:
         active_match_mode = matchmaking_mode
         active_match_map = matchmaking_map
         active_match_players = matchmaking_ready.keys().duplicate()
-        matchmaking_locked.emit(active_match_mode, active_match_map, active_match_players)
+        active_match_session_id = matchmaking_session_id
+        matchmaking_locked.emit(active_match_mode, active_match_map, active_match_players, active_match_session_id)
         matchmaking_ready.clear()
         matchmaking_active = false
         matchmaking_updated.emit()

@@ -42,6 +42,7 @@ var network_spawn_indices: Dictionary = {}
 var network_local_spawn_index: int = 0
 var network_ready_peer_ids: Array = []
 var network_match_locked: bool = false
+var network_match_session_id: int = 0
 var network_bot_slots: Dictionary = {}
 
 func _ready() -> void:
@@ -60,13 +61,14 @@ func _ready() -> void:
 	hud.back_to_menu.connect(return_to_menu)
 	return_to_menu()
 
-func _on_matchmaking_locked(selected_mode: String, selected_map: int, ready_peer_ids: Array) -> void:
+func _on_matchmaking_locked(selected_mode: String, selected_map: int, ready_peer_ids: Array, session_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
 	network_ready_peer_ids = ready_peer_ids.duplicate()
 	network_match_locked = true
+	network_match_session_id = session_id
 	print("MATCHMAKING LOCKED: mode=", selected_mode, " map=", selected_map, " humans=", network_ready_peer_ids)
-	network_start_match.rpc(selected_mode, selected_map, network_ready_peer_ids)
+	network_start_match.rpc(selected_mode, selected_map, network_ready_peer_ids, network_match_session_id)
 
 func _on_network_peer_joined(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
@@ -198,12 +200,15 @@ func request_start_match(selected_mode: String, selected_map: int) -> void:
 		return
 	if multiplayer.get_remote_sender_id() == 0:
 		return
-	network_start_match.rpc(selected_mode, selected_map, network_ready_peer_ids)
+	network_start_match.rpc(selected_mode, selected_map, network_ready_peer_ids, network_match_session_id)
 
 @rpc("authority", "reliable", "call_local")
-func network_start_match(selected_mode: String, selected_map: int, locked_peer_ids: Array) -> void:
+func network_start_match(selected_mode: String, selected_map: int, locked_peer_ids: Array, session_id: int) -> void:
 	if not networked_match:
 		return
+	if session_id <= 0:
+		return
+	network_match_session_id = session_id
 	network_ready_peer_ids = locked_peer_ids.duplicate()
 	var my_peer_id: int = multiplayer.get_unique_id()
 	var local_index: int = network_ready_peer_ids.find(my_peer_id)
