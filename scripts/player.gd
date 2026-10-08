@@ -38,6 +38,8 @@ var body: Node3D
 var sound: AudioStreamPlayer
 var muzzle_flash: MeshInstance3D
 var muzzle_flash_time: float = 0.0
+var third_person_weapon: Node3D
+var weapon_muzzle: Marker3D
 var animator: Node
 var character_visual: Node3D
 var mouse_look: Vector2 = Vector2.ZERO
@@ -97,6 +99,7 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int, peer_id: int = 0) -> vo
 	character_visual.position = Vector3(0, 0, 0)
 	character_visual.scale = Vector3.ONE
 	body.add_child(character_visual)
+	_create_third_person_weapon()
 	rig = Node3D.new()
 	rig.position = Vector3(0, 1.65, 0)
 	add_child(rig)
@@ -120,6 +123,10 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int, peer_id: int = 0) -> vo
 	# Team 1 faces toward the middle as well.
 	yaw = PI if spawn.z < 0 else 0.0
 	rig.rotation = Vector3(pitch, yaw, 0)
+	if is_instance_valid(third_person_weapon):
+		third_person_weapon.rotation.x = clampf(-pitch * 0.55, -0.55, 0.55)
+		third_person_weapon.rotation.y = angle_difference(body.rotation.y, yaw) * 0.35
+
 	network_position = global_position
 	network_velocity = velocity
 	network_yaw = yaw
@@ -406,15 +413,20 @@ func _shoot() -> void:
 	var query = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + forward * 200, 3, [get_rid()])
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
 	var target: Vector3 = hit.get("position", ray_origin + forward * 200)
+
+	# Third-person shots originate from the rifle muzzle but preserve camera aim.
+	if is_instance_valid(weapon_muzzle):
+		ray_origin = weapon_muzzle.global_position
+		forward = (target - ray_origin).normalized()
+
 	var target_direction: Vector3 = target - global_position
 	target_direction.y = 0.0
 	if target_direction.length_squared() > 0.001:
 		var target_yaw: float = atan2(target_direction.x, target_direction.z)
 		body.rotation.y = lerp_angle(body.rotation.y, target_yaw, 0.45)
 		character_visual.rotation.y = 0.0
-	# Start at the character, not the camera, so cover blocks third-person shots.
-	var origin: Vector3 = global_position + Vector3(0, 1.35, 0)
-	game.fire_ray(origin, (target - origin).normalized(), self, weapon_damage, 200.0)
+	# Fire from the rifle muzzle so the weapon and hit ray share one origin.
+	game.fire_ray(ray_origin, (target - ray_origin).normalized(), self, weapon_damage, 200.0)
 	if game.networked_match and multiplayer.is_server() and not _is_local_player():
 		for peer_id in multiplayer.get_peers():
 			game.network_play_remote_fire.rpc_id(peer_id, network_peer_id, pitch)
@@ -471,6 +483,64 @@ func _shot_sound() -> AudioStreamWAV:
 	stream.data = bytes
 	return stream
 
+
+func _create_third_person_weapon() -> void:
+	third_person_weapon = Node3D.new()
+	third_person_weapon.name = "ThirdPersonRifle"
+	third_person_weapon.position = Vector3(0.34, 1.12, -0.38)
+	third_person_weapon.rotation = Vector3(0.0, 0.0, 0.0)
+	body.add_child(third_person_weapon)
+
+	var stock := MeshInstance3D.new()
+	var stock_mesh := BoxMesh.new()
+	stock_mesh.size = Vector3(0.16, 0.18, 0.42)
+	stock.mesh = stock_mesh
+	third_person_weapon.add_child(stock)
+
+	var receiver := MeshInstance3D.new()
+	var receiver_mesh := BoxMesh.new()
+	receiver_mesh.size = Vector3(0.20, 0.22, 0.42)
+	receiver.mesh = receiver_mesh
+	receiver.position = Vector3(0.0, 0.02, -0.20)
+	third_person_weapon.add_child(receiver)
+
+	var barrel := MeshInstance3D.new()
+	var barrel_mesh := CylinderMesh.new()
+	barrel_mesh.top_radius = 0.045
+	barrel_mesh.bottom_radius = 0.045
+	barrel_mesh.height = 0.62
+	barrel_mesh.radial_segments = 8
+	barrel.mesh = barrel_mesh
+	barrel.rotation.x = PI * 0.5
+	barrel.position = Vector3(0.0, 0.03, -0.70)
+	third_person_weapon.add_child(barrel)
+
+	var grip := MeshInstance3D.new()
+	var grip_mesh := BoxMesh.new()
+	grip_mesh.size = Vector3(0.12, 0.30, 0.14)
+	grip.mesh = grip_mesh
+	grip.position = Vector3(0.0, -0.20, -0.18)
+	grip.rotation.x = -0.18
+	third_person_weapon.add_child(grip)
+
+	var sight := MeshInstance3D.new()
+	var sight_mesh := BoxMesh.new()
+	sight_mesh.size = Vector3(0.07, 0.08, 0.18)
+	sight.mesh = sight_mesh
+	sight.position = Vector3(0.0, 0.16, -0.28)
+	third_person_weapon.add_child(sight)
+
+	var dark := StandardMaterial3D.new()
+	dark.albedo_color = Color(0.045, 0.055, 0.065, 1.0)
+
+	for part in third_person_weapon.get_children():
+		if part is MeshInstance3D:
+			part.material_override = dark
+
+	weapon_muzzle = Marker3D.new()
+	weapon_muzzle.name = "WeaponMuzzle"
+	weapon_muzzle.position = Vector3(0.0, 0.03, -1.02)
+	third_person_weapon.add_child(weapon_muzzle)
 
 func _create_muzzle_flash() -> void:
 	if not is_instance_valid(camera):
