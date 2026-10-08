@@ -54,6 +54,7 @@ var network_movement_amount: float = 0.0
 var network_aiming: bool = false
 var network_sprinting: bool = false
 var network_grounded: bool = true
+var network_snapshot_timer: float = 0.0
 var network_fire_requested: bool = false
 var network_fire_aiming: bool = false
 
@@ -304,7 +305,10 @@ func _physics_process(delta: float) -> void:
 	network_aiming = ads
 	network_sprinting = sprinting
 	network_grounded = is_on_floor()
-	_send_network_snapshot()
+	network_snapshot_timer -= delta
+	if network_snapshot_timer <= 0.0:
+		network_snapshot_timer = 0.05
+		_send_network_snapshot()
 
 	if animator != null:
 		if animation_requested_jump and animation_was_grounded:
