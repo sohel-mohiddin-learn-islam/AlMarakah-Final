@@ -54,7 +54,6 @@ var network_movement_amount: float = 0.0
 var network_aiming: bool = false
 var network_sprinting: bool = false
 var network_grounded: bool = true
-var network_snapshot_timer: float = 0.0
 var network_fire_requested: bool = false
 var network_fire_aiming: bool = false
 
@@ -176,24 +175,6 @@ func receive_network_look(input_yaw: float, input_pitch: float) -> void:
 	yaw = input_yaw
 	pitch = input_pitch
 
-@rpc("authority", "unreliable", "call_remote")
-func receive_network_snapshot(snapshot_position: Vector3, snapshot_velocity: Vector3, snapshot_yaw: float, snapshot_pitch: float, snapshot_alive: bool, snapshot_movement_amount: float, snapshot_aiming: bool, snapshot_sprinting: bool, snapshot_grounded: bool) -> void:
-	if not is_instance_valid(game) or not game.networked_match:
-		return
-	if multiplayer.get_remote_sender_id() != 1:
-		return
-	if network_peer_id == multiplayer.get_unique_id():
-		return
-	network_position = snapshot_position
-	network_velocity = snapshot_velocity
-	network_yaw = snapshot_yaw
-	network_pitch = snapshot_pitch
-	network_alive = snapshot_alive
-	network_movement_amount = snapshot_movement_amount
-	network_aiming = snapshot_aiming
-	network_sprinting = snapshot_sprinting
-	network_grounded = snapshot_grounded
-
 func _simulation_movement_input() -> Vector2:
 	if is_instance_valid(game) and game.networked_match and multiplayer.is_server() and network_input_received and network_peer_id != multiplayer.get_unique_id():
 		return network_movement
@@ -216,13 +197,6 @@ func _send_network_fire(firing: bool, aiming_input: bool) -> void:
 	if not is_instance_valid(game) or not game.networked_match or multiplayer.is_server():
 		return
 	receive_network_fire.rpc_id(1, firing, aiming_input)
-
-func _send_network_snapshot() -> void:
-	if not is_instance_valid(game) or not game.networked_match or not multiplayer.is_server():
-		return
-	var snapshot := [global_position, velocity, yaw, pitch, alive, network_movement_amount, network_aiming, network_sprinting, network_grounded]
-	for peer_id in multiplayer.get_peers():
-		receive_network_snapshot.rpc_id(peer_id, snapshot[0], snapshot[1], snapshot[2], snapshot[3], snapshot[4], snapshot[5], snapshot[6], snapshot[7], snapshot[8])
 
 func _physics_process(delta: float) -> void:
 	if not alive or not is_instance_valid(game) or not game.match_active:
@@ -305,10 +279,6 @@ func _physics_process(delta: float) -> void:
 	network_aiming = ads
 	network_sprinting = sprinting
 	network_grounded = is_on_floor()
-	network_snapshot_timer -= delta
-	if network_snapshot_timer <= 0.0:
-		network_snapshot_timer = 0.05
-		_send_network_snapshot()
 
 	if animator != null:
 		if animation_requested_jump and animation_was_grounded:

@@ -20,6 +20,12 @@ const MAX_HEALTH: float = 200.0
 var health: float = MAX_HEALTH
 var team: int = -1
 var alive: bool = true
+var network_replica: bool = false
+var network_id: int = 0
+var network_position: Vector3 = Vector3.ZERO
+var network_velocity: Vector3 = Vector3.ZERO
+var network_yaw: float = 0.0
+var network_alive: bool = true
 
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _visual: Node3D
@@ -78,7 +84,34 @@ func setup(game_ref: Node, spawn_position: Vector3, team_id: int) -> void:
 	set_physics_process(true)
 
 
+func setup_network_replica(game_ref: Node, spawn_position: Vector3, team_id: int, replica_id: int) -> void:
+	game = game_ref
+	team = team_id
+	network_replica = true
+	network_id = replica_id
+	health = MAX_HEALTH
+	alive = true
+	network_alive = true
+	global_position = spawn_position
+	velocity = Vector3.ZERO
+	network_position = spawn_position
+	network_velocity = Vector3.ZERO
+	network_yaw = 0.0
+	collision_layer = 0
+	collision_mask = 0
+	_make_body()
+	set_physics_process(true)
+
 func _physics_process(delta: float) -> void:
+	if network_replica:
+		if not alive or not is_instance_valid(game) or not game.match_active:
+			return
+		global_position = global_position.lerp(network_position, minf(delta * 14.0, 1.0))
+		velocity = network_velocity
+		alive = network_alive
+		if is_instance_valid(_visual):
+			_visual.rotation.y = network_yaw
+		return
 	if not alive or not is_instance_valid(game) or not game.match_active:
 		velocity = Vector3.ZERO
 		return
@@ -113,6 +146,7 @@ func _physics_process(delta: float) -> void:
 	if not _face_direction.is_zero_approx():
 		var yaw: float = atan2(-_face_direction.x, -_face_direction.z)
 		_visual.rotation.y = lerp_angle(_visual.rotation.y, yaw, minf(delta * 7.0, 1.0))
+		network_yaw = _visual.rotation.y
 
 
 func _valid_enemy(actor: Node3D) -> bool:

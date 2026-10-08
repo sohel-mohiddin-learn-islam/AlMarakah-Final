@@ -45,6 +45,8 @@ var network_match_locked: bool = false
 var network_match_session_id: int = 0
 var network_room_session_id: int = 0
 var network_bot_slots: Dictionary = {}
+var network_bots: Dictionary = {}
+var network_snapshot_timer: float = 0.0
 
 func is_in_network_room() -> bool:
 	return networked_match and network_room_session_id > 0
@@ -127,6 +129,19 @@ func network_spawn_player(peer_id: int, spawn: Vector3) -> void:
 	actors.append(remote_player)
 	network_players[peer_id] = remote_player
 
+@rpc("authority", "reliable", "call_remote")
+func network_spawn_bot(bot_id: int, spawn: Vector3, team_id: int) -> void:
+	if not networked_match:
+		return
+	if bot_id <= 0:
+		return
+	if network_bots.has(bot_id):
+		return
+	var replica := Bot.new()
+	world.add_child(replica)
+	replica.setup_network_replica(self, spawn, team_id, bot_id)
+	network_bots[bot_id] = replica
+
 func _sync_existing_network_players(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
 		return
@@ -139,6 +154,12 @@ func _sync_existing_network_players(peer_id: int) -> void:
 		if not is_instance_valid(existing_player):
 			continue
 		network_spawn_player.rpc_id(peer_id, int(existing_peer_id), existing_player.global_position)
+	for bot_id in network_bot_slots:
+		var existing_bot: Node = network_bot_slots[bot_id]
+		if not is_instance_valid(existing_bot):
+			continue
+		var bot_team: int = int(existing_bot.team)
+		network_spawn_bot.rpc_id(peer_id, int(bot_id), existing_bot.global_position, bot_team)
 
 func _spawn_network_player(peer_id: int) -> void:
 	if not networked_match or not NetworkManager.is_host:
@@ -263,6 +284,12 @@ func _clear_world() -> void:
 	network_spawn_indices.clear()
 	network_local_spawn_index = 0
 	network_bot_slots.clear()
+	if not network_bots.is_empty():
+		for bot_id in network_bots:
+			var replica: Node = network_bots[bot_id]
+			if is_instance_valid(replica):
+				replica.queue_free()
+	network_bots.clear()
 	pickups.clear()
 	vehicles.clear()
 	player = null
@@ -304,6 +331,9 @@ func _begin_round() -> void:
 			var side: int = (0 if i < Rules.CS_TEAM_SIZE else 1) if is_cs else i
 			bot.setup(self, spawns[i], side)
 			actors.append(bot)
+			var bot_id: int = 1000 + i
+			network_bot_slots[bot_id] = bot
+			network_spawn_bot.rpc(bot_id, spawns[i], side)
 	elif not networked_match:
 		for i in range(1, count):
 			var bot = Bot.new()
@@ -378,6 +408,72 @@ func _physics_process(delta: float) -> void:
 				player.health = minf(player.health + 20, player.MAX_HEALTH)
 				pickups.erase(item)
 				item.queue_free()
+
+	if networked_match and NetworkManager.is_host:
+		network_snapshot_timer -= delta
+		if network_snapshot_timer <= 0.0:
+			network_snapshot_timer = 0.05
+			_send_network_snapshot_batch()
+
+func _send_network_snapshot_batch() -> void:
+	if not networked_match or not NetworkManager.is_host:
+		return
+	var snapshots: Array = []
+	for peer_id in network_players:
+		var remote_player: Node = network_players[peer_id]
+			if not is_instance_valid(remote_player):
+			continue
+		snapshots.append([int(peer_id), remote_player.global_position, remote_player.velocity, remote_player.yaw, remote_player.pitch, remote_player.alive, remote_player.network_movement_amount, remote_player.network_aiming, remote_player.network_sprinting, remote_player.network_grounded])
+	if is_instance_valid(player):
+		snapshots.append([multiplayer.get_unique_id(), player.global_position, player.velocity, player.yaw, player.pitch, player.alive, player.network_movement_amount, player.network_aiming, player.network_sprinting, player.network_grounded])
+	for bot_id in network_bot_slots:
+		var bot: Node = network_bot_slots[bot_id]
+		if not is_instance_valid(bot):
+			continue
+		snapshots.append([int(bot_id), bot.global_position, bot.velocity, bot.network_yaw, bot.alive])
+	for peer_id in multiplayer.get_peers():
+		receive_network_snapshot_batch.rpc_id(peer_id, snapshots)
+
+@rpc("authority", "unreliable", "call_remote")
+func receive_network_snapshot_batch(snapshots: Array) -> void:
+	if not networked_match:
+		return
+	if multiplayer.get_remote_sender_id() != 1:
+		return
+	for snapshot in snapshots:
+		if not snapshot is Array:
+			continue
+		if snapshot.size() == 5:
+			var bot_id: int = int(snapshot[0])
+			if not network_bots.has(bot_id):
+				continue
+			var replica: Node = network_bots[bot_id]
+			if not is_instance_valid(replica):
+				continue
+			replica.network_position = snapshot[1]
+			replica.network_velocity = snapshot[2]
+			replica.network_yaw = float(snapshot[3])
+			replica.network_alive = bool(snapshot[4])
+			continue
+		if snapshot.size() < 10:
+			continue
+		var peer_id: int = int(snapshot[0])
+		if peer_id == multiplayer.get_unique_id():
+			continue
+		if not network_players.has(peer_id):
+			continue
+		var remote_player: Node = network_players[peer_id]
+		if not is_instance_valid(remote_player):
+			continue
+		remote_player.network_position = snapshot[1]
+		remote_player.network_velocity = snapshot[2]
+		remote_player.network_yaw = float(snapshot[3])
+		remote_player.network_pitch = float(snapshot[4])
+		remote_player.network_alive = bool(snapshot[5])
+		remote_player.network_movement_amount = float(snapshot[6])
+		remote_player.network_aiming = bool(snapshot[7])
+		remote_player.network_sprinting = bool(snapshot[8])
+		remote_player.network_grounded = bool(snapshot[9])
 
 func _process(delta: float) -> void:
 	hud_clock += delta
