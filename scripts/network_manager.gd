@@ -54,6 +54,18 @@ func is_match_room_active(session_id: int) -> bool:
     var room = match_rooms[session_id]
     return room != null and room.is_active()
 
+func start_match_room(session_id: int) -> bool:
+    if not match_rooms.has(session_id):
+        return false
+    var room = match_rooms[session_id]
+    return room != null and room.start_match()
+
+func finish_match_room(session_id: int) -> bool:
+    if not match_rooms.has(session_id):
+        return false
+    var room = match_rooms[session_id]
+    return room != null and room.finish_match()
+
 func get_match_room(session_id: int) -> Dictionary:
     if not match_rooms.has(session_id):
         return {}

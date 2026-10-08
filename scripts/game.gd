@@ -222,6 +222,8 @@ func network_start_match(selected_mode: String, selected_map: int, locked_peer_i
 		return
 	network_local_spawn_index = local_index
 	network_match_locked = true
+	if NetworkManager.is_host and network_room_session_id > 0:
+		NetworkManager.start_match_room(network_room_session_id)
 	_start_match_local(selected_mode, selected_map)
 
 func _start_match_local(selected_mode: String, selected_map: int) -> void:
@@ -482,6 +484,8 @@ func _check_resolution() -> void:
 				_finish_match("MATCH COMPLETE")
 
 func _finish_match(title: String) -> void:
+	if networked_match and NetworkManager.is_host and network_room_session_id > 0:
+		NetworkManager.finish_match_room(network_room_session_id)
 	match_active = false
 	intermission = 0
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
