@@ -36,29 +36,29 @@ var active_match_session_id: int = 0
 var match_rooms: Dictionary = {}
 
 func _register_match_room(session_id: int, selected_mode: String, selected_map: int, human_peer_ids: Array) -> void:
-	var total_players: int = 8 if selected_mode.begins_with("cs") else 50
-	var room = MatchRoomScript.new()
-	room.setup(session_id, selected_mode, selected_map, human_peer_ids, total_players)
-	match_rooms[session_id] = room
+    var total_players: int = 8 if selected_mode.begins_with("cs") else 50
+    var room = MatchRoomScript.new()
+    room.setup(session_id, selected_mode, selected_map, human_peer_ids, total_players)
+    match_rooms[session_id] = room
 
 func is_match_room_active(session_id: int) -> bool:
-	if not match_rooms.has(session_id):
-		return false
-	var room = match_rooms[session_id]
-	return room != null and room.is_active()
+    if not match_rooms.has(session_id):
+        return false
+    var room = match_rooms[session_id]
+    return room != null and room.is_active()
 
 func get_match_room(session_id: int) -> Dictionary:
-	if not match_rooms.has(session_id):
-		return {}
-	var room = match_rooms[session_id]
-	return {
-		"session_id": room.session_id,
-		"mode": room.mode_id,
-		"map": room.map_id,
-		"human_peer_ids": room.human_peer_ids.duplicate(),
-		"bot_count": room.bot_count,
-		"state": room.state
-	}
+    if not match_rooms.has(session_id):
+        return {}
+    var room = match_rooms[session_id]
+    return {
+        "session_id": room.session_id,
+        "mode": room.mode_id,
+        "map": room.map_id,
+        "human_peer_ids": room.human_peer_ids.duplicate(),
+        "bot_count": room.bot_count,
+        "state": room.state
+    }
 
 func host(port: int = DEFAULT_PORT) -> int:
     if multiplayer.multiplayer_peer != null:
