@@ -50,6 +50,16 @@ func _run() -> void:
 	var NetworkManagerScript = load("res://scripts/network_manager.gd")
 	var matchmaking = NetworkManagerScript.new()
 	root.add_child(matchmaking)
+
+        var room_lock_events: Array = []
+        matchmaking.room_match_locked.connect(func(session_id: int, mode: String, map_index: int, human_ids: Array) -> void:
+                room_lock_events.append({
+                        "session_id": session_id,
+                        "mode": mode,
+                        "map": map_index,
+                        "humans": human_ids.duplicate()
+                })
+        )
 	matchmaking.is_host = true
 	matchmaking.connected = true
 	check(not matchmaking.matchmaking_active, "matchmaking starts idle")
@@ -66,6 +76,11 @@ func _run() -> void:
 	check(br_room.get("bot_count", -1) == 49, "one BR player gets 49 bots")
 	check(br_room.get("human_peer_ids", []).size() == 1, "BR room stores one human")
 	check(matchmaking.is_match_room_active(matchmaking.active_match_session_id), "locked room is active")
+        check(room_lock_events.size() == 1, "room lock signal emitted once")
+        check(room_lock_events[0]["session_id"] == matchmaking.active_match_session_id, "room lock signal has session ID")
+        check(room_lock_events[0]["mode"] == "br_classic", "room lock signal has BR mode")
+        check(room_lock_events[0]["map"] == 0, "room lock signal has map")
+        check(room_lock_events[0]["humans"].size() == 1, "room lock signal has human roster")
 	check(not matchmaking.is_match_room_active(999999), "unknown room is inactive")
 	matchmaking.match_rooms[matchmaking.active_match_session_id].state = "finished"
 	check(not matchmaking.is_match_room_active(matchmaking.active_match_session_id), "finished room is inactive")

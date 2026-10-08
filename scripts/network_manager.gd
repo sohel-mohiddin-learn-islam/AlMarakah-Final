@@ -1,4 +1,5 @@
 extends Node
+signal room_match_locked(room_session_id: int, selected_mode: String, selected_map: int, locked_human_peer_ids: Array)
 const MatchRoomScript = preload("res://scripts/match_room.gd")
 ## Multiplayer session manager.
 ## Keeps networking isolated from the current offline game flow.
@@ -39,8 +40,9 @@ func _register_match_room(session_id: int, selected_mode: String, selected_map: 
     var total_players: int = 8 if selected_mode.begins_with("cs") else 50
     var room = MatchRoomScript.new()
     add_child(room)
-    room.setup(session_id, selected_mode, selected_map, human_peer_ids, total_players)
+    room.match_locked.connect(_on_room_match_locked)
     match_rooms[session_id] = room
+    room.setup(session_id, selected_mode, selected_map, human_peer_ids, total_players)
 
 func create_match_room(session_id: int, selected_mode: String, selected_map: int, human_peer_ids: Array) -> Node:
     _register_match_room(session_id, selected_mode, selected_map, human_peer_ids)
@@ -64,6 +66,12 @@ func get_match_room(session_id: int) -> Dictionary:
         "bot_count": room.bot_count,
         "state": room.state
     }
+
+func _on_room_match_locked(room_session_id: int, selected_mode: String, selected_map: int, locked_human_peer_ids: Array) -> void:
+    if not match_rooms.has(room_session_id):
+        return
+    print("ROOM MATCH LOCKED: session=", room_session_id, " mode=", selected_mode, " map=", selected_map, " humans=", locked_human_peer_ids)
+    room_match_locked.emit(room_session_id, selected_mode, selected_map, locked_human_peer_ids)
 
 func host(port: int = DEFAULT_PORT) -> int:
     if multiplayer.multiplayer_peer != null:
