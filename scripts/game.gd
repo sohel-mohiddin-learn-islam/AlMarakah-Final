@@ -30,6 +30,7 @@ var round_number: int = 1
 var intermission: float = 0.0
 var zone_visual: MeshInstance3D
 var spectator: Camera3D
+var spectator_target: Node3D = null
 var pickups: Array[Node3D] = []
 var vehicles: Array[Node3D] = []
 var tracer_count: int = 0
@@ -65,6 +66,8 @@ func _ready() -> void:
 	hud.configure(settings)
 	hud.start_match.connect(start_match)
 	hud.back_to_menu.connect(return_to_menu)
+	hud.spectator_previous.connect(_on_spectator_previous)
+	hud.spectator_next.connect(_on_spectator_next)
 	return_to_menu()
 
 func _on_matchmaking_locked(selected_mode: String, selected_map: int, ready_peer_ids: Array, session_id: int) -> void:
@@ -336,6 +339,7 @@ func _clear_world() -> void:
 	vehicles.clear()
 	player = null
 	spectator = null
+	spectator_target = null
 	zone_visual = null
 	tracer_count = 0
 	if is_instance_valid(world):
@@ -516,24 +520,22 @@ func receive_network_snapshot_batch(snapshots: Array) -> void:
 		remote_player.network_aiming = bool(snapshot[7])
 		remote_player.network_sprinting = bool(snapshot[8])
 		remote_player.network_grounded = bool(snapshot[9])
+func _on_spectator_previous() -> void:
+	spectator_previous()
+
+func _on_spectator_next() -> void:
+	spectator_next()
+
 func _process(delta: float) -> void:
 	hud_clock += delta
 	if is_instance_valid(player) and hud_clock > 0.1:
 		hud_clock = 0
 		_update_hud()
 	if is_instance_valid(spectator) and (match_active or intermission > 0):
-		var target: Node3D = null
-		for actor in actors:
-			if actor.alive and (not is_cs or actor.team == 0):
-				target = actor
-				break
-		if target == null:
-			for actor in actors:
-				if actor.alive:
-					target = actor
-					break
-		if target:
-			var point: Vector3 = target.global_position
+		if not _is_valid_spectator_target():
+			_set_spectator_target(_find_spectator_target(1))
+		if is_instance_valid(spectator_target):
+			var point: Vector3 = spectator_target.global_position
 			spectator.global_position = spectator.global_position.lerp(point + Vector3(0, 12, 14), minf(delta * 3, 1))
 			spectator.look_at(point + Vector3.UP)
 
@@ -600,6 +602,61 @@ func actor_eliminated(actor: Node, attacker: Node) -> void:
 	# Resolve after all simultaneous zone damage, never inside a physics query.
 	_check_resolution.call_deferred()
 
+func _is_valid_spectator_target() -> bool:
+	return is_instance_valid(spectator_target) and spectator_target.alive and spectator_target in actors
+
+func _find_spectator_target(direction: int) -> Node3D:
+	var candidates: Array[Node3D] = []
+	for actor in actors:
+		if not is_instance_valid(actor) or not actor.alive:
+			continue
+		if actor == player:
+			continue
+		if is_cs and actor.team != 0:
+			continue
+		candidates.append(actor)
+
+	if candidates.is_empty() and is_cs:
+		for actor in actors:
+			if not is_instance_valid(actor) or not actor.alive or actor == player:
+				continue
+			candidates.append(actor)
+
+	if candidates.is_empty():
+		return null
+
+	var current_index: int = candidates.find(spectator_target)
+	if current_index < 0:
+		current_index = 0 if direction >= 0 else candidates.size() - 1
+	else:
+		current_index = posmod(current_index + direction, candidates.size())
+
+	return candidates[current_index]
+
+func _set_spectator_target(target: Node3D) -> void:
+	spectator_target = target
+	if not is_instance_valid(hud):
+		return
+	if not is_instance_valid(target):
+		hud.set_spectator_target_name("")
+		return
+	if target is Player:
+		hud.set_spectator_target_name("PLAYER %d" % target.network_peer_id)
+	elif target is Bot:
+		hud.set_spectator_target_name("BOT %d" % target.network_id)
+	else:
+		hud.set_spectator_target_name("SPECTATOR")
+
+func spectator_next() -> void:
+	if not is_instance_valid(spectator):
+		return
+	_set_spectator_target(_find_spectator_target(1))
+
+func spectator_previous() -> void:
+	if not is_instance_valid(spectator):
+		return
+	_set_spectator_target(_find_spectator_target(-1))
+
 func _start_spectator_camera() -> void:
 	if is_instance_valid(spectator):
 		return
@@ -609,6 +666,7 @@ func _start_spectator_camera() -> void:
 	world.add_child(spectator)
 	spectator.global_transform = player.camera.global_transform
 	spectator.make_current()
+	_set_spectator_target(_find_spectator_target(1))
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _check_resolution() -> void:

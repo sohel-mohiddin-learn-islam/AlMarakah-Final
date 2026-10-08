@@ -2,6 +2,8 @@ extends CanvasLayer
 ## Offline lobby and independently owned touch inputs (move + look + fire).
 signal start_match(mode: String, map_id: int)
 signal back_to_menu
+signal spectator_previous
+signal spectator_next
 
 const Radar = preload("res://scripts/radar.gd")
 const LOADOUT_IDS = ["rifle", "smg", "marksman"]
@@ -32,6 +34,10 @@ var status: Label
 var result_text: Label
 var crosshair: Label
 var menu: Button
+var spectator_prev: Button
+var spectator_next: Button
+var spectator_label: Label
+var spectator_target_label: Label
 var map_picker: OptionButton
 var loadout_picker: OptionButton
 var radar: Control
@@ -255,6 +261,49 @@ func _build_match() -> void:
 	menu.offset_right = -24
 	menu.offset_top = 20
 	menu.offset_bottom = 72
+
+	spectator_label = Label.new()
+	match_ui.add_child(spectator_label)
+	spectator_label.text = "SPECTATING"
+	spectator_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	spectator_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	spectator_label.offset_left = -292
+	spectator_label.offset_right = -156
+	spectator_label.offset_top = 0
+	spectator_label.offset_bottom = 18
+	spectator_label.hide()
+
+	spectator_target_label = Label.new()
+	match_ui.add_child(spectator_target_label)
+	spectator_target_label.text = ""
+	spectator_target_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	spectator_target_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	spectator_target_label.offset_left = -292
+	spectator_target_label.offset_right = -156
+	spectator_target_label.offset_top = 72
+	spectator_target_label.offset_bottom = 96
+	spectator_target_label.hide()
+
+	spectator_prev = _button(match_ui, "‹ PREV", func():
+		spectator_previous.emit()
+	)
+	spectator_prev.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	spectator_prev.offset_left = -292
+	spectator_prev.offset_right = -156
+	spectator_prev.offset_top = 20
+	spectator_prev.offset_bottom = 72
+	spectator_prev.hide()
+
+	spectator_next = _button(match_ui, "NEXT ›", func():
+		spectator_next.emit()
+	)
+	spectator_next.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	spectator_next.offset_left = -440
+	spectator_next.offset_right = -304
+	spectator_next.offset_top = 20
+	spectator_next.offset_bottom = 72
+	spectator_next.hide()
+
 	crosshair = _label(match_ui, "+", 32)
 	crosshair.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	crosshair.offset_left = -12
@@ -405,9 +454,21 @@ func show_result(message: String) -> void:
 	result_text.text = message
 	_show("result")
 
+func set_spectator_target_name(target_name: String) -> void:
+	if is_instance_valid(spectator_target_label):
+		spectator_target_label.text = target_name
+
 func update_status(data: Dictionary) -> void:
 	var mode_text: String = String(data.get("mode", "OFFLINE TRAINING"))
 	var eliminated: bool = bool(data.get("eliminated", false))
+	if is_instance_valid(spectator_prev):
+		spectator_prev.visible = eliminated
+	if is_instance_valid(spectator_next):
+		spectator_next.visible = eliminated
+	if is_instance_valid(spectator_label):
+		spectator_label.visible = eliminated
+	if is_instance_valid(spectator_target_label):
+		spectator_target_label.visible = eliminated
 	var reloading: bool = bool(data.get("reloading", false))
 	status.text = "%s   |   Alive %d   |   Eliminations %d" % [mode_text, int(data.get("alive", 0)), int(data.get("kills", 0))]
 	status.text += "\n"
