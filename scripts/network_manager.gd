@@ -38,6 +38,7 @@ var match_rooms: Dictionary = {}
 func _register_match_room(session_id: int, selected_mode: String, selected_map: int, human_peer_ids: Array) -> void:
     var total_players: int = 8 if selected_mode.begins_with("cs") else 50
     var room = MatchRoomScript.new()
+    add_child(room)
     room.setup(session_id, selected_mode, selected_map, human_peer_ids, total_players)
     match_rooms[session_id] = room
 
