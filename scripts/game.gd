@@ -170,6 +170,8 @@ func network_eliminate_actor(actor_id: int, actor_is_bot: bool) -> void:
 			bot_replica.set_network_eliminated()
 		return
 	if actor_id == multiplayer.get_unique_id():
+		if is_instance_valid(player):
+			_start_spectator_camera()
 		return
 	if not network_players.has(actor_id):
 		return
@@ -592,15 +594,22 @@ func actor_eliminated(actor: Node, attacker: Node) -> void:
 	if attacker == player:
 		kills += 1
 	if actor == player:
-		spectator = Camera3D.new()
-		world.add_child(spectator)
-		spectator.global_transform = player.camera.global_transform
-		spectator.make_current()
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		_start_spectator_camera()
 	elif not is_cs and pickups.size() < 30:
 		_drop_supply(actor.position)
 	# Resolve after all simultaneous zone damage, never inside a physics query.
 	_check_resolution.call_deferred()
+
+func _start_spectator_camera() -> void:
+	if is_instance_valid(spectator):
+		return
+	if not is_instance_valid(player) or not is_instance_valid(player.camera):
+		return
+	spectator = Camera3D.new()
+	world.add_child(spectator)
+	spectator.global_transform = player.camera.global_transform
+	spectator.make_current()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _check_resolution() -> void:
 	if not match_active:
