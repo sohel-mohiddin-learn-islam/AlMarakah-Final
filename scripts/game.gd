@@ -517,6 +517,7 @@ func receive_network_snapshot_batch(snapshots: Array) -> void:
 			continue
 		remote_player.network_position = snapshot[1]
 		remote_player.network_velocity = snapshot[2]
+		remote_player.network_snapshot_age = 0.0
 		remote_player.network_yaw = float(snapshot[3])
 		remote_player.network_pitch = float(snapshot[4])
 		remote_player.network_alive = bool(snapshot[5])

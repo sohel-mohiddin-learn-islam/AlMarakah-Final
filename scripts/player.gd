@@ -54,6 +54,7 @@ var network_movement_amount: float = 0.0
 var network_aiming: bool = false
 var network_sprinting: bool = false
 var network_grounded: bool = true
+var network_snapshot_age: float = 0.0
 var network_fire_requested: bool = false
 var network_fire_aiming: bool = false
 
@@ -208,10 +209,13 @@ func _physics_process(delta: float) -> void:
 		return
 
 	if game.networked_match and not multiplayer.is_server() and not _is_local_player():
-		global_position = global_position.lerp(network_position, minf(delta * 14.0, 1.0))
+		network_snapshot_age = minf(network_snapshot_age + delta, 0.10)
+		var prediction: Vector3 = network_velocity * network_snapshot_age
+		var target_position: Vector3 = network_position + prediction
+		global_position = global_position.lerp(target_position, minf(delta * 16.0, 1.0))
 		velocity = network_velocity
-		yaw = lerp_angle(yaw, network_yaw, minf(delta * 14.0, 1.0))
-		pitch = lerpf(pitch, network_pitch, minf(delta * 14.0, 1.0))
+		yaw = lerp_angle(yaw, network_yaw, minf(delta * 16.0, 1.0))
+		pitch = lerpf(pitch, network_pitch, minf(delta * 16.0, 1.0))
 		alive = network_alive
 		rig.rotation = Vector3(pitch, yaw, 0)
 		if is_instance_valid(body):
