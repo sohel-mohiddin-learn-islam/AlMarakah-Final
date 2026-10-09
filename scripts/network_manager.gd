@@ -192,3 +192,39 @@ func _on_server_disconnected() -> void:
     is_host = false
     player_count = 0
     server_disconnected.emit()
+
+# WebSocket transport for browser-compatible multiplayer.
+# The dedicated server must be reachable and configured separately.
+func host_websocket(port: int = DEFAULT_PORT, bind_address: String = "*") -> int:
+    if multiplayer.multiplayer_peer != null:
+        return ERR_ALREADY_IN_USE
+
+    var peer := WebSocketMultiplayerPeer.new()
+    var error := peer.create_server(port, bind_address)
+    if error != OK:
+        return error
+
+    multiplayer.multiplayer_peer = peer
+    is_host = true
+    connected = true
+    player_count = 1
+    return OK
+
+
+func join_websocket(server_url: String) -> int:
+    if multiplayer.multiplayer_peer != null:
+        return ERR_ALREADY_IN_USE
+
+    if not server_url.begins_with("ws://") and not server_url.begins_with("wss://"):
+        return ERR_INVALID_PARAMETER
+
+    var peer := WebSocketMultiplayerPeer.new()
+    var error := peer.create_client(server_url)
+    if error != OK:
+        return error
+
+    multiplayer.multiplayer_peer = peer
+    is_host = false
+    connected = false
+    player_count = 0
+    return OK
