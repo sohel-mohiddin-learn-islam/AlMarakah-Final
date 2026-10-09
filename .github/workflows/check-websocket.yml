@@ -15,6 +15,9 @@ jobs:
       - name: Install Godot 4.5.1
         run: bash tools/install-godot.sh
 
+      - name: Compile project and run regression tests
+        run: bash tools/test.sh
+
       - name: Verify multiplayer transports
         run: |
           cat > /tmp/check_ws_api.gd <<'GDSCRIPT'
