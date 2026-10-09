@@ -1,0 +1,31 @@
+name: Check Godot WebSocket APIs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-websocket:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot 4.5.1
+        run: bash tools/install-godot.sh
+
+      - name: Verify multiplayer transports
+        run: |
+          cat > /tmp/check_ws_api.gd <<'GDSCRIPT'
+          extends SceneTree
+
+          func _initialize() -> void:
+              print("=== GODOT WEBSOCKET API CHECK ===")
+              print("Godot version: ", Engine.get_version_info())
+              print("WebSocketMultiplayerPeer: ", ClassDB.class_exists("WebSocketMultiplayerPeer"))
+              print("WebSocketPeer: ", ClassDB.class_exists("WebSocketPeer"))
+              print("ENetMultiplayerPeer: ", ClassDB.class_exists("ENetMultiplayerPeer"))
+              quit()
+          GDSCRIPT
+          godot --headless --audio-driver Dummy --path . --script /tmp/check_ws_api.gd
