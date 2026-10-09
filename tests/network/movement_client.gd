@@ -6,16 +6,17 @@ const TIMEOUT: float = 12.0
 
 class MockGame extends Node:
     var networked_match: bool = true
+    var match_active: bool = true
 
 class TestControl extends Node:
     @rpc("authority", "reliable", "call_remote")
     func report_movement_received(movement: Vector2, aiming: bool, sprinting: bool) -> void:
         if movement.is_equal_approx(Vector2(0.0, -1.0)) and aiming and sprinting:
             print("CLIENT RECEIVED HOST MOVEMENT ACK: OK")
-            quit(0)
+            Engine.get_main_loop().quit(0)
         else:
             push_error("Host acknowledged unexpected movement values")
-            quit(1)
+            Engine.get_main_loop().quit(1)
 
 var client_peer: ENetMultiplayerPeer
 var player: Node
@@ -37,14 +38,13 @@ func _run_test() -> void:
     player = load("res://scripts/player.gd").new()
     player.name = "Player"
     player.set("game", game)
+    test_root.add_child(player)
     player.set_physics_process(false)
     player.set_process(false)
-    test_root.add_child(player)
 
     var control := TestControl.new()
     control.name = "Control"
     test_root.add_child(control)
-
 
     client_peer = ENetMultiplayerPeer.new()
     var err: int = client_peer.create_client(HOST, PORT)
@@ -65,12 +65,11 @@ func _run_test() -> void:
         if root.get_multiplayer().multiplayer_peer == null:
             return
 
-        if sent_input and Time.get_ticks_msec() - started_at > int(TIMEOUT * 1000.0):
-            _fail("Timed out waiting for host acknowledgement")
-            return
-
         if Time.get_ticks_msec() - started_at > int(TIMEOUT * 1000.0):
-            _fail("Timed out connecting to movement test host")
+            if sent_input:
+                _fail("Timed out waiting for host acknowledgement")
+            else:
+                _fail("Timed out connecting to movement test host")
             return
 
 func _on_connected() -> void:
@@ -93,8 +92,11 @@ func _on_connection_failed() -> void:
 
 func _fail(message: String) -> void:
     push_error("REAL PLAYER MOVEMENT TEST: FAILED - " + message)
+
     if root.get_multiplayer().multiplayer_peer != null:
         root.get_multiplayer().multiplayer_peer = null
+
     if client_peer != null:
         client_peer.close()
+
     quit(1)

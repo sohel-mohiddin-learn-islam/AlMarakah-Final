@@ -5,6 +5,7 @@ const TIMEOUT: float = 15.0
 
 class MockGame extends Node:
     var networked_match: bool = true
+    var match_active: bool = true
 
 class TestControl extends Node:
     @rpc("authority", "reliable", "call_remote")
@@ -32,14 +33,13 @@ func _run_test() -> void:
     player = load("res://scripts/player.gd").new()
     player.name = "Player"
     player.set("game", game)
+    test_root.add_child(player)
     player.set_physics_process(false)
     player.set_process(false)
-    test_root.add_child(player)
 
     control = TestControl.new()
     control.name = "Control"
     test_root.add_child(control)
-
 
     host_peer = ENetMultiplayerPeer.new()
     var err: int = host_peer.create_server(PORT, 4)
@@ -91,10 +91,12 @@ func _fail(message: String) -> void:
 func _finish(code: int) -> void:
     if finished:
         return
+
     finished = true
 
     if root.get_multiplayer().multiplayer_peer != null:
         root.get_multiplayer().multiplayer_peer = null
+
     if host_peer != null:
         host_peer.close()
 
