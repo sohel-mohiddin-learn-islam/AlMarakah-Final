@@ -154,15 +154,6 @@ func _build_lobby() -> void:
 		loadout_picker.add_item(LOADOUT_LABELS[weapon_id])
 	loadout_picker.item_selected.connect(_select_loadout)
 	loadouts.add_child(loadout_picker)
-    _label(column, "ONLINE MULTIPLAYER", 24)
-    var server_address = LineEdit.new()
-    server_address.placeholder_text = "wss://your-server-address"
-    server_address.custom_minimum_size.y = 52
-    column.add_child(server_address)
-    var online_status = _label(column, "Not connected", 16)
-    _button(column, "CONNECT", func(): _connect_online(server_address, online_status))
-    _button(column, "DISCONNECT", func(): _disconnect_online(online_status))
-
 	_button(column, "BR CLASSIC · 50 players", func(): start_match.emit("br_classic", map_picker.selected))
 	_button(column, "BR RANKED · 50-player practice", func(): start_match.emit("br_ranked", map_picker.selected))
 	_button(column, "CS CLASSIC · 4v4", func(): start_match.emit("cs_classic", map_picker.selected))
@@ -680,46 +671,3 @@ func _input(event: InputEvent) -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT or what == NOTIFICATION_APPLICATION_PAUSED:
 		reset_inputs()
-
-
-func _connect_online(address_field: LineEdit, status_label: Label) -> void:
-    var server_url: String = address_field.text.strip_edges()
-    if server_url.is_empty():
-        status_label.text = "Enter the multiplayer server URL first."
-        return
-    if multiplayer.multiplayer_peer != null:
-        status_label.text = "Already connected or connecting."
-        return
-
-    if not NetworkManager.connected_to_server.is_connected(_on_online_connected.bind(status_label)):
-        NetworkManager.connected_to_server.connect(_on_online_connected.bind(status_label))
-    if not NetworkManager.connection_failed.is_connected(_on_online_failed.bind(status_label)):
-        NetworkManager.connection_failed.connect(_on_online_failed.bind(status_label))
-    if not NetworkManager.server_disconnected.is_connected(_on_online_disconnected.bind(status_label)):
-        NetworkManager.server_disconnected.connect(_on_online_disconnected.bind(status_label))
-
-    status_label.text = "Connecting..."
-    var error: int = NetworkManager.join_websocket(server_url)
-    if error != OK:
-        status_label.text = "Connection failed to start: " + error_string(error)
-
-func _disconnect_online(status_label: Label) -> void:
-    if multiplayer.multiplayer_peer != null:
-        multiplayer.multiplayer_peer.close()
-        multiplayer.multiplayer_peer = null
-    NetworkManager.connected = false
-    NetworkManager.is_host = false
-    NetworkManager.player_count = 0
-    status_label.text = "Disconnected."
-
-
-func _on_online_connected(status_label: Label) -> void:
-    status_label.text = "Connected to multiplayer server."
-
-
-func _on_online_failed(status_label: Label) -> void:
-    status_label.text = "Connection failed. Check the server URL."
-
-
-func _on_online_disconnected(status_label: Label) -> void:
-    status_label.text = "Server disconnected."
