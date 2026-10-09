@@ -193,7 +193,7 @@ func _build_lobby() -> void:
 		play_pressed.bg_color = Color("90621f")
 		play.add_theme_stylebox_override("pressed", play_pressed)
 
-		var settings_button = _button(column, "⚙   SETTINGS & HUD", show_settings)
+		var settings_button = _button(column, "Settings & HUD", show_settings)
 		settings_button.custom_minimum_size = Vector2(0, 42)
 		settings_button.add_theme_font_size_override("font_size", 15)
 
