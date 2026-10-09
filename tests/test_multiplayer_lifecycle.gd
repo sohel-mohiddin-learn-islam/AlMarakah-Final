@@ -30,20 +30,51 @@ func _run_tests() -> void:
     root.add_child(game)
     await process_frame
 
-    check(game.has_method("_setup_network_state"), "Network state setup exists")
-    check(game.has_method("_on_network_peer_joined"), "Peer-join handler exists")
-    check(game.has_method("_on_network_peer_left"), "Peer-leave handler exists")
-    check(game.has_method("_spawn_network_player"), "Host spawn handler exists")
-    check(game.has_method("network_spawn_player"), "Client spawn handler exists")
+    check(game.has_method("network_spawn_player"), "Remote-player spawn handler exists")
+    check(game.has_method("network_remove_player"), "Remote-player removal handler exists")
 
-    check(game.get("network_players") is Dictionary, "Remote-player registry exists")
-    check(game.get("network_spawn_indices") is Dictionary, "Spawn-index registry exists")
-    check(game.get("actors") is Array, "Actor registry exists")
+    var players = game.get("network_players")
+    var actors = game.get("actors")
+    var world = game.get("world")
 
-    if is_instance_valid(game):
+    check(players is Dictionary, "Remote-player registry exists")
+    check(actors is Array, "Actor registry exists")
+    check(world is Node3D, "Game world exists")
+
+    if not (players is Dictionary and actors is Array and world is Node3D):
         game.queue_free()
         await process_frame
+        _finish()
+        return
 
+    var local_peer_id: int = multiplayer.get_unique_id()
+    var test_peer_id: int = 424242
+
+    if test_peer_id == local_peer_id:
+        test_peer_id = 424243
+
+    game.set("networked_match", true)
+    game.call("network_spawn_player", test_peer_id, Vector3(10.0, 0.0, 10.0))
+
+    var remote_player: Node = players.get(test_peer_id)
+    check(remote_player != null, "Remote player is registered")
+    check(remote_player != null and actors.has(remote_player), "Remote player is in actor registry")
+
+    if remote_player != null:
+        game.call("network_spawn_player", test_peer_id, Vector3(20.0, 0.0, 20.0))
+        check(players.get(test_peer_id) == remote_player, "Duplicate spawn preserves the original player")
+        check(actors.count(remote_player) == 1, "Duplicate spawn does not duplicate the actor")
+
+        game.call("network_remove_player", test_peer_id)
+        check(not players.has(test_peer_id), "Removed peer leaves player registry")
+        check(not actors.has(remote_player), "Removed peer leaves actor registry")
+
+        await process_frame
+        check(not is_instance_valid(remote_player), "Removed remote player is freed")
+
+    game.set("networked_match", false)
+    game.queue_free()
+    await process_frame
     _finish()
 
 func _finish() -> void:
