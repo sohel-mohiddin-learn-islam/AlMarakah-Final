@@ -33,7 +33,7 @@ func _run_tests() -> void:
     check(game.has_method("network_spawn_player"), "Remote-player spawn handler exists")
     check(game.has_method("network_remove_player"), "Remote-player removal handler exists")
     check(game.has_method("receive_network_snapshot_batch"), "Snapshot receiver exists")
-	check(game.has_method("_send_network_snapshot_batch"), "Snapshot sender exists")
+    check(game.has_method("_send_network_snapshot_batch"), "Snapshot sender exists")
 
     var players = game.get("network_players")
     var actors = game.get("actors")
