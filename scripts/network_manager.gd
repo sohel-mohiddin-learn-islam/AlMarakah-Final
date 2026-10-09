@@ -86,7 +86,7 @@ func _on_room_match_locked(room_session_id: int, selected_mode: String, selected
     room_match_locked.emit(room_session_id, selected_mode, selected_map, locked_human_peer_ids)
 
 func host(port: int = DEFAULT_PORT) -> int:
-    if multiplayer.multiplayer_peer != null:
+    if multiplayer.multiplayer_peer != null and not (multiplayer.multiplayer_peer is OfflineMultiplayerPeer):
         return ERR_ALREADY_IN_USE
 
     var peer := ENetMultiplayerPeer.new()
@@ -102,7 +102,7 @@ func host(port: int = DEFAULT_PORT) -> int:
     return OK
 
 func join(address: String, port: int = DEFAULT_PORT) -> int:
-    if multiplayer.multiplayer_peer != null:
+    if multiplayer.multiplayer_peer != null and not (multiplayer.multiplayer_peer is OfflineMultiplayerPeer):
         return ERR_ALREADY_IN_USE
 
     var peer := ENetMultiplayerPeer.new()
@@ -196,7 +196,7 @@ func _on_server_disconnected() -> void:
 # WebSocket transport for browser-compatible multiplayer.
 # The dedicated server must be reachable and configured separately.
 func host_websocket(port: int = DEFAULT_PORT, bind_address: String = "*") -> int:
-    if multiplayer.multiplayer_peer != null:
+    if multiplayer.multiplayer_peer != null and not (multiplayer.multiplayer_peer is OfflineMultiplayerPeer):
         return ERR_ALREADY_IN_USE
 
     var peer := WebSocketMultiplayerPeer.new()
@@ -212,7 +212,7 @@ func host_websocket(port: int = DEFAULT_PORT, bind_address: String = "*") -> int
 
 
 func join_websocket(server_url: String) -> int:
-    if multiplayer.multiplayer_peer != null:
+    if multiplayer.multiplayer_peer != null and not (multiplayer.multiplayer_peer is OfflineMultiplayerPeer):
         return ERR_ALREADY_IN_USE
 
     if not server_url.begins_with("ws://") and not server_url.begins_with("wss://"):
