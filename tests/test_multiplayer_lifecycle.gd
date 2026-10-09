@@ -32,6 +32,7 @@ func _run_tests() -> void:
 
     check(game.has_method("network_spawn_player"), "Remote-player spawn handler exists")
     check(game.has_method("network_remove_player"), "Remote-player removal handler exists")
+    check(game.has_method("receive_network_snapshot_batch"), "Snapshot receiver exists")
 
     var players = game.get("network_players")
     var actors = game.get("actors")
@@ -49,7 +50,6 @@ func _run_tests() -> void:
 
     var local_peer_id: int = root.get_multiplayer().get_unique_id()
     var test_peer_id: int = 424242
-
     if test_peer_id == local_peer_id:
         test_peer_id = 424243
 
@@ -61,6 +61,24 @@ func _run_tests() -> void:
     check(remote_player != null and actors.has(remote_player), "Remote player is in actor registry")
 
     if remote_player != null:
+        remote_player.set("network_position", Vector3(30.0, 0.0, 30.0))
+        remote_player.set("network_velocity", Vector3(2.0, 0.0, 0.0))
+        remote_player.set("network_yaw", 0.75)
+        remote_player.set("network_pitch", 0.25)
+        remote_player.set("network_alive", true)
+        remote_player.set("network_movement_amount", 1.0)
+        remote_player.set("network_aiming", false)
+        remote_player.set("network_sprinting", true)
+        remote_player.set("network_grounded", true)
+
+        check(remote_player.get("network_position") == Vector3(30.0, 0.0, 30.0), "Snapshot position field stores updates")
+        check(remote_player.get("network_velocity") == Vector3(2.0, 0.0, 0.0), "Snapshot velocity field stores updates")
+        check(is_equal_approx(float(remote_player.get("network_yaw")), 0.75), "Snapshot yaw field stores updates")
+        check(is_equal_approx(float(remote_player.get("network_pitch")), 0.25), "Snapshot pitch field stores updates")
+        check(bool(remote_player.get("network_alive")), "Snapshot alive field stores updates")
+        check(bool(remote_player.get("network_sprinting")), "Snapshot sprint field stores updates")
+        check(bool(remote_player.get("network_grounded")), "Snapshot grounded field stores updates")
+
         game.call("network_spawn_player", test_peer_id, Vector3(20.0, 0.0, 20.0))
         check(players.get(test_peer_id) == remote_player, "Duplicate spawn preserves the original player")
         check(actors.count(remote_player) == 1, "Duplicate spawn does not duplicate the actor")
