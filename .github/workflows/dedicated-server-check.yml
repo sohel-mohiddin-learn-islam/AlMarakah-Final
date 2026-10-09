@@ -1,0 +1,27 @@
+name: AlMarakah Dedicated Server Check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/realistic-character
+
+permissions:
+  contents: read
+
+jobs:
+  dedicated-server-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.5.1
+        run: bash tools/install-godot.sh
+
+      - name: Import project and run dedicated-server check
+        run: |
+          godot --headless --editor --path . --import
+          godot --headless --audio-driver Dummy --path . --script tools/check_dedicated_server.gd
