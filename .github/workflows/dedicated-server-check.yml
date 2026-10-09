@@ -43,3 +43,5 @@ jobs:
           fi
 
           echo "DEDICATED SERVER STARTUP TEST: PASSED"
+      - name: Test ENet client connection and disconnection
+        run: godot --headless --audio-driver Dummy --path . --script tools/test_dedicated_server.gd
