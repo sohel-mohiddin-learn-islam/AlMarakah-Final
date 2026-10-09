@@ -20,6 +20,9 @@ concurrency:
 jobs:
   test-and-export:
     runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     timeout-minutes: 30
 
     env:
@@ -137,7 +140,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Pages Artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           name: github-pages
           path: build/web
