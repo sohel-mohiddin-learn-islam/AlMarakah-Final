@@ -48,8 +48,8 @@ func _run_test() -> void:
         _fail("Host could not listen on test port: %s" % err)
         return
 
-    multiplayer.multiplayer_peer = host_peer
-    multiplayer.peer_connected.connect(_on_peer_connected)
+    root.get_multiplayer().multiplayer_peer = host_peer
+    root.get_multiplayer().peer_connected.connect(_on_peer_connected)
 
     print("MOVEMENT TEST HOST READY ON PORT: ", PORT)
     started_at = Time.get_ticks_msec()
@@ -94,8 +94,8 @@ func _finish(code: int) -> void:
         return
     finished = true
 
-    if multiplayer.multiplayer_peer != null:
-        multiplayer.multiplayer_peer = null
+    if root.get_multiplayer().multiplayer_peer != null:
+        root.get_multiplayer().multiplayer_peer = null
     if host_peer != null:
         host_peer.close()
 

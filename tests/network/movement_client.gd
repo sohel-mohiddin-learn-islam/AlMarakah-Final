@@ -53,9 +53,9 @@ func _run_test() -> void:
         _fail("Client could not create ENet connection: %s" % err)
         return
 
-    multiplayer.multiplayer_peer = client_peer
-    multiplayer.connected_to_server.connect(_on_connected)
-    multiplayer.connection_failed.connect(_on_connection_failed)
+    root.get_multiplayer().multiplayer_peer = client_peer
+    root.get_multiplayer().connected_to_server.connect(_on_connected)
+    root.get_multiplayer().connection_failed.connect(_on_connection_failed)
 
     started_at = Time.get_ticks_msec()
     print("MOVEMENT TEST CLIENT CONNECTING")
@@ -63,7 +63,7 @@ func _run_test() -> void:
     while true:
         await process_frame
 
-        if multiplayer.multiplayer_peer == null:
+        if root.get_multiplayer().multiplayer_peer == null:
             return
 
         if sent_input and Time.get_ticks_msec() - started_at > int(TIMEOUT * 1000.0):
@@ -94,8 +94,8 @@ func _on_connection_failed() -> void:
 
 func _fail(message: String) -> void:
     push_error("REAL PLAYER MOVEMENT TEST: FAILED - " + message)
-    if multiplayer.multiplayer_peer != null:
-        multiplayer.multiplayer_peer = null
+    if root.get_multiplayer().multiplayer_peer != null:
+        root.get_multiplayer().multiplayer_peer = null
     if client_peer != null:
         client_peer.close()
     quit(1)
