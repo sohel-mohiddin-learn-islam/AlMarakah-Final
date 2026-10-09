@@ -24,3 +24,22 @@ jobs:
         run: godot --headless --audio-driver Dummy --path . --script tools/check_dedicated_server.gd
       - name: Validate dedicated-server entry point
         run: godot --headless --audio-driver Dummy --path . --script tools/check_dedicated_entry.gd
+      - name: Test dedicated-server startup
+        shell: bash
+        run: |
+          set +e
+          timeout 15s godot --headless --audio-driver Dummy --path . --script scripts/dedicated_server.gd > /tmp/almarakah-server.log 2>&1
+          status=$?
+          cat /tmp/almarakah-server.log
+
+          if ! grep -q "SERVER STATUS: READY" /tmp/almarakah-server.log; then
+            echo "ERROR: Dedicated server did not report READY."
+            exit 1
+          fi
+
+          if [ "$status" -ne 124 ] && [ "$status" -ne 0 ]; then
+            echo "ERROR: Server exited unexpectedly with status $status."
+            exit "$status"
+          fi
+
+          echo "DEDICATED SERVER STARTUP TEST: PASSED"
