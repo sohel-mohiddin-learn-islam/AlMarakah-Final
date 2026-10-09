@@ -79,11 +79,13 @@ func configure(prefs: RefCounted) -> void:
 	show_lobby()
 
 func _style(color: Color) -> StyleBoxFlat:
-	var style = StyleBoxFlat.new()
-	style.bg_color = color
-	style.set_corner_radius_all(14)
-	style.set_content_margin_all(18)
-	return style
+       var style = StyleBoxFlat.new()
+       style.bg_color = color
+       style.border_color = Color("8e7444")
+       style.set_border_width_all(1)
+       style.set_corner_radius_all(12)
+       style.set_content_margin_all(18)
+       return style
 
 func _panel(left: float, top: float, right: float, bottom: float) -> PanelContainer:
 	var panel = PanelContainer.new()
@@ -103,22 +105,38 @@ func _column(parent: Node) -> VBoxContainer:
 	return column
 
 func _label(parent: Node, text: String, font_size: int = 22) -> Label:
-	var label = Label.new()
-	label.text = text
-	label.add_theme_font_size_override("font_size", font_size)
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(label)
-	return label
+       var label = Label.new()
+       label.text = text
+       label.add_theme_font_size_override("font_size", font_size)
+       label.add_theme_color_override("font_color", Color("e4e8e4"))
+       label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+       parent.add_child(label)
+       if text == "ALMARAKAH":
+              label.add_theme_font_size_override("font_size", 40)
+              label.add_theme_color_override("font_color", Color("e8c77b"))
+       return label
 
 func _button(parent: Node, caption: String, action: Callable) -> Button:
-	var button = Button.new()
-	button.text = caption
-	button.custom_minimum_size = Vector2(120, 52)
-	button.focus_mode = Control.FOCUS_NONE
-	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.pressed.connect(action)
-	parent.add_child(button)
-	return button
+       var button = Button.new()
+       button.text = caption
+       button.custom_minimum_size = Vector2(120, 56)
+       button.focus_mode = Control.FOCUS_NONE
+       button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+       button.add_theme_font_size_override("font_size", 18)
+       button.add_theme_color_override("font_color", Color("f1d99c"))
+       var normal = StyleBoxFlat.new()
+       normal.bg_color = Color("202c32")
+       normal.border_color = Color("8e7444")
+       normal.set_border_width_all(1)
+       normal.set_corner_radius_all(10)
+       normal.set_content_margin_all(10)
+       button.add_theme_stylebox_override("normal", normal)
+       var hover = normal.duplicate()
+       hover.bg_color = Color("34434a")
+       button.add_theme_stylebox_override("hover", hover)
+       button.pressed.connect(action)
+       parent.add_child(button)
+       return button
 
 func _build_lobby() -> void:
 	lobby = _panel(0.14, 0.06, 0.86, 0.94)
