@@ -5,29 +5,29 @@ const CHARACTER = preload("res://assets/characters/quaternius/male/Superhero_Mal
 var lobby_camera: Camera3D
 
 func _ready() -> void:
-_build_environment()
-_build_platform()
-_build_fortress()
-_build_character()
-_build_camera()
+	_build_environment()
+	_build_platform()
+	_build_fortress()
+	_build_character()
+	_build_camera()
 
 func _material(color: Color, metallic: float = 0.0, roughness: float = 0.8) -> StandardMaterial3D:
-var mat := StandardMaterial3D.new()
-mat.albedo_color = color
-mat.metallic = metallic
-mat.roughness = roughness
-return mat
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.metallic = metallic
+	mat.roughness = roughness
+	return mat
 
 func _box(parent: Node3D, name: String, size: Vector3, pos: Vector3, mat: Material) -> MeshInstance3D:
-var item := MeshInstance3D.new()
-item.name = name
-var mesh := BoxMesh.new()
-mesh.size = size
-item.mesh = mesh
-item.position = pos
-item.material_override = mat
-parent.add_child(item)
-return item
+	var item := MeshInstance3D.new()
+	item.name = name
+	var mesh := BoxMesh.new()
+	mesh.size = size
+	item.mesh = mesh
+	item.position = pos
+	item.material_override = mat
+	parent.add_child(item)
+	return item
 
 func _build_environment() -> void:
 	var world_env := WorldEnvironment.new()
@@ -71,15 +71,13 @@ func _build_fortress() -> void:
 	var sandstone := _material(Color(0.43, 0.31, 0.22))
 	var dark_stone := _material(Color(0.22, 0.19, 0.17))
 	var gold := _material(Color(0.76, 0.48, 0.16), 0.55, 0.35)
-
 	for side in [-1.0, 1.0]:
-	_box(self, "FortressWall", Vector3(2.4, 7.5, 1.8), Vector3(side * 10.0, 3.2, -7.0), sandstone)
-	_box(self, "WallCrown", Vector3(3.0, 0.6, 2.3), Vector3(side * 10.0, 7.25, -7.0), gold)
-	_box(self, "Tower", Vector3(4.0, 10.0, 4.0), Vector3(side * 13.0, 4.2, -13.0), dark_stone)
-	_box(self, "TowerCap", Vector3(4.6, 0.7, 4.6), Vector3(side * 13.0, 9.5, -13.0), gold)
-	_box(self, "BannerPole", Vector3(0.12, 4.0, 0.12), Vector3(side * 13.0, 12.0, -13.0), gold)
-	_box(self, "Banner", Vector3(1.5, 2.2, 0.12), Vector3(side * 13.0, 10.6, -13.0), sandstone)
-
+		_box(self, "FortressWall", Vector3(2.4, 7.5, 1.8), Vector3(side * 10.0, 3.2, -7.0), sandstone)
+		_box(self, "WallCrown", Vector3(3.0, 0.6, 2.3), Vector3(side * 10.0, 7.25, -7.0), gold)
+		_box(self, "Tower", Vector3(4.0, 10.0, 4.0), Vector3(side * 13.0, 4.2, -13.0), dark_stone)
+		_box(self, "TowerCap", Vector3(4.6, 0.7, 4.6), Vector3(side * 13.0, 9.5, -13.0), gold)
+		_box(self, "BannerPole", Vector3(0.12, 4.0, 0.12), Vector3(side * 13.0, 12.0, -13.0), gold)
+		_box(self, "Banner", Vector3(1.5, 2.2, 0.12), Vector3(side * 13.0, 10.6, -13.0), sandstone)
 	_box(self, "RearGate", Vector3(7.0, 6.0, 1.0), Vector3(0.0, 2.5, -11.0), sandstone)
 	_box(self, "GateOpening", Vector3(3.2, 4.4, 0.25), Vector3(0.0, 1.7, -10.4), dark_stone)
 	_box(self, "GateLintel", Vector3(4.0, 0.35, 0.5), Vector3(0.0, 4.2, -10.0), gold)
@@ -89,7 +87,6 @@ func _build_character() -> void:
 	character.name = "LobbyCharacter"
 	character.position = Vector3(0.0, 0.38, 0.0)
 	character.rotation_degrees = Vector3(0.0, 180.0, 0.0)
-	character.scale = Vector3.ONE
 	add_child(character)
 
 func _build_camera() -> void:
