@@ -40,6 +40,12 @@ var muzzle_flash: MeshInstance3D
 var muzzle_flash_time: float = 0.0
 var third_person_weapon: Node3D
 var weapon_muzzle: Marker3D
+var weapon_recoil: float = 0.0
+var weapon_recoil_rotation: float = 0.0
+var weapon_attachment: BoneAttachment3D
+var weapon_recoil_pivot: Node3D
+var weapon_rest_position: Vector3 = Vector3.ZERO
+var weapon_rest_rotation: Vector3 = Vector3.ZERO
 var animator: Node
 var character_visual: Node3D
 var mouse_look: Vector2 = Vector2.ZERO
@@ -124,8 +130,13 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int, peer_id: int = 0) -> vo
 	yaw = PI if spawn.z < 0 else 0.0
 	rig.rotation = Vector3(pitch, yaw, 0)
 	if is_instance_valid(third_person_weapon):
-		third_person_weapon.rotation.x = clampf(-pitch * 0.55, -0.55, 0.55)
-		third_person_weapon.rotation.y = angle_difference(body.rotation.y, yaw) * 0.35
+		if is_instance_valid(weapon_recoil_pivot):
+			var aim_node := weapon_recoil_pivot.get_node_or_null("WeaponAimPivot") as Node3D
+			if is_instance_valid(aim_node):
+				aim_node.rotation = Vector3(clampf(-pitch * 0.55, -0.55, 0.55), 0.0, 0.0)
+		else:
+			third_person_weapon.rotation.x = weapon_rest_rotation.x + clampf(-pitch * 0.55, -0.55, 0.55)
+			third_person_weapon.rotation.y = weapon_rest_rotation.y + angle_difference(body.rotation.y, yaw) * 0.35
 
 	network_position = global_position
 	network_velocity = velocity
@@ -207,6 +218,21 @@ func _send_network_fire(firing: bool, aiming_input: bool) -> void:
 	receive_network_fire.rpc_id(1, firing, aiming_input)
 
 func _physics_process(delta: float) -> void:
+	weapon_recoil = lerpf(weapon_recoil, 0.0, minf(delta * 12.0, 1.0))
+	weapon_recoil_rotation = lerpf(weapon_recoil_rotation, 0.0, minf(delta * 14.0, 1.0))
+	if is_instance_valid(third_person_weapon):
+		if is_instance_valid(weapon_recoil_pivot):
+			var aim_node := weapon_recoil_pivot.get_node_or_null("WeaponAimPivot") as Node3D
+			var recoil_node := weapon_recoil_pivot.get_node_or_null("WeaponAimPivot/WeaponRecoilMotion") as Node3D
+			if is_instance_valid(aim_node):
+				aim_node.rotation.x = clampf(-pitch * 0.55, -0.55, 0.55)
+				aim_node.rotation.y = 0.0
+			if is_instance_valid(recoil_node):
+				recoil_node.position.z = weapon_rest_position.z + weapon_recoil * 0.12
+				recoil_node.rotation.x = weapon_rest_rotation.x - weapon_recoil_rotation
+		else:
+			third_person_weapon.position.z = weapon_rest_position.z + weapon_recoil * 0.12
+			third_person_weapon.rotation.x = weapon_rest_rotation.x + clampf(-pitch * 0.55, -0.55, 0.55) - weapon_recoil_rotation
 	if not alive or not is_instance_valid(game) or not game.match_active:
 		mouse_look = Vector2.ZERO
 		return
@@ -393,6 +419,8 @@ func _configure_loadout() -> void:
 	shot_time = 0.0
 
 func _shoot() -> void:
+	weapon_recoil = 1.0
+	weapon_recoil_rotation = 0.10
 	if animator != null:
 		animator.play_shoot()
 	if is_instance_valid(muzzle_flash):
@@ -515,6 +543,28 @@ func _create_third_person_weapon() -> void:
 	barrel.position = Vector3(0.0, 0.03, -0.70)
 	third_person_weapon.add_child(barrel)
 
+	var handguard := MeshInstance3D.new()
+	var handguard_mesh := BoxMesh.new()
+	handguard_mesh.size = Vector3(0.15, 0.15, 0.38)
+	handguard.mesh = handguard_mesh
+	handguard.position = Vector3(0.0, 0.015, -0.48)
+	third_person_weapon.add_child(handguard)
+
+	var foregrip := MeshInstance3D.new()
+	var foregrip_mesh := BoxMesh.new()
+	foregrip_mesh.size = Vector3(0.085, 0.20, 0.09)
+	foregrip.mesh = foregrip_mesh
+	foregrip.position = Vector3(0.0, -0.15, -0.48)
+	foregrip.rotation.x = -0.16
+	third_person_weapon.add_child(foregrip)
+
+	var stock_pad := MeshInstance3D.new()
+	var stock_pad_mesh := BoxMesh.new()
+	stock_pad_mesh.size = Vector3(0.17, 0.19, 0.07)
+	stock_pad.mesh = stock_pad_mesh
+	stock_pad.position = Vector3(0.0, 0.0, 0.20)
+	third_person_weapon.add_child(stock_pad)
+
 	var grip := MeshInstance3D.new()
 	var grip_mesh := BoxMesh.new()
 	grip_mesh.size = Vector3(0.12, 0.30, 0.14)
@@ -522,6 +572,22 @@ func _create_third_person_weapon() -> void:
 	grip.position = Vector3(0.0, -0.20, -0.18)
 	grip.rotation.x = -0.18
 	third_person_weapon.add_child(grip)
+	var magazine := MeshInstance3D.new()
+	magazine.name = "RifleMagazine"
+	var magazine_mesh := BoxMesh.new()
+	magazine_mesh.size = Vector3(0.105, 0.27, 0.16)
+	magazine.mesh = magazine_mesh
+	magazine.position = Vector3(0.0, -0.20, -0.24)
+	magazine.rotation.x = -0.12
+	third_person_weapon.add_child(magazine)
+
+	var front_sight := MeshInstance3D.new()
+	front_sight.name = "RifleFrontSight"
+	var front_sight_mesh := BoxMesh.new()
+	front_sight_mesh.size = Vector3(0.035, 0.09, 0.045)
+	front_sight.mesh = front_sight_mesh
+	front_sight.position = Vector3(0.0, 0.105, -0.83)
+	third_person_weapon.add_child(front_sight)
 
 	var sight := MeshInstance3D.new()
 	var sight_mesh := BoxMesh.new()
@@ -537,10 +603,49 @@ func _create_third_person_weapon() -> void:
 		if part is MeshInstance3D:
 			part.material_override = dark
 
+
+	var handguard_material := StandardMaterial3D.new()
+	handguard_material.albedo_color = Color(0.075, 0.085, 0.09, 1.0)
+	handguard.material_override = handguard_material
+	foregrip.material_override = handguard_material
+	var metal_material := StandardMaterial3D.new()
+	metal_material.albedo_color = Color(0.16, 0.18, 0.20, 1.0)
+	metal_material.metallic = 0.62
+	metal_material.roughness = 0.34
+	receiver.material_override = metal_material
+	barrel.material_override = metal_material
+	sight.material_override = metal_material
 	weapon_muzzle = Marker3D.new()
 	weapon_muzzle.name = "WeaponMuzzle"
 	weapon_muzzle.position = Vector3(0.0, 0.03, -1.02)
 	third_person_weapon.add_child(weapon_muzzle)
+
+	var skeleton := character_visual.find_child("Skeleton3D", true, false) as Skeleton3D
+	if skeleton != null and skeleton.find_bone("hand_r") >= 0:
+		weapon_attachment = BoneAttachment3D.new()
+		weapon_attachment.name = "RightHandWeaponAttachment"
+		weapon_attachment.bone_name = "hand_r"
+		skeleton.add_child(weapon_attachment)
+		weapon_recoil_pivot = Node3D.new()
+		weapon_recoil_pivot.name = "WeaponRecoilPivot"
+		weapon_attachment.add_child(weapon_recoil_pivot)
+		weapon_recoil_pivot.position = Vector3(0.0, -0.18, 0.20)
+		weapon_recoil_pivot.rotation = Vector3.ZERO
+		var weapon_aim_pivot := Node3D.new()
+		weapon_aim_pivot.name = "WeaponAimPivot"
+		weapon_recoil_pivot.add_child(weapon_aim_pivot)
+		var recoil_motion := Node3D.new()
+		recoil_motion.name = "WeaponRecoilMotion"
+		weapon_aim_pivot.add_child(recoil_motion)
+		third_person_weapon.reparent(recoil_motion, false)
+		third_person_weapon.position = Vector3.ZERO
+		third_person_weapon.rotation = Vector3.ZERO
+		weapon_rest_position = recoil_motion.position
+		weapon_rest_rotation = recoil_motion.rotation
+	else:
+		push_warning("AlMarakah: right-hand skeleton bone not found; rifle remains body-attached")
+		weapon_rest_position = third_person_weapon.position
+		weapon_rest_rotation = third_person_weapon.rotation
 
 func _create_muzzle_flash() -> void:
 	if not is_instance_valid(camera):
@@ -558,6 +663,17 @@ func _create_muzzle_flash() -> void:
 	material.emission = Color(1.0, 0.45, 0.05, 1.0)
 	material.emission_energy_multiplier = 8.0
 	muzzle_flash.material_override = material
-	muzzle_flash.position = Vector3(0.22, -0.12, -0.75)
+	var flash_light := OmniLight3D.new()
+	flash_light.name = "MuzzleFlashLight"
+	flash_light.light_color = Color(1.0, 0.48, 0.12, 1.0)
+	flash_light.light_energy = 2.5
+	flash_light.omni_range = 3.0
+	flash_light.shadow_enabled = false
+	muzzle_flash.add_child(flash_light)
+	muzzle_flash.position = Vector3.ZERO
+	muzzle_flash.scale = Vector3(1.0, 1.0, 2.0)
 	muzzle_flash.visible = false
-	camera.add_child(muzzle_flash)
+	if is_instance_valid(weapon_muzzle):
+		weapon_muzzle.add_child(muzzle_flash)
+	else:
+		camera.add_child(muzzle_flash)
