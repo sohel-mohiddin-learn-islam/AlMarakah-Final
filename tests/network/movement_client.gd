@@ -45,7 +45,6 @@ func _run_test() -> void:
     control.name = "Control"
     test_root.add_child(control)
 
-    NetworkManager.is_host = false
 
     client_peer = ENetMultiplayerPeer.new()
     var err: int = client_peer.create_client(HOST, PORT)
