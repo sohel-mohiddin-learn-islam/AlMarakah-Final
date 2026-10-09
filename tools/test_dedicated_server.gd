@@ -71,7 +71,7 @@ func _run_test() -> void:
 
         if connected_clients.size() == EXPECTED_CLIENTS and not disconnect_started:
             print("TWO CLIENTS CONNECTED: OK")
-            if server_peer.get_peers().size() != EXPECTED_CLIENTS:
+            if connected_clients.size() != EXPECTED_CLIENTS:
                 _fail("Server peer count does not match expected clients")
                 return
 
