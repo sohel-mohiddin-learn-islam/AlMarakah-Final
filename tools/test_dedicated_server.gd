@@ -7,11 +7,12 @@ var server_peer: ENetMultiplayerPeer
 var client_peer: ENetMultiplayerPeer
 var server_api: MultiplayerAPI
 var client_api: MultiplayerAPI
-var elapsed: float = 0.0
+var started_at: int = 0
 var client_connected: bool = false
 var server_saw_client: bool = false
 var server_saw_disconnect: bool = false
 var client_peer_id: int = 0
+var disconnect_started: bool = false
 var finished: bool = false
 
 func _initialize() -> void:
@@ -23,7 +24,6 @@ func _initialize() -> void:
     var server_root := Node.new()
     server_root.name = "ServerTestRoot"
     root.add_child(server_root)
-    server_root.set_multiplayer_authority(1)
     server_root.set_multiplayer(server_api)
 
     var client_root := Node.new()
@@ -51,39 +51,35 @@ func _initialize() -> void:
     client_api.multiplayer_peer = client_peer
 
     print("Server listening; local client connecting...")
-    set_process(true)
+    started_at = Time.get_ticks_msec()
+    _run_test()
 
-func _process(delta: float) -> bool:
-    if finished:
-        return true
+func _run_test() -> void:
+    while not finished:
+        await process_frame
+        server_api.poll()
+        client_api.poll()
+        var elapsed: float = float(Time.get_ticks_msec() - started_at) / 1000.0
 
-    elapsed += delta
-    server_api.poll()
-    client_api.poll()
+        if server_saw_client and client_connected and not disconnect_started:
+            print("SERVER RECEIVED CLIENT: OK")
+            print("CLIENT CONNECTED: OK")
+            disconnect_started = true
+            client_api.multiplayer_peer = null
+            client_peer.close()
+            client_peer = null
 
-    if server_saw_client and client_connected and not server_saw_disconnect:
-        print("SERVER RECEIVED CLIENT: OK")
-        print("CLIENT CONNECTED: OK")
-        client_peer.close()
-        client_peer = null
-        client_api.multiplayer_peer = null
-        elapsed = 0.0
-        server_saw_client = false
-        set_meta("disconnect_test_started", true)
+        if disconnect_started and server_saw_disconnect:
+            print("SERVER DETECTED DISCONNECT: OK")
+            print("ENET CONNECTION TEST: PASSED")
+            _cleanup()
+            finished = true
+            quit(0)
+            return
 
-    if bool(get_meta("disconnect_test_started", false)) and server_saw_disconnect:
-        print("SERVER DETECTED DISCONNECT: OK")
-        print("ENET CONNECTION TEST: PASSED")
-        _cleanup()
-        finished = true
-        quit(0)
-        return true
-
-    if elapsed >= TIMEOUT:
-        _fail("Connection or disconnection timed out")
-        return true
-
-    return false
+        if elapsed >= TIMEOUT:
+            _fail("Connection or disconnection timed out")
+            return
 
 func _on_server_peer_connected(peer_id: int) -> void:
     print("Server received peer: ", peer_id)
