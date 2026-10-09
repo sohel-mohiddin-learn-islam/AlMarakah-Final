@@ -429,13 +429,13 @@ func _spawn_vehicles() -> void:
 	vehicle.setup(spawn_position)
 	vehicles.append(vehicle)
 func return_to_menu() -> void:
-        _clear_world()
-        Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-        var lobby_script = load("res://scripts/lobby_showcase.gd")
-        var lobby = lobby_script.new()
-        lobby.name = "LobbyShowcase"
-        world.add_child(lobby)
-        hud.show_lobby()
+	_clear_world()
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var lobby_script = load("res://scripts/lobby_showcase.gd")
+	var lobby = lobby_script.new()
+	lobby.name = "LobbyShowcase"
+	world.add_child(lobby)
+	hud.show_lobby()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
