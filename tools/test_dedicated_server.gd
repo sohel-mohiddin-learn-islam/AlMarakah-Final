@@ -24,12 +24,12 @@ func _initialize() -> void:
     var server_root := Node.new()
     server_root.name = "ServerTestRoot"
     root.add_child(server_root)
-    server_root.set_multiplayer(server_api)
+    set_multiplayer(server_api, NodePath("/root/ServerTestRoot"))
 
     var client_root := Node.new()
     client_root.name = "ClientTestRoot"
     root.add_child(client_root)
-    client_root.set_multiplayer(client_api)
+    set_multiplayer(client_api, NodePath("/root/ClientTestRoot"))
 
     server_api.peer_connected.connect(_on_server_peer_connected)
     server_api.peer_disconnected.connect(_on_server_peer_disconnected)
