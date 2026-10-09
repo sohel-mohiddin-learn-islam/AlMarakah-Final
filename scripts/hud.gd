@@ -123,88 +123,88 @@ func _button(parent: Node, caption: String, action: Callable) -> Button:
 	return button
 
 func _build_lobby() -> void:
-        lobby = _panel(0.025, 0.045, 0.405, 0.955)
-        var lobby_style = _style(Color(0.018, 0.028, 0.045, 0.80))
-        lobby_style.border_color = Color(0.78, 0.53, 0.20, 0.90)
-        lobby_style.set_border_width_all(2)
-        lobby.add_theme_stylebox_override("panel", lobby_style)
+		lobby = _panel(0.025, 0.045, 0.405, 0.955)
+		var lobby_style = _style(Color(0.018, 0.028, 0.045, 0.80))
+		lobby_style.border_color = Color(0.78, 0.53, 0.20, 0.90)
+		lobby_style.set_border_width_all(2)
+		lobby.add_theme_stylebox_override("panel", lobby_style)
 
-        var scroll = ScrollContainer.new()
-        scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-        lobby.add_child(scroll)
-        var column = _column(scroll)
-        column.add_theme_constant_override("separation", 7)
-        column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var scroll = ScrollContainer.new()
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		lobby.add_child(scroll)
+		var column = _column(scroll)
+		column.add_theme_constant_override("separation", 7)
+		column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-        var title = _label(column, "ALMARAKAH", 30)
-        title.add_theme_color_override("font_color", Color("f4ca70"))
-        _label(column, "THE BATTLEFIELD AWAITS", 14)
-        _label(column, "OFFLINE BATTLE LOBBY", 13)
+		var title = _label(column, "ALMARAKAH", 30)
+		title.add_theme_color_override("font_color", Color("f4ca70"))
+		_label(column, "THE BATTLEFIELD AWAITS", 14)
+		_label(column, "OFFLINE BATTLE LOBBY", 13)
 
-        rating_label = _label(column, "", 14)
-        rating_label.add_theme_color_override("font_color", Color("9ac7c9"))
+		rating_label = _label(column, "", 14)
+		rating_label.add_theme_color_override("font_color", Color("9ac7c9"))
 
-        var divider = HSeparator.new()
-        column.add_child(divider)
+		var divider = HSeparator.new()
+		column.add_child(divider)
 
-        _label(column, "BATTLEFIELD", 15)
-        map_picker = OptionButton.new()
-        map_picker.custom_minimum_size = Vector2(0, 42)
-        map_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-        map_picker.add_theme_font_size_override("font_size", 15)
-        map_picker.add_item("Qamar Dunes — Desert", 0)
-        map_picker.add_item("Wadi Highlands — Green", 1)
-        column.add_child(map_picker)
+		_label(column, "BATTLEFIELD", 15)
+		map_picker = OptionButton.new()
+		map_picker.custom_minimum_size = Vector2(0, 42)
+		map_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		map_picker.add_theme_font_size_override("font_size", 15)
+		map_picker.add_item("Qamar Dunes — Desert", 0)
+		map_picker.add_item("Wadi Highlands — Green", 1)
+		column.add_child(map_picker)
 
-        _label(column, "WEAPON LOADOUT", 15)
-        loadout_picker = OptionButton.new()
-        loadout_picker.custom_minimum_size = Vector2(0, 42)
-        loadout_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-        loadout_picker.add_theme_font_size_override("font_size", 15)
-        for weapon_id in LOADOUT_IDS:
-                loadout_picker.add_item(LOADOUT_LABELS[weapon_id])
-        loadout_picker.item_selected.connect(_select_loadout)
-        column.add_child(loadout_picker)
+		_label(column, "WEAPON LOADOUT", 15)
+		loadout_picker = OptionButton.new()
+		loadout_picker.custom_minimum_size = Vector2(0, 42)
+		loadout_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		loadout_picker.add_theme_font_size_override("font_size", 15)
+		for weapon_id in LOADOUT_IDS:
+				loadout_picker.add_item(LOADOUT_LABELS[weapon_id])
+		loadout_picker.item_selected.connect(_select_loadout)
+		column.add_child(loadout_picker)
 
-        _label(column, "GAME MODE", 15)
-        mode_picker = OptionButton.new()
-        mode_picker.custom_minimum_size = Vector2(0, 44)
-        mode_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-        mode_picker.add_theme_font_size_override("font_size", 15)
-        mode_picker.add_item("BR Classic · 50 players")
-        mode_picker.add_item("BR Ranked Practice")
-        mode_picker.add_item("CS Classic · 4v4")
-        mode_picker.add_item("CS Ranked Practice · 4v4")
-        mode_picker.select(0)
-        column.add_child(mode_picker)
+		_label(column, "GAME MODE", 15)
+		mode_picker = OptionButton.new()
+		mode_picker.custom_minimum_size = Vector2(0, 44)
+		mode_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		mode_picker.add_theme_font_size_override("font_size", 15)
+		mode_picker.add_item("BR Classic · 50 players")
+		mode_picker.add_item("BR Ranked Practice")
+		mode_picker.add_item("CS Classic · 4v4")
+		mode_picker.add_item("CS Ranked Practice · 4v4")
+		mode_picker.select(0)
+		column.add_child(mode_picker)
 
-        var play = _button(column, "▶   PLAY", _start_selected_mode)
-        play.custom_minimum_size = Vector2(0, 64)
-        play.add_theme_font_size_override("font_size", 26)
-        var play_style = StyleBoxFlat.new()
-        play_style.bg_color = Color("bd872d")
-        play_style.set_corner_radius_all(12)
-        play_style.set_content_margin_all(10)
-        play.add_theme_stylebox_override("normal", play_style)
-        var play_hover = play_style.duplicate()
-        play_hover.bg_color = Color("e5b64e")
-        play.add_theme_stylebox_override("hover", play_hover)
-        var play_pressed = play_style.duplicate()
-        play_pressed.bg_color = Color("90621f")
-        play.add_theme_stylebox_override("pressed", play_pressed)
+		var play = _button(column, "▶   PLAY", _start_selected_mode)
+		play.custom_minimum_size = Vector2(0, 64)
+		play.add_theme_font_size_override("font_size", 26)
+		var play_style = StyleBoxFlat.new()
+		play_style.bg_color = Color("bd872d")
+		play_style.set_corner_radius_all(12)
+		play_style.set_content_margin_all(10)
+		play.add_theme_stylebox_override("normal", play_style)
+		var play_hover = play_style.duplicate()
+		play_hover.bg_color = Color("e5b64e")
+		play.add_theme_stylebox_override("hover", play_hover)
+		var play_pressed = play_style.duplicate()
+		play_pressed.bg_color = Color("90621f")
+		play.add_theme_stylebox_override("pressed", play_pressed)
 
-        var settings_button = _button(column, "⚙   SETTINGS & HUD", show_settings)
-        settings_button.custom_minimum_size = Vector2(0, 42)
-        settings_button.add_theme_font_size_override("font_size", 15)
+		var settings_button = _button(column, "⚙   SETTINGS & HUD", show_settings)
+		settings_button.custom_minimum_size = Vector2(0, 42)
+		settings_button.add_theme_font_size_override("font_size", 15)
 
-        var footer = _label(column, "Move: left side   •   Look: swipe right", 12)
-        footer.add_theme_color_override("font_color", Color("c1c9d0"))
+		var footer = _label(column, "Move: left side   •   Look: swipe right", 12)
+		footer.add_theme_color_override("font_color", Color("c1c9d0"))
 
 func _start_selected_mode() -> void:
-        if mode_picker == null or map_picker == null:
-                return
-        var index: int = clampi(mode_picker.selected, 0, MODE_IDS.size() - 1)
-        start_match.emit(MODE_IDS[index], map_picker.selected)
+		if mode_picker == null or map_picker == null:
+				return
+		var index: int = clampi(mode_picker.selected, 0, MODE_IDS.size() - 1)
+		start_match.emit(MODE_IDS[index], map_picker.selected)
 
 func _select_loadout(index: int) -> void:
 	if index < 0 or index >= LOADOUT_IDS.size():
