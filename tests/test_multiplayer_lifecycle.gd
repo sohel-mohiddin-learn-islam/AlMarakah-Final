@@ -47,7 +47,7 @@ func _run_tests() -> void:
         _finish()
         return
 
-    var local_peer_id: int = multiplayer.get_unique_id()
+    var local_peer_id: int = root.get_multiplayer().get_unique_id()
     var test_peer_id: int = 424242
 
     if test_peer_id == local_peer_id:
