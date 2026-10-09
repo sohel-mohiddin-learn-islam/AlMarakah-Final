@@ -22,6 +22,8 @@ jobs:
         run: godot --headless --editor --path . --import
       - name: Run dedicated-server diagnostic
         run: godot --headless --audio-driver Dummy --path . --script tools/check_dedicated_server.gd
+      - name: Test raw ENet socket creation
+        run: godot --headless --audio-driver Dummy --path . --script tools/test_enet_socket.gd
       - name: Validate dedicated-server entry point
         run: godot --headless --audio-driver Dummy --path . --script tools/check_dedicated_entry.gd
       - name: Test dedicated-server startup
