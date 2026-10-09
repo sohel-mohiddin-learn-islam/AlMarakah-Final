@@ -121,48 +121,118 @@ func _button(parent: Node, caption: String, action: Callable) -> Button:
 	return button
 
 func _build_lobby() -> void:
-	lobby = _panel(0.14, 0.06, 0.86, 0.94)
-	var scroll = ScrollContainer.new()
-	lobby.add_child(scroll)
-	var column = _column(scroll)
-	column.add_theme_constant_override("separation", 8)
-	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_label(column, "ALMARAKAH", 36)
-	_label(column, "OFFLINE TRAINING • EARLY PROTOTYPE", 18)
-	var description = _label(column, "50-player BR or tactical 4v4 CS. All matches run locally with offline bots; ranked practice uses a device-only rating and is not online matchmaking.", 18)
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var choices = HBoxContainer.new()
-	choices.add_theme_constant_override("separation", 16)
-	column.add_child(choices)
-	var maps = _column(choices)
-	maps.add_theme_constant_override("separation", 4)
-	maps.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_label(maps, "Choose a map", 18)
-	map_picker = OptionButton.new()
-	map_picker.custom_minimum_size.y = 52
-	map_picker.add_theme_font_size_override("font_size", 18)
-	map_picker.add_item("Qamar Dunes — desert settlement", 0)
-	map_picker.add_item("Wadi Highlands — green outpost", 1)
-	maps.add_child(map_picker)
-	var loadouts = _column(choices)
-	loadouts.add_theme_constant_override("separation", 4)
-	loadouts.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_label(loadouts, "Offline loadout", 18)
-	loadout_picker = OptionButton.new()
-	loadout_picker.custom_minimum_size = Vector2(190, 52)
-	for weapon_id in LOADOUT_IDS:
-		loadout_picker.add_item(LOADOUT_LABELS[weapon_id])
-	loadout_picker.item_selected.connect(_select_loadout)
-	loadouts.add_child(loadout_picker)
-	_button(column, "BR CLASSIC · 50 players", func(): start_match.emit("br_classic", map_picker.selected))
-	_button(column, "BR RANKED · 50-player practice", func(): start_match.emit("br_ranked", map_picker.selected))
-	_button(column, "CS CLASSIC · 4v4", func(): start_match.emit("cs_classic", map_picker.selected))
-	_button(column, "CS RANKED · 4v4 practice", func(): start_match.emit("cs_ranked", map_picker.selected))
-	rating_label = _label(column, "", 16)
-	rating_label.add_theme_color_override("font_color", Color("9ac7c9"))
-	_button(column, "Settings & HUD", show_settings)
-	var help = _label(column, "Touch: move on the left, swipe right to look. Hold FIRE.\nDesktop: WASD · mouse · Space · R · Esc to release mouse.", 18)
-	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+        lobby = _panel(0.035, 0.035, 0.965, 0.965)
+        lobby.add_theme_stylebox_override("panel", _style(Color("101820")))
+
+        var scroll = ScrollContainer.new()
+        scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+        lobby.add_child(scroll)
+
+        var column = _column(scroll)
+        column.add_theme_constant_override("separation", 12)
+        column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+        var title = _label(column, "ALMARAKAH", 34)
+        title.add_theme_color_override("font_color", Color("e8c77b"))
+        _label(column, "BATTLE FOR THE DAWN  •  OFFLINE OPERATIONS", 15)
+
+        var hero = _panel(0, 0, 0, 0)
+        hero.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        hero.add_theme_stylebox_override("panel", _style(Color("202d31")))
+        column.add_child(hero)
+
+        var hero_column = _column(hero)
+        hero_column.add_theme_constant_override("separation", 10)
+        var hero_title = _label(hero_column, "ENTER THE BATTLEFIELD", 25)
+        hero_title.add_theme_color_override("font_color", Color("f0d18b"))
+
+        var description = _label(hero_column, "Choose your battlefield and weapon. Fight through offline opponents in Al-Qalah Al-Zahra.", 16)
+        description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+        _label(hero_column, "BATTLEFIELD", 14)
+        map_picker = OptionButton.new()
+        map_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        map_picker.custom_minimum_size.y = 48
+        map_picker.add_theme_font_size_override("font_size", 16)
+        map_picker.add_item("Qamar Dunes", 0)
+        map_picker.add_item("Wadi Highlands", 1)
+        hero_column.add_child(map_picker)
+
+        _label(hero_column, "PRIMARY WEAPON", 14)
+        loadout_picker = OptionButton.new()
+        loadout_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        loadout_picker.custom_minimum_size.y = 48
+        loadout_picker.add_theme_font_size_override("font_size", 16)
+        for weapon_id in LOADOUT_IDS:
+                loadout_picker.add_item(LOADOUT_LABELS[weapon_id])
+        loadout_picker.item_selected.connect(_select_loadout)
+        hero_column.add_child(loadout_picker)
+
+        var play = Button.new()
+        play.text = "▶   PLAY BATTLE ROYALE"
+        play.custom_minimum_size.y = 66
+        play.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        play.add_theme_font_size_override("font_size", 23)
+        play.add_theme_color_override("font_color", Color("111820"))
+        var play_style = StyleBoxFlat.new()
+        play_style.bg_color = Color("e8c77b")
+        play_style.set_corner_radius_all(12)
+        play_style.set_content_margin_all(12)
+        play.add_theme_stylebox_override("normal", play_style)
+        var hover_style = play_style.duplicate()
+        hover_style.bg_color = Color("f6dfa4")
+        play.add_theme_stylebox_override("hover", hover_style)
+        play.pressed.connect(func(): start_match.emit("br_classic", map_picker.get_selected_id()))
+        hero_column.add_child(play)
+
+        _label(column, "CHOOSE YOUR OPERATION", 18)
+        _build_lobby_mode_button(column, "BR CLASSIC", "50-player offline survival", "br_classic")
+        _build_lobby_mode_button(column, "BR RANKED PRACTICE", "Device-only practice rating", "br_ranked")
+        _build_lobby_mode_button(column, "CS CLASSIC", "Tactical 4v4 bot match", "cs_classic")
+        _build_lobby_mode_button(column, "CS RANKED PRACTICE", "Tactical ranked practice", "cs_ranked")
+
+        var footer = HBoxContainer.new()
+        footer.add_theme_constant_override("separation", 8)
+        column.add_child(footer)
+
+        var character_button = Button.new()
+        character_button.text = "CHARACTER"
+        character_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        character_button.custom_minimum_size.y = 48
+        character_button.pressed.connect(show_settings)
+        footer.add_child(character_button)
+
+        var arsenal_button = Button.new()
+        arsenal_button.text = "ARSENAL"
+        arsenal_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        arsenal_button.custom_minimum_size.y = 48
+        arsenal_button.pressed.connect(show_settings)
+        footer.add_child(arsenal_button)
+
+        var settings_button = Button.new()
+        settings_button.text = "SETTINGS"
+        settings_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        settings_button.custom_minimum_size.y = 48
+        settings_button.pressed.connect(show_settings)
+        footer.add_child(settings_button)
+
+        rating_label = _label(column, "", 16)
+        rating_label.add_theme_color_override("font_color", Color("9ac7c9"))
+
+        var help = _label(column, "Touch: left side to move, swipe right to look, hold FIRE. Desktop: WASD · mouse · Space · R · Esc.", 14)
+        help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+
+func _build_lobby_mode_button(parent: Control, heading: String, detail: String, mode: String) -> void:
+        var button = Button.new()
+        button.text = heading + "    •    " + detail
+        button.custom_minimum_size.y = 54
+        button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+        button.add_theme_font_size_override("font_size", 17)
+        button.pressed.connect(func(): start_match.emit(mode, map_picker.get_selected_id()))
+        parent.add_child(button)
+
 
 func _select_loadout(index: int) -> void:
 	if index < 0 or index >= LOADOUT_IDS.size():
