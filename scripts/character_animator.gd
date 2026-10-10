@@ -221,7 +221,7 @@ func play_shoot() -> void:
 	if not initialized:
 		return
 
-	shoot_timer = 0.22
+	shoot_timer = maxf(0.1, animation_player.get_animation("Pistol_Shoot").length)
 	play("Pistol_Shoot", 0.04)
 
 func play_reload() -> void:
