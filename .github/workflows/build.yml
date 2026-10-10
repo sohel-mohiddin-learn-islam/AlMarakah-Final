@@ -130,6 +130,10 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_real_character_animation.gd
 
+      - name: Test actual game character animator
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/test_game_character_animator.gd
+
       - name: Export Android APK
         run: |
           mkdir -p build/android
