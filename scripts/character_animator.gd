@@ -97,7 +97,7 @@ func setup(character_root: Node) -> void:
 
 	source_player = null
 	initialized = true
-	play("Idle")
+	play("Idle", 0.28)
 
 func _retarget_animation(source_animation: Animation) -> Animation:
 	var retargeted = Animation.new()
@@ -183,13 +183,13 @@ func update_state(movement_amount: float, grounded: bool, aiming: bool, sprintin
 		return
 
 	if sprinting and movement_amount > 0.05:
-		play("Sprint")
+		play("Sprint", 0.28)
 	elif movement_amount < 0.05:
-		play("Idle")
+                play("Idle", 0.28)
 	elif movement_amount < 0.35:
-		play("Walk")
+		play("Walk", 0.28)
 	else:
-		play("Jog_Fwd")
+		play("Jog_Fwd", 0.28)
 
 func velocity_is_falling() -> bool:
 	if character == null:
