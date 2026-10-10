@@ -156,7 +156,10 @@ func play(animation_name: String, blend: float = 0.20) -> void:
 	current_animation = animation_name
 	animation_player.play(animation_name, blend)
 
-func update_state(movement_amount: float, grounded: bool, aiming: bool, sprinting: bool, delta: float, aim_pitch: float = 0.0) -> void:
+func is_forward_movement(movement_direction: Vector2) -> bool:
+	return movement_direction.y < -0.25 and absf(movement_direction.x) < absf(movement_direction.y)
+
+func update_state(movement_amount: float, grounded: bool, aiming: bool, sprinting: bool, delta: float, aim_pitch: float = 0.0, movement_direction: Vector2 = Vector2(0.0, -1.0)) -> void:
 	if not initialized:
 		return
 
@@ -182,7 +185,7 @@ func update_state(movement_amount: float, grounded: bool, aiming: bool, sprintin
 			play("Pistol_Aim_Neutral")
 		return
 
-	if sprinting and movement_amount > 0.05:
+	if sprinting and movement_amount > 0.05 and is_forward_movement(movement_direction):
 		play("Sprint", 0.28)
 	elif movement_amount < 0.05:
 		play("Idle", 0.28)

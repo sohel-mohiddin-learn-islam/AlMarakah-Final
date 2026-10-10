@@ -256,7 +256,7 @@ func _physics_process(delta: float) -> void:
 		if character_visual != null:
 			character_visual.rotation.y = lerp_angle(character_visual.rotation.y, 0.0, minf(delta * body_turn_speed, 1.0))
 		if animator != null:
-			animator.update_state(network_movement_amount, network_grounded, network_aiming, network_sprinting, delta, network_pitch)
+			animator.update_state(network_movement_amount, network_grounded, network_aiming, network_sprinting, delta, network_pitch, network_movement)
 		return
 
 	var is_local_player: bool = _is_local_player()
@@ -327,7 +327,7 @@ func _physics_process(delta: float) -> void:
 		elif not is_on_floor():
 			animator.play("Jump")
 		else:
-			animator.update_state(movement.length(), true, ads, sprinting, delta, pitch)
+			animator.update_state(movement.length(), true, ads, sprinting, delta, pitch, movement)
 
 	if global_position.y < -12:
 		take_damage(1000)
