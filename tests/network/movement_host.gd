@@ -48,6 +48,7 @@ func _run_test() -> void:
         return
 
     root.get_multiplayer().multiplayer_peer = host_peer
+    NetworkManager.is_host = true
     root.get_multiplayer().peer_connected.connect(_on_peer_connected)
 
     print("MOVEMENT TEST HOST READY ON PORT: ", PORT)
