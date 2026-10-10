@@ -80,7 +80,14 @@ func setup(character_root: Node) -> void:
 			"Jump": "Jump_Loop",
 			"Pistol_Idle": "Pistol_Idle_Loop"
 		}.get(animation_name, animation_name)
-		var source_animation = source_player.get_animation(source_name)
+
+		var source_animation = null
+		if source_player.has_animation(source_name):
+			source_animation = source_player.get_animation(source_name)
+		elif source_player.has_animation(animation_name):
+			source_animation = source_player.get_animation(animation_name)
+		else:
+			print("CharacterAnimator: no matching source clip for ", animation_name)
 
 		if source_animation == null:
 			print("CharacterAnimator: missing ", animation_name)

@@ -63,12 +63,16 @@ jobs:
           cp tools/check_character_animator_source.gd /tmp/animator-parse/check.gd
           godot --headless --audio-driver Dummy --path /tmp/animator-parse --script /tmp/animator-parse/check.gd
 
+      - name: Import assets for animation diagnosis
+        run: godot --headless --audio-driver Dummy --editor --path . --import
+
+      - name: Print animation clips before regression tests
+        run: godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
+
       - name: Import project and run every regression suite
         run: bash tools/test.sh
 
-      - name: Print animation clips before regression tests
-        if: always()
-        run: godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
+
 
       - name: Inspect imported Quaternius character
         run: |
