@@ -225,7 +225,7 @@ func play_reload() -> void:
 	if not initialized:
 		return
 
-	reload_timer = 1.0
+	reload_timer = maxf(0.1, animation_player.get_animation("Pistol_Reload").length)
 	play("Pistol_Reload", 0.08)
 
 func _find_animation_player(root: Node) -> AnimationPlayer:
