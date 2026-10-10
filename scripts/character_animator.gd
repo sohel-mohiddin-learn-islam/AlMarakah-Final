@@ -185,7 +185,7 @@ func update_state(movement_amount: float, grounded: bool, aiming: bool, sprintin
 	if sprinting and movement_amount > 0.05:
 		play("Sprint", 0.28)
 	elif movement_amount < 0.05:
-                play("Idle", 0.28)
+		play("Idle", 0.28)
 	elif movement_amount < 0.35:
 		play("Walk", 0.28)
 	else:
