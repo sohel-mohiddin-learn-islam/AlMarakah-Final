@@ -3,6 +3,9 @@ extends Node3D
 const CHARACTER = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
 
 var lobby_camera: Camera3D
+var lobby_character: Node3D
+var _lobby_dragging := false
+const LOBBY_ROTATION_SENSITIVITY := 0.45
 
 func _ready() -> void:
 	_build_environment()
@@ -85,9 +88,10 @@ func _build_fortress() -> void:
 func _build_character() -> void:
 	var character := CHARACTER.instantiate() as Node3D
 	character.name = "LobbyCharacter"
+	lobby_character = character
 	character.position = Vector3(0.0, 0.38, 0.0)
 	character.scale = Vector3(1.25, 1.25, 1.25)
-	character.rotation_degrees = Vector3(0.0, 180.0, 0.0)
+	character.rotation_degrees = Vector3(0.0, 0.0, 0.0)
 	add_child(character)
 
 	var animator_script = preload("res://scripts/character_animator.gd")
@@ -103,3 +107,19 @@ func _build_camera() -> void:
 	add_child(lobby_camera)
 	lobby_camera.look_at(Vector3(0.0, 1.6, 0.0), Vector3.UP)
 	lobby_camera.make_current()
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		_lobby_dragging = event.pressed
+
+	elif event is InputEventScreenDrag:
+		if _lobby_dragging and is_instance_valid(lobby_character):
+			lobby_character.rotate_y(deg_to_rad(-event.relative.x * LOBBY_ROTATION_SENSITIVITY))
+
+	elif event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			_lobby_dragging = event.pressed
+
+	elif event is InputEventMouseMotion:
+		if _lobby_dragging and is_instance_valid(lobby_character):
+			lobby_character.rotate_y(deg_to_rad(-event.relative.x * LOBBY_ROTATION_SENSITIVITY))
