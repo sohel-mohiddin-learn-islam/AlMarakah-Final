@@ -12,6 +12,9 @@ const DEFAULTS = {
 	"br_rating": 1000,
 	"cs_rating": 1000,
 	"character_id": "azlan",
+	"diamonds": 0,
+	"login_event_start_day": 0,
+	"login_event_claimed_days": [],
 }
 var data: Dictionary = DEFAULTS.duplicate(true)
 var storage_path: String = "user://almarakah_settings.json"
@@ -40,6 +43,16 @@ func _validate() -> void:
 		data.character_id = "azlan"
 	data.br_rating = clampi(int(data.br_rating), 0, 5000)
 	data.cs_rating = clampi(int(data.cs_rating), 0, 5000)
+	data.diamonds = maxi(0, int(data.get("diamonds", 0)))
+	data.login_event_start_day = maxi(0, int(data.get("login_event_start_day", 0)))
+	var claimed_days: Array = []
+	var raw_claims = data.get("login_event_claimed_days", [])
+	if raw_claims is Array:
+		for day in raw_claims:
+			if (day is int or day is float) and int(day) >= 1 and int(day) <= 10:
+				if not claimed_days.has(int(day)):
+					claimed_days.append(int(day))
+	data.login_event_claimed_days = claimed_days
 	var valid: Dictionary = {}
 	for key in data.hud_positions:
 		var point = data.hud_positions[key]

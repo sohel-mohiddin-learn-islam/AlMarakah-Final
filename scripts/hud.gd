@@ -30,6 +30,11 @@ var settings: RefCounted
 var root: Control
 var lobby: PanelContainer
 var character_page: PanelContainer
+var events_page: PanelContainer
+var event_status_label: Label
+var event_balance_label: Label
+var event_claim_button: Button
+var event_reward_labels: Array[Label] = []
 var character_status_label: Label
 var character_button: Button
 var preferences: PanelContainer
@@ -82,6 +87,7 @@ func configure(prefs: RefCounted) -> void:
 	root.theme = theme
 	_build_lobby()
 	_build_character_page()
+	_build_events_page()
 	_build_preferences()
 	_build_match()
 	_build_editor()
@@ -231,12 +237,129 @@ func _build_lobby() -> void:
 		character_button.custom_minimum_size = Vector2(0, 46)
 		character_button.add_theme_font_size_override("font_size", 17)
 
+		var events_button = _button(column, "DAILY EVENT - 50 DIAMONDS", show_events)
+		events_button.custom_minimum_size = Vector2(0, 48)
+
 		var settings_button = _button(column, "Settings & HUD", show_settings)
 		settings_button.custom_minimum_size = Vector2(0, 42)
 		settings_button.add_theme_font_size_override("font_size", 15)
 
 		var footer = _label(column, "Move: left side   •   Look: swipe right", 12)
 		footer.add_theme_color_override("font_color", Color("c1c9d0"))
+
+func _event_day_index() -> int:
+	return int(Time.get_unix_time_from_system() / 86400.0)
+
+func _build_events_page() -> void:
+	events_page = _panel(0.025, 0.055, 0.55, 0.945)
+	var panel_style = _style(Color(0.018, 0.028, 0.045, 0.97))
+	panel_style.border_color = Color("d7a647")
+	panel_style.set_border_width_all(2)
+	events_page.add_theme_stylebox_override("panel", panel_style)
+
+	var outer = _column(events_page)
+	outer.add_theme_constant_override("separation", 8)
+	_label(outer, "DAILY LOGIN EVENT", 25)
+	var subtitle = _label(outer, "10 DAYS - 50 DIAMONDS EACH DAY", 14)
+	subtitle.add_theme_color_override("font_color", Color("f4ca70"))
+	event_balance_label = _label(outer, "DIAMONDS: 0", 19)
+	event_balance_label.add_theme_color_override("font_color", Color("e5b64e"))
+	event_status_label = _label(outer, "", 14)
+	event_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	var scroll = ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	outer.add_child(scroll)
+
+	var rewards = VBoxContainer.new()
+	rewards.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rewards.add_theme_constant_override("separation", 5)
+	scroll.add_child(rewards)
+
+	event_reward_labels.clear()
+	for day in range(1, 11):
+		var reward = _label(rewards, "", 15)
+		reward.custom_minimum_size = Vector2(0, 34)
+		reward.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		event_reward_labels.append(reward)
+
+	event_claim_button = _button(outer, "CLAIM 50 DIAMONDS", _claim_daily_reward)
+	event_claim_button.custom_minimum_size = Vector2(0, 54)
+	var back = _button(outer, "BACK TO LOBBY", show_lobby)
+	back.custom_minimum_size = Vector2(0, 44)
+	events_page.visible = false
+
+func show_events() -> void:
+	if int(settings.data.get("login_event_start_day", 0)) <= 0:
+		settings.data["login_event_start_day"] = _event_day_index()
+		settings.save()
+	_refresh_event_page()
+	_show("events")
+
+func _refresh_event_page() -> void:
+	var start_day = int(settings.data.get("login_event_start_day", 0))
+	if start_day <= 0:
+		start_day = _event_day_index()
+		settings.data["login_event_start_day"] = start_day
+
+	var elapsed = maxi(0, _event_day_index() - start_day)
+	var current_day = mini(10, elapsed + 1)
+	var claimed: Array = settings.data.get("login_event_claimed_days", [])
+	event_balance_label.text = "DIAMONDS: %d" % int(settings.data.get("diamonds", 0))
+
+	for i in range(event_reward_labels.size()):
+		var day = i + 1
+		var reward_text = "DAY %02d - 50 DIAMONDS" % day
+		if claimed.has(day):
+			reward_text += "   CLAIMED"
+		elif day == current_day and elapsed < 10:
+			reward_text += "   AVAILABLE"
+		elif day > current_day and elapsed < 10:
+			reward_text += "   LOCKED"
+		else:
+			reward_text += "   EVENT ENDED"
+		event_reward_labels[i].text = reward_text
+
+	if elapsed >= 10:
+		event_status_label.text = "The 10-day event has ended."
+		event_claim_button.disabled = true
+		event_claim_button.text = "EVENT COMPLETED"
+	elif claimed.has(current_day):
+		event_status_label.text = "Today's reward is already claimed. Come back tomorrow."
+		event_claim_button.disabled = true
+		event_claim_button.text = "DAY %02d CLAIMED" % current_day
+	else:
+		event_status_label.text = "Claim today's reward. Future days unlock daily."
+		event_claim_button.disabled = false
+		event_claim_button.text = "CLAIM 50 DIAMONDS - DAY %02d" % current_day
+
+func _claim_daily_reward() -> void:
+	if settings == null:
+		return
+
+	var start_day = int(settings.data.get("login_event_start_day", 0))
+	if start_day <= 0:
+		show_events()
+		return
+
+	var elapsed = maxi(0, _event_day_index() - start_day)
+	if elapsed >= 10:
+		_refresh_event_page()
+		return
+
+	var day = elapsed + 1
+	var claimed: Array = settings.data.get("login_event_claimed_days", [])
+	if claimed.has(day):
+		_refresh_event_page()
+		return
+
+	claimed.append(day)
+	settings.data["login_event_claimed_days"] = claimed
+	settings.data["diamonds"] = int(settings.data.get("diamonds", 0)) + 50
+	settings.save()
+	_refresh_event_page()
 
 func _build_character_page() -> void:
 	character_page = _panel(0.025, 0.12, 0.405, 0.79)
@@ -555,6 +678,8 @@ func _show(next: String) -> void:
 	lobby.visible = next == "lobby"
 	if is_instance_valid(character_page):
 		character_page.visible = next == "characters"
+	if is_instance_valid(events_page):
+		events_page.visible = next == "events"
 	if is_instance_valid(lobby_start_button):
 		lobby_start_button.visible = next == "lobby"
 	preferences.visible = next == "settings"
