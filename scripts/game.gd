@@ -67,6 +67,7 @@ func _ready() -> void:
 	hud = HUD.new()
 	add_child(hud)
 	hud.configure(settings)
+	hud.character_selected.connect(_on_character_selected)
 	hud.start_match.connect(start_match)
 	hud.join_online.connect(_on_join_online_requested)
 	if not NetworkManager.connected_to_server.is_connected(_on_network_connected):
@@ -467,8 +468,14 @@ func return_to_menu() -> void:
 	var lobby_script = load("res://scripts/lobby_showcase.gd")
 	var lobby = lobby_script.new()
 	lobby.name = "LobbyShowcase"
+	lobby.configure(settings)
 	world.add_child(lobby)
 	hud.show_lobby()
+
+func _on_character_selected(character_id: String) -> void:
+	var showcase = world.get_node_or_null("LobbyShowcase")
+	if showcase != null and showcase.has_method("set_character"):
+		showcase.set_character(character_id)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):

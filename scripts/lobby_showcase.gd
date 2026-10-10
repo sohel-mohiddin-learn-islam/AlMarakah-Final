@@ -1,11 +1,15 @@
 extends Node3D
 
-const CHARACTER = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
-
+const MALE_CHARACTER = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
+const FEMALE_CHARACTER = preload("res://assets/characters/quaternius/male/Superhero_Female_FullBody.gltf")
+var settings: RefCounted
 var lobby_camera: Camera3D
 var lobby_character: Node3D
 var _lobby_dragging := false
 const LOBBY_ROTATION_SENSITIVITY := 0.45
+
+func configure(prefs: RefCounted) -> void:
+	settings = prefs
 
 func _ready() -> void:
 	_build_environment()
@@ -86,12 +90,22 @@ func _build_fortress() -> void:
 	_box(self, "GateLintel", Vector3(4.0, 0.35, 0.5), Vector3(0.0, 4.2, -10.0), gold)
 
 func _build_character() -> void:
-	var character := CHARACTER.instantiate() as Node3D
+	set_character(String(settings.data.get("character_id", "azlan")) if settings != null else "azlan")
+
+func set_character(character_id: String) -> void:
+	var chosen_id := "ayla" if character_id == "ayla" else "azlan"
+	var old_rotation := 0.0
+	if is_instance_valid(lobby_character):
+		old_rotation = lobby_character.rotation.y
+		lobby_character.queue_free()
+
+	var character_scene: PackedScene = FEMALE_CHARACTER if chosen_id == "ayla" else MALE_CHARACTER
+	var character := character_scene.instantiate() as Node3D
 	character.name = "LobbyCharacter"
 	lobby_character = character
 	character.position = Vector3(0.0, 0.38, 0.0)
 	character.scale = Vector3(1.25, 1.25, 1.25)
-	character.rotation_degrees = Vector3(0.0, 0.0, 0.0)
+	character.rotation.y = old_rotation
 	add_child(character)
 
 	var animator_script = preload("res://scripts/character_animator.gd")

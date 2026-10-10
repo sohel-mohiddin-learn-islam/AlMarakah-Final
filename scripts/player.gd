@@ -95,7 +95,12 @@ func setup(game_ref: Node, spawn: Vector3, team_id: int, peer_id: int = 0) -> vo
 	body = Node3D.new()
 	add_child(body)
 
-	var character_scene = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
+	var character_id := "azlan"
+	if settings != null and (peer_id <= 0 or peer_id == multiplayer.get_unique_id()):
+		character_id = String(settings.data.get("character_id", "azlan"))
+	var character_scene: PackedScene = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
+	if character_id == "ayla":
+		character_scene = preload("res://assets/characters/quaternius/male/Superhero_Female_FullBody.gltf")
 	character_visual = character_scene.instantiate()
 	character_visual.name = "RealisticCharacter"
 	var animator_script = preload("res://scripts/character_animator.gd")

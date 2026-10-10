@@ -11,6 +11,7 @@ const DEFAULTS = {
 	"weapon_id": "rifle",
 	"br_rating": 1000,
 	"cs_rating": 1000,
+	"character_id": "azlan",
 }
 var data: Dictionary = DEFAULTS.duplicate(true)
 var storage_path: String = "user://almarakah_settings.json"
@@ -35,6 +36,8 @@ func _validate() -> void:
 	data.hud_opacity = clampf(float(data.hud_opacity), 0.3, 1.0)
 	if String(data.weapon_id) not in ["rifle", "smg", "marksman"]:
 		data.weapon_id = "rifle"
+	if String(data.get("character_id", "azlan")) not in ["azlan", "ayla"]:
+		data.character_id = "azlan"
 	data.br_rating = clampi(int(data.br_rating), 0, 5000)
 	data.cs_rating = clampi(int(data.cs_rating), 0, 5000)
 	var valid: Dictionary = {}

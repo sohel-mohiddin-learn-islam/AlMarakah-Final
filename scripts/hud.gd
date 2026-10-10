@@ -2,6 +2,7 @@ extends CanvasLayer
 ## Offline lobby and independently owned touch inputs (move + look + fire).
 signal start_match(mode: String, map_id: int)
 signal join_online(address: String)
+signal character_selected(character_id: String)
 signal back_to_menu
 signal spectator_previous
 signal spectator_next
@@ -28,6 +29,9 @@ var sprinting: bool = false
 var settings: RefCounted
 var root: Control
 var lobby: PanelContainer
+var character_page: PanelContainer
+var character_status_label: Label
+var character_button: Button
 var preferences: PanelContainer
 var match_ui: Control
 var result_panel: PanelContainer
@@ -77,6 +81,7 @@ func configure(prefs: RefCounted) -> void:
 	theme.default_font_size = 22
 	root.theme = theme
 	_build_lobby()
+	_build_character_page()
 	_build_preferences()
 	_build_match()
 	_build_editor()
@@ -222,12 +227,53 @@ func _build_lobby() -> void:
 		play.offset_right = 0
 		play.offset_bottom = 0
 
+		character_button = _button(column, "CHOOSE CHARACTER", show_characters)
+		character_button.custom_minimum_size = Vector2(0, 46)
+		character_button.add_theme_font_size_override("font_size", 17)
+
 		var settings_button = _button(column, "Settings & HUD", show_settings)
 		settings_button.custom_minimum_size = Vector2(0, 42)
 		settings_button.add_theme_font_size_override("font_size", 15)
 
 		var footer = _label(column, "Move: left side   •   Look: swipe right", 12)
 		footer.add_theme_color_override("font_color", Color("c1c9d0"))
+
+func _build_character_page() -> void:
+	character_page = _panel(0.025, 0.12, 0.405, 0.79)
+	var column = _column(character_page)
+	column.add_theme_constant_override("separation", 14)
+	_label(column, "CHOOSE YOUR WARRIOR", 25)
+	_label(column, "Select your character for the battlefield.", 14)
+	character_status_label = _label(column, "", 18)
+	character_status_label.add_theme_color_override("font_color", Color("e5b64e"))
+
+	var azlan = _button(column, "AZLAN  |  MALE WARRIOR", func(): _select_character("azlan"))
+	azlan.custom_minimum_size = Vector2(0, 58)
+	azlan.add_theme_font_size_override("font_size", 18)
+
+	var ayla = _button(column, "AYLA  |  FEMALE WARRIOR", func(): _select_character("ayla"))
+	ayla.custom_minimum_size = Vector2(0, 58)
+	ayla.add_theme_font_size_override("font_size", 18)
+
+	_label(column, "Your choice is saved on this device.", 13)
+	var back = _button(column, "BACK TO LOBBY", show_lobby)
+	back.custom_minimum_size = Vector2(0, 46)
+
+	character_page.visible = false
+
+func show_characters() -> void:
+	var character_id := String(settings.data.get("character_id", "azlan"))
+	character_status_label.text = "Selected: " + ("Ayla" if character_id == "ayla" else "Azlan")
+	_show("characters")
+
+func _select_character(character_id: String) -> void:
+	if character_id not in ["azlan", "ayla"]:
+		return
+	settings.data.character_id = character_id
+	settings.save()
+	character_status_label.text = "Selected: " + ("Ayla" if character_id == "ayla" else "Azlan")
+	character_selected.emit(character_id)
+	show_lobby()
 
 func _join_online_pressed() -> void:
 	if server_address_input == null:
@@ -507,6 +553,8 @@ func _show(next: String) -> void:
 	_clear_feedback()
 	screen = next
 	lobby.visible = next == "lobby"
+	if is_instance_valid(character_page):
+		character_page.visible = next == "characters"
 	if is_instance_valid(lobby_start_button):
 		lobby_start_button.visible = next == "lobby"
 	preferences.visible = next == "settings"
@@ -523,6 +571,9 @@ func _show(next: String) -> void:
 
 func show_lobby() -> void:
 	var selected: int = LOADOUT_IDS.find(String(settings.data.get("weapon_id", "rifle")))
+	var character_id := String(settings.data.get("character_id", "azlan"))
+	if is_instance_valid(character_button):
+		character_button.text = "CHARACTER: " + ("AYLA" if character_id == "ayla" else "AZLAN") + "  ·  CHANGE"
 	rating_label.text = "Local ratings  •  BR %d   CS %d" % [int(settings.data.get("br_rating", 1000)), int(settings.data.get("cs_rating", 1000))]
 	loadout_picker.select(maxi(0, selected))
 	_show("lobby")
