@@ -90,6 +90,11 @@ func _build_character() -> void:
 	character.rotation_degrees = Vector3(0.0, 180.0, 0.0)
 	add_child(character)
 
+	var animator_script = preload("res://scripts/character_animator.gd")
+	var animator = animator_script.new()
+	character.add_child(animator)
+	animator.setup(character)
+
 func _build_camera() -> void:
 	lobby_camera = Camera3D.new()
 	lobby_camera.name = "LobbyCamera"
