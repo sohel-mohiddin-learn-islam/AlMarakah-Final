@@ -352,7 +352,7 @@ func _clear_world() -> void:
 	actors.clear()
 	network_players.clear()
 	network_spawn_indices.clear()
-		network_local_spawn_index = 0
+	network_local_spawn_index = 0
 	network_bot_slots.clear()
 	if not network_bots.is_empty():
 		for bot_id in network_bots:
