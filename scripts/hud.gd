@@ -144,19 +144,19 @@ func _build_lobby() -> void:
 		title.add_theme_color_override("font_color", Color("f4ca70"))
 		_label(column, "THE BATTLEFIELD AWAITS", 14)
 		_label(column, "OFFLINE BATTLE LOBBY", 13)
-                _label(column, "SERVER ADDRESS", 13)
-                server_address_input = LineEdit.new()
-                server_address_input.placeholder_text = "Public server IP or hostname"
-                server_address_input.text = ""
-                server_address_input.custom_minimum_size = Vector2(0, 44)
-                server_address_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-                column.add_child(server_address_input)
+		_label(column, "SERVER ADDRESS", 13)
+		server_address_input = LineEdit.new()
+		server_address_input.placeholder_text = "Public server IP or hostname"
+		server_address_input.text = ""
+		server_address_input.custom_minimum_size = Vector2(0, 44)
+		server_address_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		column.add_child(server_address_input)
 
-                var join_button = _button(column, "JOIN ONLINE", _join_online_pressed)
-                join_button.custom_minimum_size = Vector2(0, 48)
+		var join_button = _button(column, "JOIN ONLINE", _join_online_pressed)
+		join_button.custom_minimum_size = Vector2(0, 48)
 
-                online_status_label = _label(column, "Not connected to an online server.", 12)
-                online_status_label.add_theme_color_override("font_color", Color("9ac7c9"))
+		online_status_label = _label(column, "Not connected to an online server.", 12)
+		online_status_label.add_theme_color_override("font_color", Color("9ac7c9"))
 
 		rating_label = _label(column, "", 14)
 		rating_label.add_theme_color_override("font_color", Color("9ac7c9"))
@@ -230,18 +230,18 @@ func _build_lobby() -> void:
 		footer.add_theme_color_override("font_color", Color("c1c9d0"))
 
 func _join_online_pressed() -> void:
-        if server_address_input == null:
-                return
-        var address := server_address_input.text.strip_edges()
-        if address.is_empty():
-                set_online_status("Enter the public server IP or hostname.")
-                return
-        set_online_status("Connecting to " + address + "...")
-        join_online.emit(address)
+	if server_address_input == null:
+		return
+	var address := server_address_input.text.strip_edges()
+	if address.is_empty():
+		set_online_status("Enter the public server IP or hostname.")
+		return
+	set_online_status("Connecting to " + address + "...")
+	join_online.emit(address)
 
 func set_online_status(message: String) -> void:
-        if is_instance_valid(online_status_label):
-                online_status_label.text = message
+	if is_instance_valid(online_status_label):
+		online_status_label.text = message
 
 func _start_selected_mode() -> void:
 		if mode_picker == null or map_picker == null:

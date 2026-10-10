@@ -68,13 +68,13 @@ func _ready() -> void:
 	add_child(hud)
 	hud.configure(settings)
 	hud.start_match.connect(start_match)
-        hud.join_online.connect(_on_join_online_requested)
-        if not NetworkManager.connected_to_server.is_connected(_on_network_connected):
-                NetworkManager.connected_to_server.connect(_on_network_connected)
-        if not NetworkManager.connection_failed.is_connected(_on_network_connection_failed):
-                NetworkManager.connection_failed.connect(_on_network_connection_failed)
-        if not NetworkManager.server_disconnected.is_connected(_on_network_server_disconnected):
-                NetworkManager.server_disconnected.connect(_on_network_server_disconnected)
+	hud.join_online.connect(_on_join_online_requested)
+	if not NetworkManager.connected_to_server.is_connected(_on_network_connected):
+		NetworkManager.connected_to_server.connect(_on_network_connected)
+	if not NetworkManager.connection_failed.is_connected(_on_network_connection_failed):
+		NetworkManager.connection_failed.connect(_on_network_connection_failed)
+	if not NetworkManager.server_disconnected.is_connected(_on_network_server_disconnected):
+		NetworkManager.server_disconnected.connect(_on_network_server_disconnected)
 	hud.back_to_menu.connect(return_to_menu)
 	hud.spectator_previous.connect(_on_spectator_previous)
 	hud.spectator_next.connect(_on_spectator_next)
@@ -278,23 +278,23 @@ func _spawn_locked_human_players() -> void:
 		network_spawn_player.rpc(peer_id, spawn_position)
 
 func _on_join_online_requested(address: String) -> void:
-        var error: int = NetworkManager.join(address, 7777)
-        if error != OK:
-                hud.set_online_status("Could not start connection. Error: " + str(error))
+	var error: int = NetworkManager.join(address, 7777)
+	if error != OK:
+		hud.set_online_status("Could not start connection. Error: " + str(error))
 
 func _on_network_connected() -> void:
-        _setup_network_state()
-        hud.set_online_status("Connected! Select a mode and tap START MATCH.")
+	_setup_network_state()
+	hud.set_online_status("Connected! Select a mode and tap START MATCH.")
 
 func _on_network_connection_failed() -> void:
-        NetworkManager.disconnect_session()
-        _setup_network_state()
-        hud.set_online_status("Connection failed. Check the address and server. Try again.")
+	NetworkManager.disconnect_session()
+	_setup_network_state()
+	hud.set_online_status("Connection failed. Check the address and server. Try again.")
 
 func _on_network_server_disconnected() -> void:
-        NetworkManager.disconnect_session()
-        _setup_network_state()
-        hud.set_online_status("Server disconnected. You are offline. You can reconnect.")
+	NetworkManager.disconnect_session()
+	_setup_network_state()
+	hud.set_online_status("Server disconnected. You are offline. You can reconnect.")
 
 func _setup_network_state() -> void:
 	if not NetworkManager.connected:
