@@ -305,13 +305,13 @@ func _physics_process(delta: float) -> void:
 			target_local_angle,
 			minf(delta * current_turn_speed, 1.0)
 		)
-	if not is_on_floor():
-		velocity.y -= 22.0 * delta
-	elif Input.is_action_just_pressed("jump") or hud.jump_requested:
-		velocity.y = 8.0
-	hud.jump_requested = false
 	var animation_was_grounded: bool = is_on_floor()
 	var animation_requested_jump: bool = Input.is_action_just_pressed("jump") or hud.jump_requested
+	if not is_on_floor():
+		velocity.y -= 22.0 * delta
+	elif animation_requested_jump:
+		velocity.y = 8.0
+	hud.jump_requested = false
 
 	move_and_slide()
 	network_movement_amount = movement.length()
