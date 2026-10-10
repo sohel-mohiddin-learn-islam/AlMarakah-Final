@@ -8,6 +8,7 @@ func _init():
 func inspect():
     print("=== ANIMATION LIBRARY DIAGNOSTIC ===")
     var scene = ANIMATION_SCENE.instantiate()
+    root.add_child(scene)
     var player = find_player(scene)
     if player == null:
         print("ERROR: AnimationPlayer not found")
