@@ -29,6 +29,7 @@ var network_alive: bool = true
 
 var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var _visual: Node3D
+var _animator: Node
 var _collider: CollisionShape3D
 var _target: Node3D
 var _visible_target: bool = false
@@ -111,6 +112,7 @@ func _physics_process(delta: float) -> void:
 		alive = network_alive
 		if is_instance_valid(_visual):
 			_visual.rotation.y = network_yaw
+		_update_character_animation(delta)
 		return
 	if not alive or not is_instance_valid(game) or not game.match_active:
 		velocity = Vector3.ZERO
@@ -147,6 +149,17 @@ func _physics_process(delta: float) -> void:
 		var yaw: float = atan2(-_face_direction.x, -_face_direction.z)
 		_visual.rotation.y = lerp_angle(_visual.rotation.y, yaw, minf(delta * 7.0, 1.0))
 		network_yaw = _visual.rotation.y
+
+	_update_character_animation(delta)
+
+
+func _update_character_animation(delta: float) -> void:
+	if not is_instance_valid(_animator):
+		return
+	var horizontal_speed := Vector2(velocity.x, velocity.z).length()
+	var movement_amount := clampf(horizontal_speed / RUN_SPEED, 0.0, 1.0)
+	var sprinting := horizontal_speed > RUN_SPEED * 0.9
+	_animator.update_state(movement_amount, true, _visible_target, sprinting, delta)
 
 
 func _valid_enemy(actor: Node3D) -> bool:
@@ -283,9 +296,9 @@ func _try_fire() -> void:
 	if _rng.randf() < 0.2:
 		_shot_left += _rng.randf_range(0.5, 1.0)
 	# No prediction, headshot bonus or instant lock-on. A player gets time to react.
+	if is_instance_valid(_animator):
+		_animator.play_shoot()
 	game.fire_ray(origin, direction, self, 9.0, SIGHT_RANGE)
-
-
 @rpc("authority", "reliable", "call_remote")
 func receive_network_damage(new_health: float, new_alive: bool) -> void:
 	if not network_replica:
@@ -344,51 +357,49 @@ func take_damage(amount: float, attacker: Node = null) -> void:
 		game.actor_eliminated(self, attacker)
 
 func _make_body() -> void:
-	if _body_mesh == null:
-		_body_mesh = CapsuleMesh.new()
-		_body_mesh.radius = 0.34
-		_body_mesh.height = 1.1
-		_body_mesh.radial_segments = 8
-		_body_mesh.rings = 3
-		_head_mesh = SphereMesh.new()
-		_head_mesh.radius = 0.24
-		_head_mesh.height = 0.48
-		_head_mesh.radial_segments = 8
-		_head_mesh.rings = 3
-		_gun_mesh = BoxMesh.new()
-		_gun_mesh.size = Vector3(0.15, 0.17, 0.7)
-		_body_shape = CapsuleShape3D.new()
-		_body_shape.radius = 0.42
-		_body_shape.height = 1.8
-		for color in [Color("be684f"), Color("428fc1"), Color("d6a148")]:
-			var uniform: StandardMaterial3D = StandardMaterial3D.new()
-			uniform.albedo_color = color
-			uniform.roughness = 1.0
-			_uniforms.append(uniform)
-		_dark_material = StandardMaterial3D.new()
-		_dark_material.albedo_color = Color("293943")
-		_dark_material.roughness = 0.9
-	# setup can also reset an existing actor without duplicating its render nodes.
 	if is_instance_valid(_visual):
 		_visual.rotation = Vector3.ZERO
 		_visual.position = Vector3.ZERO
-		var torso: MeshInstance3D = _visual.get_child(0) as MeshInstance3D
-		torso.material_override = _uniforms[0 if team < 0 else 1 + posmod(team, 2)]
-		_collider.set_deferred("disabled", false)
+		if is_instance_valid(_collider):
+			_collider.set_deferred("disabled", false)
 		return
+
 	_visual = Node3D.new()
 	_visual.name = "BotBody"
 	add_child(_visual)
-	var uniform_index: int = 0 if team < 0 else 1 + posmod(team, 2)
-	_add_mesh(_body_mesh, _uniforms[uniform_index], Vector3(0.0, 0.86, 0.0))
-	_add_mesh(_head_mesh, _dark_material, Vector3(0.0, 1.55, 0.0))
-	_add_mesh(_gun_mesh, _dark_material, Vector3(0.34, 1.08, -0.33))
+
+	var character_scene = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
+	var character_visual = character_scene.instantiate() as Node3D
+	character_visual.name = "RealisticCharacter"
+	character_visual.scale = Vector3.ONE
+	var animator_script = preload("res://scripts/character_animator.gd")
+	_animator = animator_script.new()
+	character_visual.add_child(_animator)
+	_animator.setup(character_visual)
+	_visual.add_child(character_visual)
+
+	var gun_mesh := BoxMesh.new()
+	gun_mesh.size = Vector3(0.15, 0.17, 0.7)
+
+	var gun_material := StandardMaterial3D.new()
+	gun_material.albedo_color = Color("293943")
+	gun_material.roughness = 0.9
+
+	var gun := MeshInstance3D.new()
+	gun.name = "BotWeapon"
+	gun.mesh = gun_mesh
+	gun.material_override = gun_material
+	gun.position = Vector3(0.34, 1.08, -0.33)
+	_visual.add_child(gun)
+
 	_collider = CollisionShape3D.new()
 	_collider.name = "BodyCollider"
-	_collider.shape = _body_shape
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = 0.42
+	capsule.height = 1.8
+	_collider.shape = capsule
 	_collider.position.y = 0.9
 	add_child(_collider)
-
 
 func _add_mesh(mesh: Mesh, material: Material, offset: Vector3) -> void:
 	var instance: MeshInstance3D = MeshInstance3D.new()
