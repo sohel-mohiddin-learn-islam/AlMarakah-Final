@@ -66,6 +66,10 @@ jobs:
       - name: Import project and run every regression suite
         run: bash tools/test.sh
 
+      - name: Print animation clips before regression tests
+        if: always()
+        run: godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
+
       - name: Inspect imported Quaternius character
         run: |
           godot \
