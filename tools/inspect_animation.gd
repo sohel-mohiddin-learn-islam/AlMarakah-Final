@@ -19,7 +19,8 @@ func inspect():
             var library = player.get_animation_library(library_name)
             print("LIBRARY: [", library_name, "]")
             for clip_name in library.get_animation_list():
-                print("CLIP: ", library_name, "/", clip_name)
+                var animation = library.get_animation(clip_name)
+                print("CLIP: ", library_name, "/", clip_name, " | length=", animation.length, " | loop_mode=", animation.loop_mode)
     scene.free()
     print("=== END DIAGNOSTIC ===")
     quit()
