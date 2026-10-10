@@ -52,6 +52,7 @@ var ammo_label: Label
 var reserve_label: Label
 var reload_bar: ProgressBar
 var rating_label: Label
+var lobby_start_button: Button
 var hit_marker: Label
 var damage_overlay: Panel
 var damage_label: Label
@@ -178,9 +179,10 @@ func _build_lobby() -> void:
 		mode_picker.select(0)
 		column.add_child(mode_picker)
 
-		var play = _button(column, "▶   PLAY", _start_selected_mode)
-		play.custom_minimum_size = Vector2(0, 64)
-		play.add_theme_font_size_override("font_size", 26)
+		var play = _button(column, "▶   START MATCH", _start_selected_mode)
+		lobby_start_button = play
+		play.custom_minimum_size = Vector2(0, 76)
+		play.add_theme_font_size_override("font_size", 28)
 		var play_style = StyleBoxFlat.new()
 		play_style.bg_color = Color("bd872d")
 		play_style.set_corner_radius_all(12)
@@ -192,6 +194,17 @@ func _build_lobby() -> void:
 		var play_pressed = play_style.duplicate()
 		play_pressed.bg_color = Color("90621f")
 		play.add_theme_stylebox_override("pressed", play_pressed)
+
+		column.remove_child(play)
+		root.add_child(play)
+		play.anchor_left = 0.68
+		play.anchor_top = 0.82
+		play.anchor_right = 0.97
+		play.anchor_bottom = 0.94
+		play.offset_left = 0
+		play.offset_top = 0
+		play.offset_right = 0
+		play.offset_bottom = 0
 
 		var settings_button = _button(column, "Settings & HUD", show_settings)
 		settings_button.custom_minimum_size = Vector2(0, 42)
@@ -464,6 +477,8 @@ func _show(next: String) -> void:
 	_clear_feedback()
 	screen = next
 	lobby.visible = next == "lobby"
+	if is_instance_valid(lobby_start_button):
+		lobby_start_button.visible = next == "lobby"
 	preferences.visible = next == "settings"
 	match_ui.visible = next in ["match", "editor"]
 	editor_bar.visible = next == "editor"
