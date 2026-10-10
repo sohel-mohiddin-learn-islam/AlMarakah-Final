@@ -72,14 +72,7 @@ func setup(character_root: Node) -> void:
 	]
 
 	for animation_name in animation_names:
-		var source_name = {
-			"Idle": "Idle_Loop",
-			"Walk": "Walk_Loop",
-			"Jog_Fwd": "Jog_Fwd_Loop",
-			"Sprint": "Sprint_Loop",
-			"Jump": "Jump_Loop",
-			"Pistol_Idle": "Pistol_Idle_Loop"
-		}.get(animation_name, animation_name)
+		var source_name = animation_name
 
 		var source_animation = null
 		if source_player.has_animation(source_name):
