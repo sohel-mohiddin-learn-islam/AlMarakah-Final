@@ -309,7 +309,7 @@ func network_start_match(selected_mode: String, selected_map: int, locked_peer_i
 	var my_peer_id: int = multiplayer.get_unique_id()
 	var local_index: int = network_ready_peer_ids.find(my_peer_id)
 	if dedicated_server_mode:
-		 network_local_spawn_index = 0
+		network_local_spawn_index = 0
 	elif local_index < 0:
 		return
 	else:
@@ -352,7 +352,7 @@ func _clear_world() -> void:
 	actors.clear()
 	network_players.clear()
 	network_spawn_indices.clear()
-	network_local_spawn_index = 0
+		network_local_spawn_index = 0
 	network_bot_slots.clear()
 	if not network_bots.is_empty():
 		for bot_id in network_bots:
