@@ -1,31 +1,34 @@
 extends SceneTree
 
+const ANIMATION_SCENE = preload("res://assets/animations/quaternius/AnimationLibrary_Godot_Standard.gltf")
+
 func _init():
-	var scene = load("res://assets/animations/quaternius/AnimationLibrary_Godot_Standard.gltf")
-	if scene == null:
-		print("ANIMATION_INSPECT: LOAD_FAILED")
-		quit(1)
-		return
-	var instance = scene.instantiate()
-	print("=== ALMARAKAH ANIMATION INSPECT ===")
-	print("ROOT: %s [%s]" % [instance.name, instance.get_class()])
-	_print_tree(instance, 0)
-	_print_animations(instance)
-	print("=== END ANIMATION INSPECT ===")
-	instance.free()
-	quit()
+    print("=== ANIMATION LIBRARY DIAGNOSTIC ===")
+    var scene = ANIMATION_SCENE.instantiate()
+    var player = find_player(scene)
 
-func _print_tree(node: Node, depth: int) -> void:
-	print("%s%s [%s]" % ["  ".repeat(depth), node.name, node.get_class()])
-	for child in node.get_children():
-		_print_tree(child, depth + 1)
+    if player == null:
+        print("ERROR: AnimationPlayer not found")
+    else:
+        print("PLAYER: ", player.get_path())
+        print("LIBRARIES: ", player.get_animation_library_list())
+        print("ALL CLIPS: ", player.get_animation_list())
 
-func _print_animations(node: Node) -> void:
-	if node is AnimationPlayer:
-		print("ANIMATION_PLAYER: %s" % node.get_path())
-		var library = node.get_animation_library("")
-		if library:
-			for animation_name in library.get_animation_list():
-				print("ANIMATION: %s" % animation_name)
-	for child in node.get_children():
-		_print_animations(child)
+        for library_name in player.get_animation_library_list():
+            var library = player.get_animation_library(library_name)
+            print("LIBRARY: [", library_name, "]")
+            for clip_name in library.get_animation_list():
+                print("CLIP: ", library_name, "/", clip_name)
+
+    scene.free()
+    print("=== END DIAGNOSTIC ===")
+    quit()
+
+func find_player(node: Node) -> AnimationPlayer:
+    if node is AnimationPlayer:
+        return node
+    for child in node.get_children():
+        var result = find_player(child)
+        if result != null:
+            return result
+    return null

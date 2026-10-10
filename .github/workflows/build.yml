@@ -98,6 +98,10 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_bonemap.gd
 
+      - name: Diagnose imported animation libraries
+        run: |
+          godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
+
       - name: Test Quaternius character retarget skeletons
         run: |
           godot --headless --audio-driver Dummy --path . --script tools/test_character_retarget.gd
