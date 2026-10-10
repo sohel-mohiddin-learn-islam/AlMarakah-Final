@@ -1,7 +1,5 @@
 extends SceneTree
 
-const NetworkManagerScript = preload("res://scripts/network_manager.gd")
-
 var manager: Node
 var port: int = 7777
 var heartbeat_timer: Timer
@@ -18,19 +16,33 @@ func _initialize() -> void:
             i += 1
         i += 1
 
-    manager = NetworkManagerScript.new()
-    root.add_child.call_deferred(manager)
-
     call_deferred("_start_server")
 
 func _start_server() -> void:
+    manager = root.get_node_or_null("NetworkManager")
+    if manager == null:
+        push_error("NETWORK MANAGER AUTOLOAD NOT FOUND")
+        quit(1)
+        return
+
     var result: int = manager.host(port)
     if result != OK:
         push_error("ENET SERVER START FAILED: %d" % result)
         quit(1)
         return
 
+    var packed_scene: PackedScene = load("res://scenes/main.tscn")
+    if packed_scene == null:
+        push_error("MAIN GAME SCENE COULD NOT BE LOADED")
+        quit(1)
+        return
+
+    var game_scene: Node = packed_scene.instantiate()
+    game_scene.set("dedicated_server_mode", true)
+    root.add_child(game_scene)
+
     print("ENET SERVER LISTENING ON PORT ", port)
+    print("SERVER GAME SCENE: LOADED")
     print("SERVER STATUS: READY")
 
     heartbeat_timer = Timer.new()

@@ -35,6 +35,7 @@ var pickups: Array[Node3D] = []
 var vehicles: Array[Node3D] = []
 var tracer_count: int = 0
 var networked_match: bool = false
+var dedicated_server_mode: bool = false
 var network_role: String = "offline"
 var local_peer_id: int = 1
 var network_spawn_points: Array[Vector3] = []
@@ -307,9 +308,12 @@ func network_start_match(selected_mode: String, selected_map: int, locked_peer_i
 	network_ready_peer_ids = locked_peer_ids.duplicate()
 	var my_peer_id: int = multiplayer.get_unique_id()
 	var local_index: int = network_ready_peer_ids.find(my_peer_id)
-	if local_index < 0:
+	if dedicated_server_mode:
+		 network_local_spawn_index = 0
+	elif local_index < 0:
 		return
-	network_local_spawn_index = local_index
+	else:
+		network_local_spawn_index = local_index
 	network_match_locked = true
 	if NetworkManager.is_host and network_room_session_id > 0:
 		NetworkManager.start_match_room(network_room_session_id)
@@ -382,13 +386,16 @@ func _begin_round() -> void:
 	var spawns: Array[Vector3] = arena.spawn_points(count, is_cs)
 	if networked_match:
 		network_spawn_points = spawns.duplicate()
-	player = Player.new()
-	world.add_child(player)
-	var local_spawn_index: int = 0
-	if networked_match and network_match_locked:
-		local_spawn_index = network_local_spawn_index
-	player.setup(self, spawns[local_spawn_index], 0 if is_cs else -1)
-	actors.append(player)
+	if not dedicated_server_mode:
+		player = Player.new()
+		world.add_child(player)
+		var local_spawn_index: int = 0
+		if networked_match and network_match_locked:
+			local_spawn_index = network_local_spawn_index
+		player.setup(self, spawns[local_spawn_index], 0 if is_cs else -1)
+		actors.append(player)
+	else:
+		player = null
 	if networked_match and NetworkManager.is_host and network_match_locked:
 		_spawn_locked_human_players()
 		var human_count: int = network_ready_peer_ids.size()
@@ -920,6 +927,8 @@ func _finish_match(title: String) -> void:
 	hud.show_result(title + "\\n" + detail + "\\n" + rating_text)
 
 func _update_hud() -> void:
+	if dedicated_server_mode or not is_instance_valid(player):
+		return
 	var living: int = 0
 	for actor in actors:
 		if actor.alive:
