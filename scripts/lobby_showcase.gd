@@ -86,14 +86,15 @@ func _build_character() -> void:
 	var character := CHARACTER.instantiate() as Node3D
 	character.name = "LobbyCharacter"
 	character.position = Vector3(0.0, 0.38, 0.0)
+	character.scale = Vector3(1.25, 1.25, 1.25)
 	character.rotation_degrees = Vector3(0.0, 180.0, 0.0)
 	add_child(character)
 
 func _build_camera() -> void:
 	lobby_camera = Camera3D.new()
 	lobby_camera.name = "LobbyCamera"
-	lobby_camera.position = Vector3(5.2, 3.2, 8.5)
-	lobby_camera.fov = 42.0
+	lobby_camera.position = Vector3(3.8, 2.65, 7.2)
+	lobby_camera.fov = 36.0
 	add_child(lobby_camera)
 	lobby_camera.look_at(Vector3(0.0, 1.6, 0.0), Vector3.UP)
 	lobby_camera.make_current()
