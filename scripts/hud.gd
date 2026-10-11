@@ -74,6 +74,8 @@ var editor_bar: PanelContainer
 var status: Label
 var result_text: Label
 var crosshair: Label
+var input_debug_label: Label
+var debug_touch_point: Vector2 = Vector2.ZERO
 var menu: Button
 var spectator_prev: Button
 var spectator_next_button: Button
@@ -734,6 +736,14 @@ func _build_match() -> void:
 	crosshair.offset_top = -22
 	crosshair.offset_bottom = 22
 	crosshair.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	input_debug_label = Label.new()
+	input_debug_label.name = "JoystickDebug"
+	input_debug_label.text = "JOYSTICK DEBUG"
+	input_debug_label.position = Vector2(12, 100)
+	input_debug_label.size = Vector2(700, 90)
+	input_debug_label.add_theme_font_size_override("font_size", 18)
+	input_debug_label.add_theme_color_override("font_color", Color("ffe078"))
+	match_ui.add_child(input_debug_label)
 	hit_marker = _label(match_ui, "×", 48)
 	hit_marker.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	hit_marker.offset_left = -32
@@ -1090,6 +1100,8 @@ func _drag_pad(key: String, point: Vector2) -> void:
 	_layout_pads()
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch or event is InputEventScreenDrag:
+		debug_touch_point = event.position
 	var handled: bool = false
 	if event is InputEventScreenTouch:
 		handled = _touch_start(event.index, event.position) if event.pressed and not event.canceled else _touch_end(event.index)
@@ -1112,6 +1124,9 @@ func _input(event: InputEvent) -> void:
 	elif screen == "editor" and event is InputEventMouseMotion and not mouse_drag.is_empty():
 		_drag_pad(mouse_drag, event.position)
 		handled = true
+	if is_instance_valid(input_debug_label):
+		var move_rect: Rect2 = pads["move"].get_global_rect() if pads.has("move") else Rect2()
+		input_debug_label.text = "JOYSTICK DEBUG | screen: " + screen + "\nMOVE: " + str(move_vector) + " | touches: " + str(touches) + "\nTouch: " + str(debug_touch_point) + " | MOVE rect: " + str(move_rect)
 	if handled:
 		get_viewport().set_input_as_handled()
 
