@@ -38,6 +38,18 @@ func build(map_id: int, compact: bool = false) -> void:
 	_make_environment()
 	# ContinuousTerrain supplies the ground surface and collision.
 	_make_terrain()
+	# Invisible safety floor beneath the terrain.
+	var fallback_shape := BoxShape3D.new()
+	fallback_shape.size = Vector3(extent * 2.0 + 12.0, 1.2, extent * 2.0 + 12.0)
+	var fallback_body := StaticBody3D.new()
+	fallback_body.name = "FallbackGroundCollision"
+	fallback_body.position = Vector3(0.0, -8.0, 0.0)
+	fallback_body.collision_layer = 1
+	fallback_body.collision_mask = 0
+	var fallback_collider := CollisionShape3D.new()
+	fallback_collider.shape = fallback_shape
+	fallback_body.add_child(fallback_collider)
+	add_child(fallback_body)
 	_make_boundaries()
 	if _map_id == 0:
 		_build_dunes()
