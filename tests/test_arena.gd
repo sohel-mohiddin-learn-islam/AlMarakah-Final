@@ -47,6 +47,17 @@ func _test_map(map_id: int) -> void:
     if ground != null:
         collider = ground.get_node_or_null("CollisionShape3D") as CollisionShape3D
 
+    print("COLLISION DIAGNOSTIC map=", map_id)
+    print("  terrain_exists=", terrain != null)
+    if terrain != null and terrain.mesh != null:
+        print("  terrain_surfaces=", terrain.mesh.get_surface_count())
+        print("  terrain_vertices=", terrain.mesh.surface_get_array_len(0) if terrain.mesh.get_surface_count() > 0 else 0)
+    print("  ground_exists=", ground != null)
+    print("  collider_exists=", collider != null)
+    if collider != null:
+        print("  shape_is_null=", collider.shape == null)
+        print("  shape_type=", "null" if collider.shape == null else collider.shape.get_class())
+
     check(collider != null and collider.shape != null,
         "Map %d has a valid terrain collision shape" % map_id)
 
