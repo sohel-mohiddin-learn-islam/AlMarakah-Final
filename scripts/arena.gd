@@ -353,7 +353,9 @@ func _make_terrain() -> void:
 	terrain_body.collision_mask = 0
 	var terrain_collider := CollisionShape3D.new()
 	terrain_collider.name = "TerrainCollisionShape"
-	terrain_collider.shape = raw_terrain_mesh.create_trimesh_shape()
+	var terrain_shape: ConcavePolygonShape3D = raw_terrain_mesh.create_trimesh_shape()
+	terrain_shape.backface_collision = true
+	terrain_collider.shape = terrain_shape
 	terrain_body.add_child(terrain_collider)
 	add_child(terrain_body)
 
