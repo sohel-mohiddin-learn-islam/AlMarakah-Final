@@ -156,12 +156,14 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Pages Artifact
+        if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v4
         with:
           name: github-pages
           path: build/web
 
       - name: Deploy Web Game
+        if: github.ref == 'refs/heads/main'
         id: deployment
         uses: actions/deploy-pages@v4
 
@@ -173,6 +175,7 @@ jobs:
           if-no-files-found: error
 
       - name: Publish Android Debug Release
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: android-debug-${{ github.run_number }}

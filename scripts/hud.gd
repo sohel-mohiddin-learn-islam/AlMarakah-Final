@@ -212,8 +212,8 @@ func _build_lobby() -> void:
 		map_picker.custom_minimum_size = Vector2(0, 42)
 		map_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		map_picker.add_theme_font_size_override("font_size", 15)
-		map_picker.add_item("Qamar Dunes — Desert", 0)
-		map_picker.add_item("Wadi Highlands — Green", 1)
+		map_picker.add_item("The Realm of Almarakah — Map 1", 1)
+		map_picker.select(0)
 		column.add_child(map_picker)
 
 		_label(column, "WEAPON LOADOUT", 15)
@@ -585,7 +585,7 @@ func _start_selected_mode() -> void:
 	if mode_picker == null or map_picker == null:
 		return
 	var index: int = clampi(mode_picker.selected, 0, MODE_IDS.size() - 1)
-	start_match.emit(MODE_IDS[index], map_picker.selected)
+	start_match.emit(MODE_IDS[index], map_picker.get_selected_id())
 
 func _select_loadout(index: int) -> void:
 	if index < 0 or index >= LOADOUT_IDS.size():

@@ -43,7 +43,7 @@ func build(map_id: int, compact: bool = false) -> void:
 	if _map_id == 0:
 		_build_dunes()
 	else:
-		_build_highlands()
+		_build_almarakah()
 	_flush_batches()
 
 
@@ -333,6 +333,118 @@ func _add_water_tank(center: Vector3) -> void:
 	_box(center + Vector3.UP * 0.8, Vector3(4.0, 1.6, 4.0), "wall")
 	_cylinder(center + Vector3.UP * 3.0, 1.7, 2.8, "blue")
 	_instance("cone", center + Vector3.UP * 4.6, Vector3(3.6, 0.6, 3.6), "trim")
+
+
+
+func _build_almarakah() -> void:
+	# Map 1: Heartlands, the fortified capital, and the outer wilderness.
+	_secondary_paths(3.0 if _compact else 5.2)
+
+	# The capital sits away from the protected central spawn area.
+	var capital := Vector3(extent * (0.66 if _compact else 0.42), 0.0, -extent * 0.42)
+	var half_size: float = 10.0 if _compact else 25.0
+	var wall_height: float = 4.2 if _compact else 6.0
+	var wall_thickness: float = 1.4 if _compact else 2.0
+	var road_width: float = 4.5 if _compact else 7.0
+
+	# L-shaped roads lead from the Heartlands through the northern gate.
+	var gate_z: float = capital.z - half_size
+	_box(Vector3(capital.x * 0.5, 0.025, gate_z),
+			Vector3(absf(capital.x) + road_width, 0.035, road_width),
+			"road", false)
+	_box(Vector3(capital.x, 0.025, gate_z * 0.5),
+			Vector3(road_width, 0.035, absf(gate_z) + road_width),
+			"road", false)
+
+	# Fortified perimeter with an open central northern gate.
+	for side in [-1.0, 1.0]:
+		_box(capital + Vector3(side * half_size * 0.62,
+				wall_height * 0.5, -half_size),
+				Vector3(half_size * 0.76, wall_height, wall_thickness), "wall")
+	_box(capital + Vector3(-half_size, wall_height * 0.5, 0.0),
+			Vector3(wall_thickness, wall_height, half_size * 2.0), "wall")
+	_box(capital + Vector3(half_size, wall_height * 0.5, 0.0),
+			Vector3(wall_thickness, wall_height, half_size * 2.0), "wall")
+	# Split the southern wall to leave a second gate.
+	for side in [-1.0, 1.0]:
+		_box(capital + Vector3(side * half_size * 0.64,
+				wall_height * 0.5, half_size),
+				Vector3(half_size * 0.72, wall_height, wall_thickness), "wall")
+
+	# Reinforced corner towers.
+	var tower_height: float = wall_height + 1.8
+	for x_side in [-1.0, 1.0]:
+		for z_side in [-1.0, 1.0]:
+			var tower_pos: Vector3 = capital + Vector3(
+					x_side * half_size, 0.0, z_side * half_size)
+			_box(tower_pos + Vector3.UP * (tower_height * 0.5),
+					Vector3(3.0, tower_height, 3.0), "landmark")
+			_box(tower_pos + Vector3.UP * (tower_height + 0.18),
+					Vector3(3.5, 0.35, 3.5), "trim", false)
+
+	# Central keep and residential buildings.
+	var house_scale: float = 0.62 if _compact else 1.0
+	_adobe_building(capital + Vector3(-2.8, 0.0, -1.0),
+			Vector3(7.0, 5.0, 7.0) * house_scale)
+	_adobe_building(capital + Vector3(3.8, 0.0, 5.0),
+			Vector3(5.5, 3.8, 5.0) * house_scale)
+	_adobe_building(capital + Vector3(-5.8, 0.0, 5.2),
+			Vector3(5.0, 3.5, 4.5) * house_scale)
+	_adobe_building(capital + Vector3(5.0, 0.0, -5.5),
+			Vector3(5.5, 4.0, 5.0) * house_scale)
+
+	# Market square and defensive cover.
+	_market_stall(capital + Vector3(-5.0, 0.0, -7.0))
+	_market_stall(capital + Vector3(5.0, 0.0, -7.0))
+	for side in [-1.0, 1.0]:
+		_box(capital + Vector3(side * 7.0, 0.65, 0.0),
+				Vector3(2.4, 1.3, 1.2), "sandbag")
+
+	# Waterway on the eastern side; it is decorative, not a collision obstacle.
+	var water_x: float = capital.x + half_size + (2.5 if _compact else 5.0)
+	var water_y: float = 1.35
+	var segment_count: int = 5 if _compact else 13
+	for index in range(segment_count):
+		var water_z: float = lerpf(-extent * 0.58, extent * 0.58,
+				float(index) / float(maxi(1, segment_count - 1)))
+		var channel_width: float = 3.0 if _compact else 5.0
+		var segment_length: float = extent * 0.13
+		_box(Vector3(water_x, water_y, water_z),
+				Vector3(channel_width, 0.08, segment_length),
+				"water", false, false)
+
+	# Forest belts and scattered cover across the outer Heartlands.
+	var tree_count: int = 22 if _compact else 76
+	for index in range(tree_count):
+		var point: Vector3 = _random_prop_position()
+		var capital_distance: float = Vector2(
+				point.x - capital.x, point.z - capital.z).length()
+		if capital_distance > half_size + 7.0 and _footprint_available(
+				point, Vector2(4.0, 4.0), 1.5):
+			if index % 4 == 0:
+				_rock_formation(point, _rng.randf_range(0.65, 1.0))
+			else:
+				_tree(point, _rng.randf_range(4.5, 7.0))
+				if index % 3 == 0:
+					_vegetation_cluster(point, _rng.randf_range(0.8, 1.25))
+
+	# Landmark ridges at the far corners give the realm a distinct skyline.
+	_landmark_formation(
+			Vector3(-extent * 0.68, 0.0, -extent * 0.66),
+			1.0 if _compact else 1.65)
+	_rock_formation(
+			Vector3(-extent * 0.66, 0.0, extent * 0.65),
+			0.8 if _compact else 1.3)
+	_rock_formation(
+			Vector3(extent * 0.68, 0.0, extent * 0.64),
+			0.75 if _compact else 1.2)
+
+	# Low grass adds detail without adding solid collision objects.
+	var grass_count: int = 12 if _compact else 42
+	for index in range(grass_count):
+		var grass_point: Vector3 = _random_prop_position()
+		if _footprint_available(grass_point, Vector2(2.0, 2.0), 0.8):
+			_grass_patch(grass_point, _rng.randf_range(0.8, 1.25))
 
 
 func _build_highlands() -> void:
