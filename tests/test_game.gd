@@ -164,6 +164,8 @@ func _run() -> void:
 				query.shape = shape
 				query.transform.origin = actor.global_position + Vector3(0, 0.95, 0)
 				query.collision_mask = 1
+				var terrain_body: StaticBody3D = game.arena.get_node("TerrainCollision")
+				query.exclude = [terrain_body.get_rid()]
 				var overlaps: Array = game.get_world_3d().direct_space_state.intersect_shape(query)
 				if not overlaps.is_empty():
 					var collider_names: Array[String] = []
