@@ -61,6 +61,9 @@ func _test_map(map_id: int) -> void:
     if collider != null:
         print("  shape_is_null=", collider.shape == null)
         print("  shape_type=", "null" if collider.shape == null else collider.shape.get_class())
+        if collider.shape is ConcavePolygonShape3D:
+            print("  collision_face_vertices=", collider.shape.get_faces().size())
+
 
     check(collider != null and collider.shape != null,
         "Map %d has a valid terrain collision shape" % map_id)
