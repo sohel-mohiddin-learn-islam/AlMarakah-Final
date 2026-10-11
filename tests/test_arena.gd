@@ -78,6 +78,21 @@ func _test_map(map_id: int) -> void:
     test_collider.shape = sphere
     test_body.add_child(test_collider)
     root.add_child(test_body)
+    
+    await physics_frame
+    var test_world := test_body.get_world_3d()
+    if test_world != null:
+        var ray_query := PhysicsRayQueryParameters3D.create(
+            Vector3(0.0, 20.0, 0.0),
+            Vector3(0.0, -20.0, 0.0),
+            1
+        )
+        var ray_hit: Dictionary = test_world.direct_space_state.intersect_ray(ray_query)
+        print("  CENTER_RAY_HIT=", ray_hit.get("collider").name if ray_hit.has("collider") else "none")
+        print("  CENTER_RAY_POSITION=", ray_hit.get("position", Vector3.ZERO))
+    else:
+        print("  CENTER_RAY_ERROR=no World3D")
+
 
     for frame in range(120):
         await physics_frame
