@@ -53,6 +53,10 @@ func _test_map(map_id: int) -> void:
         print("  terrain_surfaces=", terrain.mesh.get_surface_count())
         print("  terrain_vertices=", terrain.mesh.surface_get_array_len(0) if terrain.mesh.get_surface_count() > 0 else 0)
     print("  ground_exists=", ground != null)
+    if ground != null:
+        print("  ground_child_count=", ground.get_child_count())
+        for child in ground.get_children():
+            print("  ground_child_name=", child.name, " type=", child.get_class())
     print("  collider_exists=", collider != null)
     if collider != null:
         print("  shape_is_null=", collider.shape == null)
