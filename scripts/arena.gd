@@ -46,8 +46,44 @@ func build(map_id: int, compact: bool = false) -> void:
 	_flush_batches()
 
 
+func _spawn_ground_y(px: float, pz: float) -> float:
+	var height: float
+	if _map_id == 0:
+		height = (sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4 + sin((px + pz) * 0.025) * 1.1) * 0.45
+	else:
+		height = (sin(px * 0.035) * 2.4 + cos(pz * 0.04) * 2.0 + sin((px - pz) * 0.022) * 1.8) * 0.32
+	var offset: float = 24.0 if _compact else 42.0
+	var path_length: float = (42.0 if _compact else 84.0) + offset
+	var path_width: float = (3.2 if _compact else 5.5) + 1.2
+	var flat: bool = minf(absf(px), absf(pz)) < (4.8 if _map_id == 0 else 3.8)
+	if absf(absf(pz) - offset) < path_width and absf(px) < path_length * 0.5 + path_width:
+		flat = true
+	if absf(absf(px) - offset) < path_width and absf(pz) < path_length * 0.5 + path_width:
+		flat = true
+	for area in _reserved:
+		if area.has_point(Vector2(px, pz)):
+			flat = true
+			break
+	if _map_id == 0:
+		if absf(px) < 19.0 and absf(pz) < 19.0:
+			flat = true
+	else:
+		var capital_x: float = extent * (0.66 if _compact else 0.42)
+		var capital_z: float = -extent * 0.42
+		var capital_half: float = 10.0 if _compact else 25.0
+		if absf(px - capital_x) < capital_half + 8.0 and absf(pz - capital_z) < capital_half + 8.0:
+			flat = true
+		var gate_z: float = capital_z - capital_half
+		if absf(pz - gate_z) < 4.5 and px > -5.0 and px < capital_x + 5.0:
+			flat = true
+		if absf(px - capital_x) < 4.5 and pz > gate_z - 4.5 and pz < 4.5:
+			flat = true
+	if flat:
+		height = 0.0
+	return height + 0.35
+
 func spawn_points(count: int, teams: bool = false) -> Array[Vector3]:
-	## All returned points are at y=1, clear of solid footprints and each other.
+	## All returned points are terrain-adjusted and clear of solid footprints and each other.
 	## In team mode indices 0..3 are south; indices 4..7 are north.
 	var result: Array[Vector3] = []
 	if count <= 0:
@@ -57,7 +93,7 @@ func spawn_points(count: int, teams: bool = false) -> Array[Vector3]:
 			var side: float = 1.0 if index % 8 < 4 else -1.0
 			var slot: int = index % 4
 			var row: int = int(index / 8)
-			var point: Vector3 = Vector3((float(slot) - 1.5) * 7.0, 1.0,
+			var point: Vector3 = Vector3((float(slot) - 1.5) * 7.0, _spawn_ground_y((float(slot) - 1.5) * 7.0, side * (extent - 10.0 - float(row) * 5.0)),
 				side * (extent - 10.0 - float(row) * 5.0))
 			if _spawn_clear(point, result, 3.0):
 				result.append(point)
@@ -72,7 +108,7 @@ func spawn_points(count: int, teams: bool = false) -> Array[Vector3]:
 		var spawn_radius: float = radius * sqrt((float(index) + 0.5) / float(count))
 		for attempt in range(12):
 			var angle: float = golden_angle * float(index) + float(attempt) * 0.71
-			var point: Vector3 = Vector3(sin(angle) * spawn_radius, 1.0,
+			var point: Vector3 = Vector3(sin(angle) * spawn_radius, _spawn_ground_y(sin(angle) * spawn_radius, cos(angle) * spawn_radius),
 				cos(angle) * spawn_radius)
 			if _spawn_clear(point, result, 6.0):
 				result.append(point)
@@ -94,7 +130,7 @@ func _append_safe_spawn(points: Array[Vector3], side: float = 0.0) -> void:
 	while z <= limit:
 		var x: float = -limit
 		while x <= limit:
-			var point: Vector3 = Vector3(x, 1.0, z)
+			var point: Vector3 = Vector3(x, _spawn_ground_y(x, z), z)
 			if (side == 0.0 or z * side > extent * 0.35) \
 					and Vector2(x, z).length() < extent - 4.0 \
 					and _spawn_clear(point, points, 3.0):
