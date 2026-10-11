@@ -165,6 +165,12 @@ func _run() -> void:
 				query.transform.origin = actor.global_position + Vector3(0, 0.95, 0)
 				query.collision_mask = 1
 				var overlaps: Array = game.get_world_3d().direct_space_state.intersect_shape(query)
+				if not overlaps.is_empty():
+					var collider_names: Array[String] = []
+					for overlap in overlaps:
+						var collider: Object = overlap.get("collider")
+						collider_names.append(str(collider.get_path()) if collider is Node else str(collider))
+					print("SPAWN OVERLAP mode=", match_mode, " map=", map_index, " actor=", actor.name, " position=", actor.global_position, " colliders=", collider_names)
 				check(overlaps.is_empty(), "spawn not inside cover %s map %d" % [match_mode, map_index])
 			if game.is_cs:
 				check(teams == [4, 4], "CS teams balanced")
