@@ -36,8 +36,7 @@ func build(map_id: int, compact: bool = false) -> void:
 	_reserved.append(Rect2(Vector2(-14.0, -base_z - 8.0), Vector2(28.0, 21.0)))
 	_reserved.append(Rect2(Vector2(-5.0, -5.0), Vector2(10.0, 10.0)))
 	_make_environment()
-	_box(Vector3(0.0, -0.6, 0.0), Vector3(extent * 2.0 + 12.0, 1.2,
-		extent * 2.0 + 12.0), "ground", true, false)
+	# ContinuousTerrain supplies the ground surface and collision.
 	_make_terrain()
 	_make_boundaries()
 	if _map_id == 0:
@@ -197,45 +196,117 @@ func _make_environment() -> void:
 
 
 func _make_terrain() -> void:
-	var grid_size: int = 18 if _compact else 42
+	# A continuous, low-poly terrain surface for mobile performance.
+	var grid_size: int = 36 if _compact else 84
 	var cell_size: float = extent * 2.0 / float(grid_size)
-	var half: float = extent
+	var capital_x: float = extent * (0.66 if _compact else 0.42)
+	var capital_z: float = -extent * 0.42
+	var capital_half: float = 10.0 if _compact else 25.0
+	var reach: float = 42.0 if _compact else 84.0
+	var offset: float = 24.0 if _compact else 42.0
+	var path_length: float = reach + offset
+	var path_width: float = (3.2 if _compact else 5.5) + 1.2
+	var vertices := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var indices := PackedInt32Array()
 
-	for z in range(grid_size):
-		for x in range(grid_size):
-			var px: float = -half + (float(x) + 0.5) * cell_size
-			var pz: float = -half + (float(z) + 0.5) * cell_size
-			var height: float = 0.0
+	# Shared grid vertices prevent gaps between terrain cells.
+	for z in range(grid_size + 1):
+		for x in range(grid_size + 1):
+			var px: float = -extent + float(x) * cell_size
+			var pz: float = -extent + float(z) * cell_size
+			var height: float
 
 			if _map_id == 0:
 				height = sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4
 				height += sin((px + pz) * 0.025) * 1.1
+				height *= 0.45
 			else:
 				height = sin(px * 0.035) * 2.4 + cos(pz * 0.04) * 2.0
 				height += sin((px - pz) * 0.022) * 1.8
+				height *= 0.32
 
-			var road_distance: float = minf(absf(px), absf(pz))
-			if road_distance < (4.5 if _map_id == 0 else 3.5):
-				height *= 0.15
+			var flat: bool = false
 
-			var reserved := false
+			# Main crossing roads remain level.
+			if minf(absf(px), absf(pz)) < (4.8 if _map_id == 0 else 3.8):
+				flat = true
+
+			# Keep the offset secondary roads level.
+			if absf(absf(pz) - offset) < path_width and absf(px) < path_length * 0.5 + path_width:
+				flat = true
+			if absf(absf(px) - offset) < path_width and absf(pz) < path_length * 0.5 + path_width:
+				flat = true
+
+			# Preserve spawn staging lanes and the central spawn area.
 			for area in _reserved:
 				if area.has_point(Vector2(px, pz)):
-					reserved = true
+					flat = true
 					break
-			if reserved:
-				height *= 0.1
 
-			var material_key: String = "ground"
-			if road_distance >= (4.5 if _map_id == 0 else 3.5) and not reserved:
-				var terrain_roll: float = _rng.randf()
-				if terrain_roll < 0.16:
-					material_key = "ground_alt"
-				elif terrain_roll < 0.28:
-					material_key = "ground_light"
+			if _map_id == 0:
+				# Keep the central desert road and settlement level.
+				if absf(px) < 19.0 and absf(pz) < 19.0:
+					flat = true
+			else:
+				# Level fortress foundations and its surrounding courtyard.
+				if absf(px - capital_x) < capital_half + 8.0 and absf(pz - capital_z) < capital_half + 8.0:
+					flat = true
 
-			var scale_y: float = maxf(0.25, height + 1.5)
-			_instance("box", Vector3(px, scale_y * 0.5 - 0.2, pz), Vector3(cell_size * 0.92, scale_y, cell_size * 0.92), material_key)
+				# Level the two road sections leading to the capital gate.
+				var gate_z: float = capital_z - capital_half
+				if absf(pz - gate_z) < 4.5 and px > -5.0 and px < capital_x + 5.0:
+					flat = true
+				if absf(px - capital_x) < 4.5 and pz > gate_z - 4.5 and pz < 4.5:
+					flat = true
+
+			if flat:
+				height = 0.0
+
+			vertices.append(Vector3(px, height, pz))
+			uvs.append(Vector2(float(x) / float(grid_size), float(z) / float(grid_size)))
+
+	# Build upward-facing triangles from the shared grid.
+	for z in range(grid_size):
+		for x in range(grid_size):
+			var a: int = z * (grid_size + 1) + x
+			var b: int = a + 1
+			var c: int = a + grid_size + 1
+			var d: int = c + 1
+			indices.append_array(PackedInt32Array([a, c, b, b, c, d]))
+
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_INDEX] = indices
+
+	var raw_terrain_mesh := ArrayMesh.new()
+	raw_terrain_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+	# Generate smooth vertex normals for consistent terrain lighting.
+	var normal_builder := SurfaceTool.new()
+	normal_builder.create_from(raw_terrain_mesh, 0)
+	normal_builder.generate_normals()
+	var terrain_mesh: ArrayMesh = normal_builder.commit()
+	terrain_mesh.surface_set_material(0, _materials["ground"])
+	terrain_mesh.surface_set_name(0, "Terrain")
+
+	var terrain_instance := MeshInstance3D.new()
+	terrain_instance.name = "ContinuousTerrain"
+	terrain_instance.mesh = terrain_mesh
+	terrain_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(terrain_instance)
+
+	# Use the exact same mesh for collision so the surface and ground agree.
+	var terrain_body := StaticBody3D.new()
+	terrain_body.name = "TerrainCollision"
+	terrain_body.collision_layer = 1
+	terrain_body.collision_mask = 0
+	var terrain_collider := CollisionShape3D.new()
+	terrain_collider.shape = terrain_mesh.create_trimesh_shape()
+	terrain_body.add_child(terrain_collider)
+	add_child(terrain_body)
 
 func _make_boundaries() -> void:
 	var span: float = extent * 2.0 + 3.2
