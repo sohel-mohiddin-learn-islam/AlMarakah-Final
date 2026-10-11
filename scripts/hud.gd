@@ -32,6 +32,8 @@ var lobby: PanelContainer
 var character_page: PanelContainer
 var events_page: PanelContainer
 var event_status_label: Label
+var event_countdown_label: Label
+var event_refresh_timer: float = 0.0
 var event_balance_label: Label
 var event_claim_button: Button
 var event_reward_labels: Array[Label] = []
@@ -264,6 +266,9 @@ func _build_events_page() -> void:
 	subtitle.add_theme_color_override("font_color", Color("f4ca70"))
 	event_balance_label = _label(outer, "DIAMONDS: 0", 19)
 	event_balance_label.add_theme_color_override("font_color", Color("e5b64e"))
+	event_balance_label.add_theme_font_size_override("font_size", 22)
+	event_countdown_label = _label(outer, "NEXT REWARD IN: 24:00:00", 17)
+	event_countdown_label.add_theme_color_override("font_color", Color("ffe3a0"))
 	event_status_label = _label(outer, "", 14)
 	event_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -281,12 +286,24 @@ func _build_events_page() -> void:
 	event_reward_labels.clear()
 	for day in range(1, 11):
 		var reward = _label(rewards, "", 15)
-		reward.custom_minimum_size = Vector2(0, 34)
+		reward.custom_minimum_size = Vector2(0, 38)
+		reward.add_theme_color_override("font_color", Color("c4cbd4"))
+		reward.add_theme_font_size_override("font_size", 15)
 		reward.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		event_reward_labels.append(reward)
 
 	event_claim_button = _button(outer, "CLAIM 50 DIAMONDS", _claim_daily_reward)
-	event_claim_button.custom_minimum_size = Vector2(0, 54)
+	event_claim_button.custom_minimum_size = Vector2(0, 58)
+	event_claim_button.add_theme_font_size_override("font_size", 18)
+	var claim_style = StyleBoxFlat.new()
+	claim_style.bg_color = Color("6d4a13")
+	claim_style.border_color = Color("f4ca70")
+	claim_style.set_border_width_all(2)
+	claim_style.set_corner_radius_all(10)
+	event_claim_button.add_theme_stylebox_override("normal", claim_style)
+	var claim_hover = claim_style.duplicate() as StyleBoxFlat
+	claim_hover.bg_color = Color("967025")
+	event_claim_button.add_theme_stylebox_override("hover", claim_hover)
 	var back = _button(outer, "BACK TO LOBBY", show_lobby)
 	back.custom_minimum_size = Vector2(0, 44)
 	events_page.visible = false
@@ -297,6 +314,8 @@ func show_events() -> void:
 		settings.save()
 	_refresh_event_page()
 	_show("events")
+	event_refresh_timer = 0.0
+	set_process(true)
 
 func _refresh_event_page() -> void:
 	var start_day = int(settings.data.get("login_event_start_day", 0))
@@ -308,6 +327,9 @@ func _refresh_event_page() -> void:
 	var current_day = mini(10, elapsed + 1)
 	var claimed: Array = settings.data.get("login_event_claimed_days", [])
 	event_balance_label.text = "DIAMONDS: %d" % int(settings.data.get("diamonds", 0))
+	var now_seconds = int(Time.get_unix_time_from_system())
+	var remaining = 86400 - (now_seconds % 86400)
+	event_countdown_label.text = "NEXT REWARD IN: %02d:%02d:%02d" % [int(remaining / 3600), int((remaining % 3600) / 60), remaining % 60]
 
 	for i in range(event_reward_labels.size()):
 		var day = i + 1
@@ -321,6 +343,14 @@ func _refresh_event_page() -> void:
 		else:
 			reward_text += "   EVENT ENDED"
 		event_reward_labels[i].text = reward_text
+		if claimed.has(day):
+			event_reward_labels[i].add_theme_color_override("font_color", Color("80e0a0"))
+		elif day == current_day and elapsed < 10:
+			event_reward_labels[i].add_theme_color_override("font_color", Color("ffe078"))
+		elif day > current_day and elapsed < 10:
+			event_reward_labels[i].add_theme_color_override("font_color", Color("aab3c0"))
+		else:
+			event_reward_labels[i].add_theme_color_override("font_color", Color("84909d"))
 
 	if elapsed >= 10:
 		event_status_label.text = "The 10-day event has ended."
@@ -808,7 +838,12 @@ func _process(delta: float) -> void:
 	damage_label.visible = damage_overlay.visible
 	damage_overlay.modulate.a = minf(1.0, damage_time / 0.3)
 	damage_label.modulate.a = damage_overlay.modulate.a
-	if hit_marker_time <= 0.0 and damage_time <= 0.0:
+	if screen == "events":
+		event_refresh_timer += delta
+		if event_refresh_timer >= 1.0:
+			event_refresh_timer = 0.0
+			_refresh_event_page()
+	elif hit_marker_time <= 0.0 and damage_time <= 0.0:
 		set_process(false)
 
 func _layout_pads() -> void:
