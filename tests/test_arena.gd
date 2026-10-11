@@ -45,7 +45,7 @@ func _test_map(map_id: int) -> void:
 
     var collider: CollisionShape3D = null
     if ground != null:
-        collider = ground.get_node_or_null("CollisionShape3D") as CollisionShape3D
+        collider = ground.get_node_or_null("TerrainCollisionShape") as CollisionShape3D
 
     print("COLLISION DIAGNOSTIC map=", map_id)
     print("  terrain_exists=", terrain != null)
