@@ -1,4 +1,24 @@
 extends CanvasLayer
+
+class CurrencyIcon extends Control:
+	var kind: String = "diamond"
+
+	func _ready() -> void:
+		custom_minimum_size = Vector2(20, 20)
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		if kind == "diamond":
+			var points := PackedVector2Array([
+				Vector2(10, 1), Vector2(19, 8),
+				Vector2(10, 19), Vector2(1, 8)
+			])
+			draw_colored_polygon(points, Color("8edfff"))
+			draw_line(Vector2(1, 8), Vector2(19, 8), Color.WHITE, 1.2)
+			draw_line(Vector2(10, 1), Vector2(10, 19), Color("4b9fce"), 1.2)
+		else:
+			draw_circle(Vector2(10, 10), 8.5, Color("ffe078"))
+			draw_arc(Vector2(10, 10), 5.5, 0.0, TAU, 32, Color("9b6b1e"), 1.5)
 ## Offline lobby and independently owned touch inputs (move + look + fire).
 signal start_match(mode: String, map_id: int)
 signal join_online(address: String)
@@ -38,7 +58,8 @@ var currency_bar: PanelContainer
 var diamond_balance_label: Label
 var gold_balance_label: Label
 var currency_store_page: PanelContainer
-var store_balance_label: Label
+var store_diamond_balance_label: Label
+var store_gold_balance_label: Label
 var store_status_label: Label
 var store_free_gold_button: Button
 var event_balance_label: Label
@@ -275,9 +296,15 @@ func _build_currency_ui() -> void:
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
 	currency_bar.add_child(row)
+	var diamond_icon = CurrencyIcon.new()
+	diamond_icon.kind = "diamond"
+	row.add_child(diamond_icon)
 	diamond_balance_label = _label(row, "", 17)
 	diamond_balance_label.add_theme_color_override("font_color", Color("8edfff"))
 	diamond_balance_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var gold_icon = CurrencyIcon.new()
+	gold_icon.kind = "gold"
+	row.add_child(gold_icon)
 	gold_balance_label = _label(row, "", 17)
 	gold_balance_label.add_theme_color_override("font_color", Color("ffe078"))
 	gold_balance_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -293,7 +320,19 @@ func _build_currency_ui() -> void:
 	var col = _column(currency_store_page)
 	var title = _label(col, "CURRENCY STORE", 28)
 	title.add_theme_color_override("font_color", Color("f4ca70"))
-	store_balance_label = _label(col, "", 18)
+	var store_balance_row = HBoxContainer.new()
+	store_balance_row.add_theme_constant_override("separation", 8)
+	col.add_child(store_balance_row)
+	var store_diamond_icon = CurrencyIcon.new()
+	store_diamond_icon.kind = "diamond"
+	store_balance_row.add_child(store_diamond_icon)
+	store_diamond_balance_label = _label(store_balance_row, "0 Diamonds", 18)
+	store_diamond_balance_label.add_theme_color_override("font_color", Color("8edfff"))
+	var store_gold_icon = CurrencyIcon.new()
+	store_gold_icon.kind = "gold"
+	store_balance_row.add_child(store_gold_icon)
+	store_gold_balance_label = _label(store_balance_row, "0 Gold", 18)
+	store_gold_balance_label.add_theme_color_override("font_color", Color("ffe078"))
 	_label(col, "DIAMONDS", 19).add_theme_color_override("font_color", Color("8edfff"))
 	_label(col, "Earn diamonds from daily events and rewards.", 14)
 	_label(col, "GOLD", 19).add_theme_color_override("font_color", Color("ffe078"))
@@ -310,14 +349,13 @@ func _refresh_currency_ui() -> void:
 	if settings == null:
 		return
 	if is_instance_valid(diamond_balance_label):
-		diamond_balance_label.text = "💎 %d" % int(settings.data.get("diamonds", 0))
+		diamond_balance_label.text = "%d" % int(settings.data.get("diamonds", 0))
 	if is_instance_valid(gold_balance_label):
-		gold_balance_label.text = "🪙 %d" % int(settings.data.get("gold", 0))
-	if is_instance_valid(store_balance_label):
-		store_balance_label.text = "💎 %d       🪙 %d" % [
-			int(settings.data.get("diamonds", 0)),
-			int(settings.data.get("gold", 0))
-		]
+		gold_balance_label.text = "%d" % int(settings.data.get("gold", 0))
+	if is_instance_valid(store_diamond_balance_label):
+		store_diamond_balance_label.text = "%d Diamonds" % int(settings.data.get("diamonds", 0))
+	if is_instance_valid(store_gold_balance_label):
+		store_gold_balance_label.text = "%d Gold" % int(settings.data.get("gold", 0))
 	if is_instance_valid(store_free_gold_button):
 		var claimed = bool(settings.data.get("store_free_gold_claimed", false))
 		store_free_gold_button.disabled = claimed
