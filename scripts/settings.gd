@@ -13,8 +13,8 @@ const DEFAULTS = {
 	"cs_rating": 1000,
 	"character_id": "azlan",
 	"diamonds": 0,
-        "gold": 0,
-        "store_free_gold_claimed": false,
+	"gold": 0,
+	"store_free_gold_claimed": false,
 	"login_event_start_day": 0,
 	"login_event_claimed_days": [],
 }
@@ -46,7 +46,7 @@ func _validate() -> void:
 	data.br_rating = clampi(int(data.br_rating), 0, 5000)
 	data.cs_rating = clampi(int(data.cs_rating), 0, 5000)
 	data.diamonds = maxi(0, int(data.get("diamonds", 0)))
-        data.gold = maxi(0, int(data.get("gold", 0)))
+	data.gold = maxi(0, int(data.get("gold", 0)))
 	data.login_event_start_day = maxi(0, int(data.get("login_event_start_day", 0)))
 	var claimed_days: Array = []
 	var raw_claims = data.get("login_event_claimed_days", [])
