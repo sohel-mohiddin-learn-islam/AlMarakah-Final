@@ -34,6 +34,13 @@ var events_page: PanelContainer
 var event_status_label: Label
 var event_countdown_label: Label
 var event_refresh_timer: float = 0.0
+var currency_bar: PanelContainer
+var diamond_balance_label: Label
+var gold_balance_label: Label
+var currency_store_page: PanelContainer
+var store_balance_label: Label
+var store_status_label: Label
+var store_free_gold_button: Button
 var event_balance_label: Label
 var event_claim_button: Button
 var event_reward_labels: Array[Label] = []
@@ -94,6 +101,8 @@ func configure(prefs: RefCounted) -> void:
 	_build_match()
 	_build_editor()
 	_build_result()
+
+	_build_currency_ui()
 	get_viewport().size_changed.connect(_layout_pads)
 	show_lobby()
 
@@ -249,6 +258,97 @@ func _build_lobby() -> void:
 		var footer = _label(column, "Move: left side   •   Look: swipe right", 12)
 		footer.add_theme_color_override("font_color", Color("c1c9d0"))
 
+
+func _build_currency_ui() -> void:
+    currency_bar = PanelContainer.new()
+    root.add_child(currency_bar)
+    currency_bar.anchor_left = 0.48
+    currency_bar.anchor_top = 0.025
+    currency_bar.anchor_right = 0.975
+    currency_bar.anchor_bottom = 0.105
+    var bar_style = _style(Color(0.018, 0.028, 0.045, 0.96))
+    bar_style.border_color = Color("bd872d")
+    bar_style.set_border_width_all(2)
+    bar_style.set_content_margin_all(8)
+    currency_bar.add_theme_stylebox_override("panel", bar_style)
+
+    var row = HBoxContainer.new()
+    row.add_theme_constant_override("separation", 8)
+    currency_bar.add_child(row)
+    diamond_balance_label = _label(row, "", 17)
+    diamond_balance_label.add_theme_color_override("font_color", Color("8edfff"))
+    diamond_balance_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    gold_balance_label = _label(row, "", 17)
+    gold_balance_label.add_theme_color_override("font_color", Color("ffe078"))
+    gold_balance_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    var plus = _button(row, "+", show_currency_store)
+    plus.custom_minimum_size = Vector2(48, 42)
+    plus.size_flags_horizontal = Control.SIZE_SHRINK_END
+
+    currency_store_page = _panel(0.18, 0.15, 0.84, 0.84)
+    var store_style = _style(Color(0.018, 0.028, 0.045, 0.98))
+    store_style.border_color = Color("bd872d")
+    store_style.set_border_width_all(2)
+    currency_store_page.add_theme_stylebox_override("panel", store_style)
+    var col = _column(currency_store_page)
+    var title = _label(col, "CURRENCY STORE", 28)
+    title.add_theme_color_override("font_color", Color("f4ca70"))
+    store_balance_label = _label(col, "", 18)
+    _label(col, "DIAMONDS", 19).add_theme_color_override("font_color", Color("8edfff"))
+    _label(col, "Earn diamonds from daily events and rewards.", 14)
+    _label(col, "GOLD", 19).add_theme_color_override("font_color", Color("ffe078"))
+    _label(col, "Exchange 1,000 gold for 10 diamonds.", 14)
+    store_free_gold_button = _button(col, "CLAIM 100 FREE GOLD", _store_claim_free_gold)
+    _button(col, "EXCHANGE 1,000 GOLD FOR 10 DIAMONDS", _store_exchange_diamonds)
+    store_status_label = _label(col, "Free local rewards; no real-money purchases.", 14)
+    store_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+    _button(col, "BACK TO LOBBY", show_lobby)
+    currency_store_page.visible = false
+    _refresh_currency_ui()
+
+func _refresh_currency_ui() -> void:
+    if settings == null:
+        return
+    if is_instance_valid(diamond_balance_label):
+        diamond_balance_label.text = "💎 %d" % int(settings.data.get("diamonds", 0))
+    if is_instance_valid(gold_balance_label):
+        gold_balance_label.text = "🪙 %d" % int(settings.data.get("gold", 0))
+    if is_instance_valid(store_balance_label):
+        store_balance_label.text = "💎 %d       🪙 %d" % [
+            int(settings.data.get("diamonds", 0)),
+            int(settings.data.get("gold", 0))
+        ]
+    if is_instance_valid(store_free_gold_button):
+        var claimed = bool(settings.data.get("store_free_gold_claimed", false))
+        store_free_gold_button.disabled = claimed
+        store_free_gold_button.text = "FREE GOLD CLAIMED" if claimed else "CLAIM 100 FREE GOLD"
+
+func show_currency_store() -> void:
+    _refresh_currency_ui()
+    _show("store")
+
+func _store_claim_free_gold() -> void:
+    if bool(settings.data.get("store_free_gold_claimed", false)):
+        store_status_label.text = "Free gold already claimed."
+        return
+    settings.data["gold"] = int(settings.data.get("gold", 0)) + 100
+    settings.data["store_free_gold_claimed"] = true
+    settings.save()
+    store_status_label.text = "100 gold added!"
+    _refresh_currency_ui()
+
+func _store_exchange_diamonds() -> void:
+    var gold = int(settings.data.get("gold", 0))
+    if gold < 1000:
+        store_status_label.text = "You need 1,000 gold to exchange."
+        return
+    settings.data["gold"] = gold - 1000
+    settings.data["diamonds"] = int(settings.data.get("diamonds", 0)) + 10
+    settings.save()
+    store_status_label.text = "10 diamonds added!"
+    _refresh_currency_ui()
+    _refresh_event_page()
+
 func _event_day_index() -> int:
 	return int(Time.get_unix_time_from_system() / 86400.0)
 
@@ -390,6 +490,7 @@ func _claim_daily_reward() -> void:
 	settings.data["diamonds"] = int(settings.data.get("diamonds", 0)) + 50
 	settings.save()
 	_refresh_event_page()
+    _refresh_currency_ui()
 
 func _build_character_page() -> void:
 	character_page = _panel(0.025, 0.12, 0.405, 0.79)
@@ -709,7 +810,16 @@ func _show(next: String) -> void:
 	if is_instance_valid(character_page):
 		character_page.visible = next == "characters"
 	if is_instance_valid(events_page):
-		events_page.visible = next == "events"
+
+	    events_page.visible = next == "events"
+
+	if is_instance_valid(currency_bar):
+
+	    currency_bar.visible = next == "lobby"
+
+	if is_instance_valid(currency_store_page):
+
+	    currency_store_page.visible = next == "store"
 	if is_instance_valid(lobby_start_button):
 		lobby_start_button.visible = next == "lobby"
 	preferences.visible = next == "settings"
@@ -732,6 +842,7 @@ func show_lobby() -> void:
 	rating_label.text = "Local ratings  •  BR %d   CS %d" % [int(settings.data.get("br_rating", 1000)), int(settings.data.get("cs_rating", 1000))]
 	loadout_picker.select(maxi(0, selected))
 	_show("lobby")
+    _refresh_currency_ui()
 
 func show_settings() -> void:
 	_show("settings")
