@@ -644,6 +644,31 @@ func _build_almarakah() -> void:
 			_box(Vector3(royal_door_x, royal_iron_y, royal_door_inside_z),
 				Vector3(royal_door_leaf_width * 0.90, 0.12, 0.10), "dark", false)
 
+		# CAPITAL_ROYAL_GATE_DETAILS_V3
+		# Surface details only: original door leaves and their collision stay unchanged.
+		var royal_door_detail_z: float = royal_door_front_z - 0.07
+
+		# Raised timber divisions give each existing leaf a layered wooden appearance.
+		for royal_plank_side in [-1.0, 0.0, 1.0]:
+			_box(Vector3(royal_door_x + royal_plank_side * royal_door_leaf_width * 0.19,
+				royal_door_height * 0.52, royal_door_detail_z),
+				Vector3(royal_door_leaf_width * 0.075, royal_door_height * 0.43, 0.055), "wood", false)
+
+		# Two dark metal reinforcement bands on the visible face of each leaf.
+		for royal_band_y in [royal_door_height * 0.31, royal_door_height * 0.73]:
+			_box(Vector3(royal_door_x, royal_band_y, royal_door_detail_z - 0.035),
+				Vector3(royal_door_leaf_width * 0.72, 0.075, 0.065), "dark", false)
+
+		# Heavy decorative hinge plates; the existing inner iron rods remain untouched.
+		for royal_hinge_side in [-1.0, 1.0]:
+			for royal_hinge_y in [royal_door_height * 0.25, royal_door_height * 0.77]:
+				_box(Vector3(royal_door_x + royal_hinge_side * royal_door_leaf_width * 0.33,
+					royal_hinge_y, royal_door_detail_z - 0.035),
+					Vector3(royal_door_leaf_width * 0.12, 0.15, 0.07), "dark", false)
+				_box(Vector3(royal_door_x + royal_hinge_side * royal_door_leaf_width * 0.33,
+					royal_hinge_y, royal_door_detail_z - 0.078),
+					Vector3(0.075, 0.075, 0.045), "rock_light", false)
+
 	# Layered lintel spanning the gate opening.
 	var royal_gate_lintel_width: float = royal_gate_offset * 2.0 + royal_gate_width + 0.38
 	_box(Vector3(capital.x, wall_height + 0.37, royal_gate_z),
