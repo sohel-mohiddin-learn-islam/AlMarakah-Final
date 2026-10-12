@@ -1,0 +1,112 @@
+name: Palace Preview APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/realistic-character
+    paths:
+      - '.github/workflows/palace-preview.yml'
+      - 'scenes/palace_preview.tscn'
+      - 'assets/arabian_palace.glb'
+      - 'tools/install-godot.sh'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: palace-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-preview:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    env:
+      GODOT_SILENCE_ROOT_WARNING: 1
+      LIBGL_ALWAYS_SOFTWARE: 1
+      PULSE_SERVER: ""
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Cache Godot and export templates
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/bin/godot
+            ~/.local/share/godot/export_templates/4.5.1.stable
+          key: godot-linux-x86_64-4.5.1-android-web-v1
+
+      - name: Install Godot and Android export templates
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: bash tools/install-godot.sh --templates
+
+      - name: Add Godot to PATH
+        run: echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Create isolated preview project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PREVIEW_DIR="$RUNNER_TEMP/palace-preview-project"
+          mkdir -p "$PREVIEW_DIR"
+          cp -a . "$PREVIEW_DIR/"
+
+          # Change only the temporary copy, never the repository checkout.
+          sed -i \
+            's#run/main_scene="res://scenes/main.tscn"#run/main_scene="res://scenes/palace_preview.tscn"#' \
+            "$PREVIEW_DIR/project.godot"
+
+          sed -i \
+            's#export_path="build/android/Almarakah-debug.apk"#export_path="build/android/Palace-Preview.apk"#' \
+            "$PREVIEW_DIR/export_presets.cfg"
+
+          sed -i \
+            's#package/unique_name="com.sohelmohiddin.almarakah"#package/unique_name="com.sohelmohiddin.almarakah.palacepreview"#' \
+            "$PREVIEW_DIR/export_presets.cfg"
+
+          sed -i \
+            's#package/name="Almarakah"#package/name="Palace Preview"#' \
+            "$PREVIEW_DIR/export_presets.cfg"
+
+          echo "===== TEMPORARY PREVIEW CONFIG ====="
+          grep -n 'run/main_scene' "$PREVIEW_DIR/project.godot"
+          grep -nE 'export_path=|package/unique_name=|package/name=' \
+            "$PREVIEW_DIR/export_presets.cfg"
+
+          grep -q 'res://scenes/palace_preview.tscn' "$PREVIEW_DIR/project.godot"
+          grep -q 'com.sohelmohiddin.almarakah.palacepreview' \
+            "$PREVIEW_DIR/export_presets.cfg"
+
+      - name: Import palace and project resources
+        run: |
+          godot --headless --audio-driver Dummy \
+            --editor --path "$RUNNER_TEMP/palace-preview-project" --import
+
+      - name: Export separate Palace Preview APK
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="$RUNNER_TEMP/palace-preview-project"
+
+          mkdir -p "$PREVIEW_DIR/build/android"
+
+          godot --headless --audio-driver Dummy \
+            --path "$PREVIEW_DIR" \
+            --export-debug "Android" \
+            "$PREVIEW_DIR/build/android/Palace-Preview.apk"
+
+          test -s "$PREVIEW_DIR/build/android/Palace-Preview.apk"
+          ls -lh "$PREVIEW_DIR/build/android/Palace-Preview.apk"
+
+      - name: Upload Palace Preview APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Palace-Preview-Android
+          path: ${{ runner.temp }}/palace-preview-project/build/android/Palace-Preview.apk
+          if-no-files-found: error
+          retention-days: 7
