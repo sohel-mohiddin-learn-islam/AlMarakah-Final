@@ -12,6 +12,7 @@ on:
       - 'scripts/palace_touch_controls.gd'
       - 'assets/arabian_palace.glb'
       - 'tools/install-godot.sh'
+      - 'tools/inspect_palace_interior.gd'
 
 permissions:
   contents: read
@@ -89,6 +90,15 @@ jobs:
         run: |
           godot --headless --audio-driver Dummy \
             --editor --path "$RUNNER_TEMP/palace-preview-project" --import
+
+      - name: Inspect palace geometry and nodes
+        shell: bash
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="$RUNNER_TEMP/palace-preview-project"
+          test -d "$PREVIEW_DIR"
+          test -f "$PREVIEW_DIR/tools/inspect_palace_interior.gd"
+          godot --headless --audio-driver Dummy --path "$PREVIEW_DIR" --script res://tools/inspect_palace_interior.gd
 
       - name: Export separate Palace Preview APK
         run: |
