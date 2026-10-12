@@ -585,28 +585,64 @@ func _build_almarakah() -> void:
 		_box(Vector3(royal_gate_x, wall_height * 0.52, royal_gate_front_z),
 			Vector3(0.14, wall_height * 0.62, 0.07), "trim", false)
 
-	# CAPITAL_ROYAL_GATE_DOORS_V1
-	# Closed double doors with solid collision; preserve the existing frame.
+	# CAPITAL_ROYAL_GATE_DOORS_V2
+	# Separate cinematic leaves; retain solid collision on both doors.
 	var royal_door_height: float = wall_height - 0.18
 	var royal_door_leaf_width: float = royal_gate_offset - royal_gate_width * 0.5
 	var royal_door_front_z: float = royal_gate_z - royal_gate_depth * 0.5 - 0.05
+	var royal_door_inside_z: float = royal_gate_z + royal_gate_depth * 0.5 + 0.05
 
 	for royal_door_side in [-1.0, 1.0]:
 		var royal_door_x: float = capital.x + royal_door_side * royal_door_leaf_width * 0.5
-		# Solid wood leaf: creates a collision shape and blocks passage.
+
+		# Solid wooden leaf: collision remains enabled.
 		_box(Vector3(royal_door_x, royal_door_height * 0.5, royal_gate_z),
 			Vector3(royal_door_leaf_width + 0.04, royal_door_height, royal_gate_depth), "wood")
 
-		# Front-facing reinforced vertical rails.
-		for royal_rail_side in [-1.0, 1.0]:
-			_box(Vector3(royal_door_x + royal_rail_side * royal_door_leaf_width * 0.34,
-				royal_door_height * 0.5, royal_door_front_z),
-				Vector3(0.12, royal_door_height * 0.84, 0.09), "dark", false)
+		# Raised warm sandstone-coloured wooden panel on the exterior.
+		_box(Vector3(royal_door_x, royal_door_height * 0.52, royal_door_front_z),
+			Vector3(royal_door_leaf_width * 0.68, royal_door_height * 0.60, 0.12), "plaster_dark", false)
 
-		# Decorative horizontal reinforcement bands.
-		for royal_band_y in [0.30, royal_door_height * 0.72]:
-			_box(Vector3(royal_door_x, royal_band_y, royal_door_front_z),
-				Vector3(royal_door_leaf_width * 0.90, 0.12, 0.09), "trim", false)
+		# Pale-gold outer frame rails on each separate leaf.
+		for royal_trim_side in [-1.0, 1.0]:
+			_box(Vector3(royal_door_x + royal_trim_side * royal_door_leaf_width * 0.43,
+				royal_door_height * 0.5, royal_door_front_z - 0.015),
+				Vector3(0.10, royal_door_height * 0.92, 0.12), "trim", false)
+
+		# Top and bottom decorative borders.
+		for royal_trim_y in [0.16, royal_door_height - 0.16]:
+			_box(Vector3(royal_door_x, royal_trim_y, royal_door_front_z - 0.015),
+				Vector3(royal_door_leaf_width * 0.88, 0.10, 0.12), "trim", false)
+
+		# Distinct centre meeting edges make the double-door split visible.
+		var royal_inner_edge_x: float = royal_door_x - royal_door_side * royal_door_leaf_width * 0.49
+		_box(Vector3(royal_inner_edge_x, royal_door_height * 0.5, royal_door_front_z - 0.025),
+			Vector3(0.065, royal_door_height * 0.92, 0.12), "dark", false)
+
+		# Decorative paired royal handles on the outside.
+		var royal_handle_x: float = capital.x - royal_door_side * 0.18
+		_box(Vector3(royal_handle_x, royal_door_height * 0.52, royal_door_front_z - 0.035),
+			Vector3(0.18, 0.28, 0.12), "rock_light", false)
+		_box(Vector3(royal_handle_x, royal_door_height * 0.52, royal_door_front_z - 0.055),
+			Vector3(0.07, 0.14, 0.08), "dark", false)
+
+		# Decorative brass-tone studs at the upper and lower corners.
+		for royal_stud_side in [-1.0, 1.0]:
+			for royal_stud_y in [0.38, royal_door_height - 0.38]:
+				_box(Vector3(royal_door_x + royal_stud_side * royal_door_leaf_width * 0.34,
+					royal_stud_y, royal_door_front_z - 0.07),
+					Vector3(0.10, 0.10, 0.08), "rock_light", false)
+
+		# Iron reinforcement is moved to the inside face (+Z).
+		for royal_iron_side in [-1.0, 1.0]:
+			_box(Vector3(royal_door_x + royal_iron_side * royal_door_leaf_width * 0.34,
+				royal_door_height * 0.5, royal_door_inside_z),
+				Vector3(0.12, royal_door_height * 0.84, 0.10), "dark", false)
+
+		# Interior horizontal iron crossbars.
+		for royal_iron_y in [0.30, royal_door_height * 0.72]:
+			_box(Vector3(royal_door_x, royal_iron_y, royal_door_inside_z),
+				Vector3(royal_door_leaf_width * 0.90, 0.12, 0.10), "dark", false)
 
 	# Layered lintel spanning the gate opening.
 	var royal_gate_lintel_width: float = royal_gate_offset * 2.0 + royal_gate_width + 0.38
