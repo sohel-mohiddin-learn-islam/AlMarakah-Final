@@ -1,5 +1,7 @@
 extends Node3D
 
+const CONTROLS_SCRIPT = preload("res://scripts/palace_touch_controls.gd")
+
 @onready var palace: Node3D = $ArabianPalace
 @onready var camera: Camera3D = $PreviewCamera
 
@@ -11,14 +13,95 @@ var dragging_mouse := false
 var touches: Dictionary = {}
 var previous_pinch_gap := -1.0
 
+var explore_mode := false
+var movement_input := Vector2.ZERO
+var look_touch := -1
+var previous_look_position := Vector2.ZERO
+var controls_layer: CanvasLayer
+var controls: Variant
+var mode_button: Button
+var status_label: Label
+
 const MIN_DISTANCE := 12.0
 const MAX_DISTANCE := 100.0
 const DRAG_SENSITIVITY := 0.005
 const PINCH_SENSITIVITY := 0.06
+const WALK_SPEED := 8.0
+const LOOK_SENSITIVITY := 0.004
 
 func _ready() -> void:
     _apply_materials(palace)
+    _create_touch_ui()
     _update_camera()
+
+func _process(delta: float) -> void:
+    if not explore_mode or movement_input.length() < 0.05:
+        return
+
+    var forward := Vector3(-sin(yaw), 0.0, -cos(yaw))
+    var right := Vector3(cos(yaw), 0.0, -sin(yaw))
+    var movement := (right * movement_input.x + forward * movement_input.y)
+
+    if movement.length() > 1.0:
+        movement = movement.normalized()
+
+    camera.position += movement * WALK_SPEED * delta
+    target = camera.position + -camera.global_basis.z * distance
+    camera.look_at(target, Vector3.UP)
+
+func _create_touch_ui() -> void:
+    controls_layer = CanvasLayer.new()
+    controls_layer.name = "ExploreTouchUI"
+    add_child(controls_layer)
+
+    controls = CONTROLS_SCRIPT.new()
+    controls.name = "VirtualJoystick"
+    controls.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+    controls_layer.add_child(controls)
+    controls.movement_changed.connect(_on_movement_changed)
+
+    mode_button = Button.new()
+    mode_button.name = "ModeToggle"
+    mode_button.text = "Explore Mode"
+    mode_button.position = Vector2(18.0, 18.0)
+    mode_button.size = Vector2(155.0, 54.0)
+    mode_button.add_theme_font_size_override("font_size", 17)
+    controls_layer.add_child(mode_button)
+    mode_button.pressed.connect(_toggle_mode)
+
+    status_label = Label.new()
+    status_label.name = "ModeStatus"
+    status_label.position = Vector2(18.0, 78.0)
+    status_label.size = Vector2(270.0, 32.0)
+    status_label.text = "Orbit: drag to rotate, pinch to zoom"
+    status_label.add_theme_font_size_override("font_size", 13)
+    controls_layer.add_child(status_label)
+
+func _toggle_mode() -> void:
+    explore_mode = not explore_mode
+    touches.clear()
+    previous_pinch_gap = -1.0
+    look_touch = -1
+    movement_input = Vector2.ZERO
+
+    if explore_mode:
+        mode_button.text = "Orbit Mode"
+        status_label.text = "Left joystick: move | Right side: look"
+        controls.set_controls_enabled(true)
+        pitch = -absf(pitch)
+        target = camera.position + -camera.global_basis.z * distance
+    else:
+        mode_button.text = "Explore Mode"
+        status_label.text = "Orbit: drag to rotate, pinch to zoom"
+        controls.set_controls_enabled(false)
+        pitch = absf(pitch)
+        target = Vector3(0.0, 3.5, 0.0)
+        distance = clampf(distance, MIN_DISTANCE, MAX_DISTANCE)
+
+    _update_camera()
+
+func _on_movement_changed(direction: Vector2) -> void:
+    movement_input = direction
 
 func _apply_materials(node: Node) -> void:
     if node is MeshInstance3D:
@@ -36,7 +119,6 @@ func _apply_materials(node: Node) -> void:
                 var material_name := source.resource_name.strip_edges().to_lower()
                 var color := _color_for_material(material_name)
 
-                # White or unnamed materials receive a warm sandstone fallback.
                 if color.a < 0.0:
                     if source is StandardMaterial3D:
                         var original := source as StandardMaterial3D
@@ -100,6 +182,15 @@ func _color_for_material(material_name: String) -> Color:
 
 func _input(event: InputEvent) -> void:
     if event is InputEventScreenTouch:
+        if explore_mode:
+            if event.pressed:
+                if event.position.x > get_viewport().get_visible_rect().size.x * 0.42:
+                    look_touch = event.index
+                    previous_look_position = event.position
+            elif event.index == look_touch:
+                look_touch = -1
+            return
+
         if event.pressed:
             touches[event.index] = event.position
         else:
@@ -108,6 +199,19 @@ func _input(event: InputEvent) -> void:
         return
 
     if event is InputEventScreenDrag:
+        if explore_mode:
+            if event.index == look_touch:
+                var delta := event.position - previous_look_position
+                previous_look_position = event.position
+                yaw -= delta.x * LOOK_SENSITIVITY
+                pitch = clampf(
+                    pitch - delta.y * LOOK_SENSITIVITY,
+                    deg_to_rad(-80.0),
+                    deg_to_rad(80.0)
+                )
+                _update_explore_camera()
+            return
+
         touches[event.index] = event.position
 
         if touches.size() >= 2:
@@ -151,8 +255,20 @@ func _input(event: InputEvent) -> void:
         )
         _update_camera()
 
+func _update_explore_camera() -> void:
+    var direction := Vector3(
+        -sin(yaw) * cos(pitch),
+        sin(pitch),
+        -cos(yaw) * cos(pitch)
+    )
+    camera.look_at(camera.position + direction, Vector3.UP)
+
 func _update_camera() -> void:
     if camera == null:
+        return
+
+    if explore_mode:
+        _update_explore_camera()
         return
 
     var horizontal := cos(pitch) * distance

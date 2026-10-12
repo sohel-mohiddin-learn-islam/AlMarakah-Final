@@ -9,6 +9,7 @@ on:
       - '.github/workflows/palace-preview.yml'
       - 'scenes/palace_preview.tscn'
       - 'scripts/palace_preview.gd'
+      - 'scripts/palace_touch_controls.gd'
       - 'assets/arabian_palace.glb'
       - 'tools/install-godot.sh'
 
