@@ -565,6 +565,41 @@ func _build_almarakah() -> void:
 					wall_side_stone_material = "plaster_dark"
 				_box(Vector3(wall_side_stone_face_x, wall_side_stone_y, wall_side_stone_z), Vector3(0.08, wall_stone_height, wall_stone_width), wall_side_stone_material, false)
 
+	# CAPITAL_ROYAL_GATE_V1
+	# Decorative royal entrance frame; no new collision shapes.
+	var royal_gate_z: float = gate_z - wall_thickness * 0.5 - 0.14
+	var royal_gate_offset: float = half_size * 0.24
+	var royal_gate_width: float = 0.9 if _compact else 1.5
+	var royal_gate_depth: float = wall_thickness + 0.48
+	var royal_gate_height: float = wall_height + 0.55
+	var royal_gate_front_z: float = royal_gate_z - royal_gate_depth * 0.5 - 0.05
+
+	for royal_gate_side in [-1.0, 1.0]:
+		var royal_gate_x: float = capital.x + royal_gate_side * royal_gate_offset
+		_box(Vector3(royal_gate_x, royal_gate_height * 0.5, royal_gate_z),
+			Vector3(royal_gate_width, royal_gate_height, royal_gate_depth), "landmark", false)
+		_box(Vector3(royal_gate_x, 0.24, royal_gate_z),
+			Vector3(royal_gate_width + 0.38, 0.48, royal_gate_depth + 0.32), "rock_light", false)
+		_box(Vector3(royal_gate_x, wall_height + 0.48, royal_gate_z),
+			Vector3(royal_gate_width + 0.34, 0.38, royal_gate_depth + 0.30), "trim", false)
+		_box(Vector3(royal_gate_x, wall_height * 0.52, royal_gate_front_z),
+			Vector3(0.14, wall_height * 0.62, 0.07), "trim", false)
+
+	# Layered lintel spanning the gate opening.
+	var royal_gate_lintel_width: float = royal_gate_offset * 2.0 + royal_gate_width + 0.38
+	_box(Vector3(capital.x, wall_height + 0.37, royal_gate_z),
+		Vector3(royal_gate_lintel_width, 0.58, royal_gate_depth + 0.24), "landmark", false)
+	_box(Vector3(capital.x, wall_height + 0.70, royal_gate_z),
+		Vector3(royal_gate_lintel_width + 0.22, 0.14, royal_gate_depth + 0.38), "trim", false)
+
+	# Central stepped royal crest.
+	var royal_gate_crest_y: float = wall_height + 1.08
+	_box(Vector3(capital.x, royal_gate_crest_y, royal_gate_front_z),
+		Vector3(1.55 if _compact else 2.3, 0.62, 0.16), "rock_light", false)
+	_box(Vector3(capital.x, royal_gate_crest_y + 0.36, royal_gate_z),
+		Vector3(1.15 if _compact else 1.8, 0.16, 0.42), "trim", false)
+	_box(Vector3(capital.x, royal_gate_crest_y + 0.54, royal_gate_z),
+		Vector3(0.72 if _compact else 1.15, 0.20, 0.34), "landmark", false)
 	# Reinforced corner towers.
 	var tower_height: float = wall_height + 1.8
 	for x_side in [-1.0, 1.0]:
