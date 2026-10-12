@@ -438,6 +438,18 @@ func _adobe_building(center: Vector3, size: Vector3) -> void:
 	_box(center + Vector3(size.x * 0.2, size.y + 0.9, 0.0),
 		Vector3(1.7, 1.6, 1.7), "blue", false)
 
+	# CAPITAL_FACADE_DETAILS_V1
+	# Decorative facade bands; these do not add collision shapes.
+	var facade_z: float = center.z - size.z * 0.5 - 0.06
+	_box(Vector3(center.x, 0.32, facade_z),
+		Vector3(size.x * 0.88, 0.14, 0.08), "trim", false)
+	_box(Vector3(center.x, size.y - 0.32, facade_z),
+		Vector3(size.x * 0.88, 0.14, 0.08), "trim", false)
+	for facade_side in [-1.0, 1.0]:
+		_box(Vector3(center.x + facade_side * size.x * 0.38,
+			size.y * 0.5, facade_z),
+			Vector3(0.14, size.y * 0.78, 0.08), "plaster_dark", false)
+
 
 func _market_stall(center: Vector3) -> void:
 	if not _footprint_available(center, Vector2(4.6, 4.6), 2.0):
@@ -447,6 +459,16 @@ func _market_stall(center: Vector3) -> void:
 		_box(center + Vector3(side * 1.9, 1.55, 0.0), Vector3(0.18, 3.1, 0.18), "wood")
 	_box(center + Vector3.UP * 3.05, Vector3(4.4, 0.16, 3.9), "orange", false)
 	_box(center + Vector3(0.0, 2.84, 1.95), Vector3(4.4, 0.45, 0.12), "trim", false)
+
+	# MARKET_DISPLAY_DETAILS_V1
+	# Decorative counter edging and stall fascia; no new collisions.
+	_box(center + Vector3(0.0, 2.72, -1.99),
+		Vector3(3.9, 0.18, 0.10), "plaster_dark", false)
+	_box(center + Vector3(0.0, 0.18, -1.06),
+		Vector3(3.65, 0.12, 0.10), "trim", false)
+	for display_side in [-1.0, 1.0]:
+		_box(center + Vector3(display_side * 1.72, 2.1, -0.92),
+			Vector3(0.10, 1.7, 0.10), "trim", false)
 
 
 func _add_water_tank(center: Vector3) -> void:
@@ -503,6 +525,57 @@ func _build_almarakah() -> void:
 					Vector3(3.0, tower_height, 3.0), "landmark")
 			_box(tower_pos + Vector3.UP * (tower_height + 0.18),
 					Vector3(3.5, 0.35, 3.5), "trim", false)
+
+	# CAPITAL_BATTLEMENT_DETAILS_V1
+	# Decorative coping follows existing wall segments; gate openings stay clear.
+	for side in [-1.0, 1.0]:
+		_box(capital + Vector3(side * half_size * 0.62,
+				wall_height + 0.08, -half_size),
+				Vector3(half_size * 0.76, 0.16,
+					wall_thickness + 0.24), "trim", false)
+		_box(capital + Vector3(side * half_size * 0.64,
+				wall_height + 0.08, half_size),
+				Vector3(half_size * 0.72, 0.16,
+					wall_thickness + 0.24), "trim", false)
+
+	# Raised battlements along northern and southern wall sections.
+	var crenel_count: int = 3 if _compact else 7
+	for side in [-1.0, 1.0]:
+		for index in range(crenel_count):
+			var fraction: float = float(index) / float(maxi(1, crenel_count - 1))
+			var x_offset: float = lerpf(
+					-half_size * 0.29, half_size * 0.29, fraction)
+			var north_x: float = capital.x + side * half_size * 0.62 + x_offset
+			var south_x: float = capital.x + side * half_size * 0.64 + x_offset
+			var crenel_width: float = 0.72 if _compact else 1.05
+			var crenel_height: float = 0.48 if _compact else 0.68
+
+			_box(Vector3(north_x, wall_height + 0.43, capital.z - half_size),
+					Vector3(crenel_width, crenel_height,
+						wall_thickness + 0.12), "landmark", false)
+			_box(Vector3(south_x, wall_height + 0.43, capital.z + half_size),
+					Vector3(crenel_width, crenel_height,
+						wall_thickness + 0.12), "landmark", false)
+
+	# Decorative coping and battlements along both side walls.
+	for side in [-1.0, 1.0]:
+		_box(capital + Vector3(side * half_size,
+				wall_height + 0.08, 0.0),
+				Vector3(wall_thickness + 0.24, 0.16,
+					half_size * 2.0), "trim", false)
+
+		var side_crenel_count: int = 3 if _compact else 9
+		for side_index in range(side_crenel_count):
+			var side_fraction: float = float(side_index) / float(
+					maxi(1, side_crenel_count - 1))
+			var z_offset: float = lerpf(
+					-half_size + 3.0, half_size - 3.0, side_fraction)
+			_box(capital + Vector3(side * half_size,
+					wall_height + 0.43, z_offset),
+					Vector3(wall_thickness + 0.12,
+						0.48 if _compact else 0.68,
+						0.72 if _compact else 1.05),
+					"landmark", false)
 
 	# Central keep and residential buildings.
 	var house_scale: float = 0.62 if _compact else 1.0
