@@ -515,6 +515,56 @@ func _build_almarakah() -> void:
 				wall_height * 0.5, half_size),
 				Vector3(half_size * 0.72, wall_height, wall_thickness), "wall")
 
+	# CAPITAL_STONE_BLOCK_DETAILS_V1
+	# Decorative sandstone blocks on outer faces; no collision shapes.
+	var wall_stone_rows: int = 5 if _compact else 7
+	var wall_stone_row_step: float = wall_height / float(wall_stone_rows)
+	var wall_stone_height: float = wall_stone_row_step * 0.68
+	var wall_stone_width: float = 1.15 if _compact else 1.35
+	var wall_stone_face_offset: float = wall_thickness * 0.5 + 0.02
+	var wall_stone_north_face_z: float = capital.z - half_size - wall_stone_face_offset
+	var wall_stone_south_face_z: float = capital.z + half_size + wall_stone_face_offset
+
+	for wall_stone_row in range(wall_stone_rows):
+		var wall_stone_y: float = (float(wall_stone_row) + 0.5) * wall_stone_row_step
+		for wall_stone_segment_index in range(2):
+			var wall_stone_segment_side: float = -1.0 if wall_stone_segment_index == 0 else 1.0
+			var wall_stone_horizontal_count: int = 5 if _compact else 12
+			for wall_stone_index in range(wall_stone_horizontal_count):
+				var wall_stone_fraction: float = float(wall_stone_index) / float(maxi(1, wall_stone_horizontal_count - 1))
+				var wall_stone_material: String = "rock"
+				var wall_stone_shade: int = (wall_stone_row + wall_stone_index + wall_stone_segment_index) % 4
+				if wall_stone_shade == 1:
+					wall_stone_material = "rock_light"
+				elif wall_stone_shade == 2:
+					wall_stone_material = "landmark"
+				elif wall_stone_shade == 3:
+					wall_stone_material = "plaster_dark"
+				var wall_stone_north_x: float = capital.x + wall_stone_segment_side * half_size * 0.62 + lerpf(-half_size * 0.31, half_size * 0.31, wall_stone_fraction)
+				var wall_stone_south_x: float = capital.x + wall_stone_segment_side * half_size * 0.64 + lerpf(-half_size * 0.31, half_size * 0.31, wall_stone_fraction)
+				_box(Vector3(wall_stone_north_x, wall_stone_y, wall_stone_north_face_z), Vector3(wall_stone_width, wall_stone_height, 0.08), wall_stone_material, false)
+				_box(Vector3(wall_stone_south_x, wall_stone_y, wall_stone_south_face_z), Vector3(wall_stone_width, wall_stone_height, 0.08), wall_stone_material, false)
+
+	# Outer faces of the two long side walls.
+	var wall_side_stone_count: int = 12 if _compact else 34
+	for wall_side_stone_index in range(2):
+		var wall_side_stone_sign: float = -1.0 if wall_side_stone_index == 0 else 1.0
+		var wall_side_stone_face_x: float = capital.x + wall_side_stone_sign * (half_size + wall_stone_face_offset)
+		for wall_side_stone_block_index in range(wall_side_stone_count):
+			var wall_side_stone_fraction: float = float(wall_side_stone_block_index) / float(maxi(1, wall_side_stone_count - 1))
+			var wall_side_stone_z: float = capital.z + lerpf(-half_size + 3.0, half_size - 3.0, wall_side_stone_fraction)
+			for wall_side_stone_row in range(wall_stone_rows):
+				var wall_side_stone_y: float = (float(wall_side_stone_row) + 0.5) * wall_stone_row_step
+				var wall_side_stone_shade: int = (wall_side_stone_row + wall_side_stone_block_index + wall_side_stone_index + 1) % 4
+				var wall_side_stone_material: String = "rock"
+				if wall_side_stone_shade == 1:
+					wall_side_stone_material = "rock_light"
+				elif wall_side_stone_shade == 2:
+					wall_side_stone_material = "landmark"
+				elif wall_side_stone_shade == 3:
+					wall_side_stone_material = "plaster_dark"
+				_box(Vector3(wall_side_stone_face_x, wall_side_stone_y, wall_side_stone_z), Vector3(0.08, wall_stone_height, wall_stone_width), wall_side_stone_material, false)
+
 	# Reinforced corner towers.
 	var tower_height: float = wall_height + 1.8
 	for x_side in [-1.0, 1.0]:
