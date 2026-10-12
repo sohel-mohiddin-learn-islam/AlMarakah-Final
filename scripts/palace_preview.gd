@@ -201,7 +201,7 @@ func _input(event: InputEvent) -> void:
     if event is InputEventScreenDrag:
         if explore_mode:
             if event.index == look_touch:
-                var delta := event.position - previous_look_position
+                var delta: Vector2 = event.position - previous_look_position
                 previous_look_position = event.position
                 yaw -= delta.x * LOOK_SENSITIVITY
                 pitch = clampf(
