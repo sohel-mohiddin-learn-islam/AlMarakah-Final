@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
+[ext_resource type="Script" path="res://scripts/palace_preview.gd" id="2_controller"]
 
 [ext_resource type="PackedScene" path="res://assets/arabian_palace.glb" id="1_palace"]
 
 [node name="PalacePreview" type="Node3D"]
+script = ExtResource("2_controller")
 
 [node name="ArabianPalace" parent="." instance=ExtResource("1_palace")]
 position = Vector3(-1.5383, 0.3, 5.0632)

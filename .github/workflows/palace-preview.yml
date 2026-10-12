@@ -8,6 +8,7 @@ on:
     paths:
       - '.github/workflows/palace-preview.yml'
       - 'scenes/palace_preview.tscn'
+      - 'scripts/palace_preview.gd'
       - 'assets/arabian_palace.glb'
       - 'tools/install-godot.sh'
 
