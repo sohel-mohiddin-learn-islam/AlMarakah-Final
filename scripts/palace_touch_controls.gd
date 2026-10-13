@@ -62,7 +62,7 @@ func _update_joystick(position: Vector2) -> void:
         offset = offset.normalized() * joystick_radius
 
     joystick_knob = center + offset
-    movement = Vector2(offset.x / joystick_radius, -offset.y / joystick_radius)
+    movement = Vector2(offset.x / joystick_radius, offset.y / joystick_radius)
 
     if movement.length() < 0.12:
         movement = Vector2.ZERO
