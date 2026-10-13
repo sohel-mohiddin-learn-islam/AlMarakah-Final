@@ -238,6 +238,19 @@ func _physics_process(delta: float) -> void:
     player.velocity.x = direction.x * WALK_SPEED
     player.velocity.z = direction.z * WALK_SPEED
     player.move_and_slide()
+
+    if character_animator != null and character_animator.initialized:
+        var movement_amount: float = 0.25 if input.length_squared() > 0.01 else 0.0
+        character_animator.update_state(
+            movement_amount,
+            player.is_on_floor(),
+            false,
+            false,
+            delta,
+            0.0,
+            input
+        )
+
     if direction.length_squared() > 0.01:
         for i in range(player.get_slide_collision_count()):
             var hit = player.get_slide_collision(i)

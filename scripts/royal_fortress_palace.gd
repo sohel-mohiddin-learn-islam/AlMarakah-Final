@@ -79,9 +79,9 @@ func _build_palace() -> void:
     # Recessed-looking decorative panels on the outer walls.
     for side in [-1.0, 1.0]:
         for z in [-7.0, -3.5, 0.0, 3.5, 7.0]:
-            _box("WallPanel", Vector3(side * 12.77, 2.4, z),
+            _box("WallPanel", Vector3(side * 13.84, 2.4, z),
                 Vector3(0.07, 1.8, 1.35), dark_stone, false)
-            _box("WallPanelInset", Vector3(side * 12.72, 2.4, z),
+            _box("WallPanelInset", Vector3(side * 13.91, 2.4, z),
                 Vector3(0.06, 1.45, 0.95), light_stone, false)
 
     # Royal throne hall at the northern end of the courtyard.
@@ -146,13 +146,26 @@ func _build_palace() -> void:
         _box("ChamberRoofTrim", Vector3(room_x, 3.7, -5.2),
             Vector3(5.4, 0.25, 7.0), gold, false)
 
-    # Raised side gallery and a walkable staircase.
-    # Each stair is a solid step; the highest step meets the landing.
+    # Gallery steps remain visible; a continuous ramp provides walkable collision.
     for i in range(10):
         var height: float = float(i + 1) * 0.32
         var z: float = 5.4 - float(i) * 0.8
         _box("GalleryStair", Vector3(-9.0, height * 0.5, z),
-            Vector3(3.0, height, 0.95), light_stone)
+            Vector3(3.0, height, 0.95), light_stone, false)
+
+    var ramp_body := StaticBody3D.new()
+    ramp_body.name = "GalleryStairRampCollision"
+    ramp_body.position = Vector3(-9.0, 1.60, 2.0)
+    ramp_body.rotation.x = atan(3.2 / 8.6)
+
+    var ramp_shape := BoxShape3D.new()
+    ramp_shape.size = Vector3(1.8, 0.22, 8.75)
+
+    var ramp_collider := CollisionShape3D.new()
+    ramp_collider.name = "GalleryStairRampShape"
+    ramp_collider.shape = ramp_shape
+    ramp_body.add_child(ramp_collider)
+    add_child(ramp_body)
 
     _box("GalleryLanding", Vector3(-9.0, 3.18, -3.0),
         Vector3(4.0, 0.3, 3.5), light_stone)
