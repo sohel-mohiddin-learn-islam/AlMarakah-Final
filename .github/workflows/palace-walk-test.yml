@@ -9,6 +9,7 @@ on:
       - '.github/workflows/palace-walk-test.yml'
       - 'scenes/palace_walk_test.tscn'
       - 'scripts/palace_walk_test.gd'
+      - 'scripts/character_animator.gd'
       - 'scripts/palace_touch_controls.gd'
       - 'assets/arabian_palace.glb'
       - 'tools/install-godot.sh'
