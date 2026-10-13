@@ -73,14 +73,14 @@ func setup(character_root: Node) -> void:
 	]
 
 	var source_names = {
-		"Idle": "Idle_Loop",
-		"Walk": "Walk_Loop",
-		"Jog_Fwd": "Jog_Fwd_Loop",
-		"Sprint": "Sprint_Loop",
+		"Idle": "Idle",
+		"Walk": "Walk",
+		"Jog_Fwd": "Jog_Fwd",
+		"Sprint": "Sprint",
 		"Jump_Start": "Jump_Start",
-		"Jump": "Jump_Loop",
+		"Jump": "Jump",
 		"Jump_Land": "Jump_Land",
-		"Pistol_Idle": "Pistol_Idle_Loop",
+		"Pistol_Idle": "Pistol_Idle",
 		"Pistol_Aim_Neutral": "Pistol_Aim_Neutral",
 		"Pistol_Aim_Up": "Pistol_Aim_Up",
 		"Pistol_Aim_Down": "Pistol_Aim_Down",
