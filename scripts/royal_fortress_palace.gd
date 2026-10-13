@@ -155,7 +155,7 @@ func _build_palace() -> void:
 
     var ramp_body := StaticBody3D.new()
     ramp_body.name = "GalleryStairRampCollision"
-    ramp_body.position = Vector3(-9.0, 1.60, 2.0)
+    ramp_body.position = Vector3(-10.0, 1.60, 2.0)
     ramp_body.rotation.x = atan(3.2 / 8.6)
 
     var ramp_shape := BoxShape3D.new()
