@@ -15,182 +15,182 @@ var _meshes: Dictionary = {}
 
 
 func build(map_id: int, compact: bool = false) -> void:
-    # Call only after add_child(). A second build replaces this arena's children.
-    for child in get_children():
-        remove_child(child)
-        child.queue_free()
+	# Call only after add_child(). A second build replaces this arena's children.
+	for child in get_children():
+		remove_child(child)
+		child.queue_free()
 
-    _map_id = posmod(map_id, 2)
-    _compact = compact
-    extent = 42.0 if compact else 125.0
-    _rng.seed = 4417 + _map_id * 971 + int(compact) * 37
-    _obstacles.clear()
-    _reserved.clear()
-    _materials.clear()
-    _batches.clear()
-    _meshes.clear()
+	_map_id = posmod(map_id, 2)
+	_compact = compact
+	extent = 42.0 if compact else 125.0
+	_rng.seed = 4417 + _map_id * 971 + int(compact) * 37
+	_obstacles.clear()
+	_reserved.clear()
+	_materials.clear()
+	_batches.clear()
+	_meshes.clear()
 
-    _make_palette()
-    _make_meshes()
+	_make_palette()
+	_make_meshes()
 
-    # Keep the existing team staging reservations for both maps.
-    var base_z: float = extent - 10.0
-    _reserved.append(Rect2(Vector2(-14.0, base_z - 13.0), Vector2(28.0, 21.0)))
-    _reserved.append(Rect2(Vector2(-14.0, -base_z - 8.0), Vector2(28.0, 21.0)))
-    _reserved.append(Rect2(Vector2(-5.0, -5.0), Vector2(10.0, 10.0)))
+	# Keep the existing team staging reservations for both maps.
+	var base_z: float = extent - 10.0
+	_reserved.append(Rect2(Vector2(-14.0, base_z - 13.0), Vector2(28.0, 21.0)))
+	_reserved.append(Rect2(Vector2(-14.0, -base_z - 8.0), Vector2(28.0, 21.0)))
+	_reserved.append(Rect2(Vector2(-5.0, -5.0), Vector2(10.0, 10.0)))
 
-    _make_environment()
+	_make_environment()
 
-    # Map 1 uses the real TerraForge world. Map 0 remains Qamar Dunes.
-    if _map_id == 1 and _build_terraforge_world():
-        return
+	# Map 1 uses the real TerraForge world. Map 0 remains Qamar Dunes.
+	if _map_id == 1 and _build_terraforge_world():
+		return
 
-    # Existing procedural terrain remains the fallback if the GLB cannot load.
-    _make_terrain()
+	# Existing procedural terrain remains the fallback if the GLB cannot load.
+	_make_terrain()
 
-    var fallback_shape := BoxShape3D.new()
-    fallback_shape.size = Vector3(extent * 2.0 + 12.0, 1.2, extent * 2.0 + 12.0)
-    var fallback_body := StaticBody3D.new()
-    fallback_body.name = "FallbackGroundCollision"
-    fallback_body.position = Vector3(0.0, -8.0, 0.0)
-    fallback_body.collision_layer = 1
-    fallback_body.collision_mask = 0
+	var fallback_shape := BoxShape3D.new()
+	fallback_shape.size = Vector3(extent * 2.0 + 12.0, 1.2, extent * 2.0 + 12.0)
+	var fallback_body := StaticBody3D.new()
+	fallback_body.name = "FallbackGroundCollision"
+	fallback_body.position = Vector3(0.0, -8.0, 0.0)
+	fallback_body.collision_layer = 1
+	fallback_body.collision_mask = 0
 
-    var fallback_collider := CollisionShape3D.new()
-    fallback_collider.shape = fallback_shape
-    fallback_body.add_child(fallback_collider)
-    add_child(fallback_body)
+	var fallback_collider := CollisionShape3D.new()
+	fallback_collider.shape = fallback_shape
+	fallback_body.add_child(fallback_collider)
+	add_child(fallback_body)
 
-    _make_boundaries()
+	_make_boundaries()
 
-    if _map_id == 0:
-        _build_dunes()
-    else:
-        _build_almarakah()
+	if _map_id == 0:
+		_build_dunes()
+	else:
+		_build_almarakah()
 
-    _flush_batches()
+	_flush_batches()
 
 
 func _build_terraforge_world() -> bool:
-    var packed_world := load("res://assets/terraforge_world.glb") as PackedScene
-    if packed_world == null:
-        push_error("TerraForge world failed to load as a PackedScene.")
-        return false
+	var packed_world := load("res://assets/terraforge_world.glb") as PackedScene
+	if packed_world == null:
+		push_error("TerraForge world failed to load as a PackedScene.")
+		return false
 
-    var terraforge := packed_world.instantiate() as Node3D
-    if terraforge == null:
-        push_error("TerraForge scene root is not Node3D.")
-        return false
+	var terraforge := packed_world.instantiate() as Node3D
+	if terraforge == null:
+		push_error("TerraForge scene root is not Node3D.")
+		return false
 
-    terraforge.name = "TerraForgeWorld"
+	terraforge.name = "TerraForgeWorld"
 
-    # GLB horizontal bounds are approximately 100 x 100 units.
-    # Preserve terrain height while fitting the selected arena dimensions.
-    var horizontal_scale: float = 0.84 if _compact else 2.5
-    terraforge.scale = Vector3(horizontal_scale, 1.0, horizontal_scale)
-    add_child(terraforge)
+	# GLB horizontal bounds are approximately 100 x 100 units.
+	# Preserve terrain height while fitting the selected arena dimensions.
+	var horizontal_scale: float = 0.84 if _compact else 2.5
+	terraforge.scale = Vector3(horizontal_scale, 1.0, horizontal_scale)
+	add_child(terraforge)
 
-    _add_terraforge_collisions(terraforge)
-    _add_terraforge_boundaries()
+	_add_terraforge_collisions(terraforge)
+	_add_terraforge_boundaries()
 
-    print("TERRAFORGE MAP: loaded; compact=", _compact,
-        " horizontal_scale=", horizontal_scale)
-    return true
+	print("TERRAFORGE MAP: loaded; compact=", _compact,
+		" horizontal_scale=", horizontal_scale)
+	return true
 
 
 func _add_terraforge_collisions(world_root: Node) -> void:
-    # Only give substantial X/Z meshes collision. This deliberately skips
-    # the zero-depth mesh in the GLB, which is not a ground surface.
-    var pending: Array[Node] = [world_root]
-    var collision_meshes: int = 0
+	# Only give substantial X/Z meshes collision. This deliberately skips
+	# the zero-depth mesh in the GLB, which is not a ground surface.
+	var pending: Array[Node] = [world_root]
+	var collision_meshes: int = 0
 
-    while not pending.is_empty():
-        var current: Node = pending.pop_back()
+	while not pending.is_empty():
+		var current: Node = pending.pop_back()
 
-        for child in current.get_children():
-            pending.append(child)
+		for child in current.get_children():
+			pending.append(child)
 
-        if not (current is MeshInstance3D):
-            continue
+		if not (current is MeshInstance3D):
+			continue
 
-        var mesh_instance := current as MeshInstance3D
-        if mesh_instance.mesh == null:
-            continue
+		var mesh_instance := current as MeshInstance3D
+		if mesh_instance.mesh == null:
+			continue
 
-        var bounds: AABB = mesh_instance.mesh.get_aabb()
-        if bounds.size.x < 10.0 or bounds.size.z < 10.0:
-            continue
-        if mesh_instance.mesh.get_surface_count() == 0:
-            continue
+		var bounds: AABB = mesh_instance.mesh.get_aabb()
+		if bounds.size.x < 10.0 or bounds.size.z < 10.0:
+			continue
+		if mesh_instance.mesh.get_surface_count() == 0:
+			continue
 
-        mesh_instance.create_trimesh_collision()
-        collision_meshes += 1
+		mesh_instance.create_trimesh_collision()
+		collision_meshes += 1
 
-        for collision_child in mesh_instance.get_children():
-            if collision_child is StaticBody3D:
-                collision_child.collision_layer = 1
-                collision_child.collision_mask = 0
+		for collision_child in mesh_instance.get_children():
+			if collision_child is StaticBody3D:
+				collision_child.collision_layer = 1
+				collision_child.collision_mask = 0
 
-    if collision_meshes == 0:
-        push_error("TerraForge imported, but no solid terrain meshes qualified for collision.")
-    else:
-        print("TERRAFORGE COLLISION: solid mesh count=", collision_meshes)
+	if collision_meshes == 0:
+		push_error("TerraForge imported, but no solid terrain meshes qualified for collision.")
+	else:
+		print("TERRAFORGE COLLISION: solid mesh count=", collision_meshes)
 
 
 func _add_terraforge_boundaries() -> void:
-    # Invisible safety boundaries keep players inside the playable world.
-    var span: float = extent * 2.0 + 3.2
-    for side in [-1.0, 1.0]:
-        _add_terraforge_boundary_box(
-            Vector3(side * (extent + 0.8), 4.0, 0.0),
-            Vector3(1.6, 8.0, span)
-        )
-        _add_terraforge_boundary_box(
-            Vector3(0.0, 4.0, side * (extent + 0.8)),
-            Vector3(span, 8.0, 1.6)
-        )
+	# Invisible safety boundaries keep players inside the playable world.
+	var span: float = extent * 2.0 + 3.2
+	for side in [-1.0, 1.0]:
+		_add_terraforge_boundary_box(
+			Vector3(side * (extent + 0.8), 4.0, 0.0),
+			Vector3(1.6, 8.0, span)
+		)
+		_add_terraforge_boundary_box(
+			Vector3(0.0, 4.0, side * (extent + 0.8)),
+			Vector3(span, 8.0, 1.6)
+		)
 
 
 func _add_terraforge_boundary_box(at: Vector3, dimensions: Vector3) -> void:
-    var body := StaticBody3D.new()
-    body.name = "TerraForgeBoundary"
-    body.position = at
-    body.collision_layer = 1
-    body.collision_mask = 0
+	var body := StaticBody3D.new()
+	body.name = "TerraForgeBoundary"
+	body.position = at
+	body.collision_layer = 1
+	body.collision_mask = 0
 
-    var collider := CollisionShape3D.new()
-    var shape := BoxShape3D.new()
-    shape.size = dimensions
-    collider.shape = shape
-    body.add_child(collider)
-    add_child(body)
+	var collider := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = dimensions
+	collider.shape = shape
+	body.add_child(collider)
+	add_child(body)
 
 
 func _spawn_ground_y(px: float, pz: float) -> float:
-    if _map_id == 1:
-        # TerraForge's highest terrain vertices are approximately Y=14.
-        # Start above them so physics can settle characters onto the mesh.
-        return 17.0
+	if _map_id == 1:
+		# TerraForge's highest terrain vertices are approximately Y=14.
+		# Start above them so physics can settle characters onto the mesh.
+		return 17.0
 
-    var height: float
-    height = (sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4 + sin((px + pz) * 0.025) * 1.1) * 0.45
-    var offset: float = 24.0 if _compact else 42.0
-    var path_length: float = (42.0 if _compact else 84.0) + offset
-    var path_width: float = (3.2 if _compact else 5.5) + 1.2
-    var flat: bool = minf(absf(px), absf(pz)) < 4.8
-    if absf(absf(pz) - offset) < path_width and absf(px) < path_length * 0.5 + path_width:
-        flat = true
-    if absf(absf(px) - offset) < path_width and absf(pz) < path_length * 0.5 + path_width:
-        flat = true
-    for area in _reserved:
-        if area.has_point(Vector2(px, pz)):
-            flat = true
-            break
-    if absf(px) < 19.0 and absf(pz) < 19.0:
-        flat = true
-    if flat:
-        height = 0.0
-    return height + 0.35
+	var height: float
+	height = (sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4 + sin((px + pz) * 0.025) * 1.1) * 0.45
+	var offset: float = 24.0 if _compact else 42.0
+	var path_length: float = (42.0 if _compact else 84.0) + offset
+	var path_width: float = (3.2 if _compact else 5.5) + 1.2
+	var flat: bool = minf(absf(px), absf(pz)) < 4.8
+	if absf(absf(pz) - offset) < path_width and absf(px) < path_length * 0.5 + path_width:
+		flat = true
+	if absf(absf(px) - offset) < path_width and absf(pz) < path_length * 0.5 + path_width:
+		flat = true
+	for area in _reserved:
+		if area.has_point(Vector2(px, pz)):
+			flat = true
+			break
+	if absf(px) < 19.0 and absf(pz) < 19.0:
+		flat = true
+	if flat:
+		height = 0.0
+	return height + 0.35
 
 
 func spawn_points(count: int, teams: bool = false) -> Array[Vector3]:
@@ -268,8 +268,8 @@ func _spawn_clear(point: Vector3, others: Array[Vector3], spacing: float) -> boo
 func _make_palette() -> void:
 	var colors: Dictionary = {
 		"ground": Color("d8b47a") if _map_id == 0 else Color("68855c"),
-                "ground_alt": Color("c9a66d") if _map_id == 0 else Color("5f7d54"),
-                "ground_light": Color("e2c18a") if _map_id == 0 else Color("789568"),
+				"ground_alt": Color("c9a66d") if _map_id == 0 else Color("5f7d54"),
+				"ground_light": Color("e2c18a") if _map_id == 0 else Color("789568"),
 		"road": Color("e8ca91") if _map_id == 0 else Color("9c9a7b"),
 		"wall": Color("c99760") if _map_id == 0 else Color("697b78"),
 		"plaster": Color("f0d7ab"), "plaster_dark": Color("c48055"),
@@ -278,7 +278,7 @@ func _make_palette() -> void:
 		"blue": Color("348f9b"), "orange": Color("df8c46"),
 		"rock": Color("b18c68") if _map_id == 0 else Color("7d8986"),
 		"rock_light": Color("d0ad7e") if _map_id == 0 else Color("a1aaa0"),
-                "landmark": Color("8f6f55") if _map_id == 0 else Color("5b6968"),
+				"landmark": Color("8f6f55") if _map_id == 0 else Color("5b6968"),
 		"leaf": Color("3b7059"), "leaf_light": Color("639466"),
 		"water": Color("488f9a"), "sandbag": Color("b4ad83"),
 	}
