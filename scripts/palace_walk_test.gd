@@ -2,7 +2,9 @@ extends Node3D
 
 const CONTROLS_SCRIPT = preload("res://scripts/palace_touch_controls.gd")
 const PALACE_SCENE = preload("res://assets/arabian_palace.glb")
+const PALACE_MATERIAL_SCRIPT = preload("res://scripts/palace_preview.gd")
 const CHARACTER_SCENE = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
+const ANIMATOR_SCRIPT = preload("res://scripts/character_animator.gd")
 
 const WALK_SPEED := 4.0
 const JUMP_VELOCITY := 4.5
@@ -11,6 +13,7 @@ const PLAYER_LAYER := 2
 const WORLD_LAYER := 1
 
 var player: CharacterBody3D
+var character_animator: Node
 var camera_pivot: Node3D
 var camera: Camera3D
 var movement_input := Vector2.ZERO
@@ -24,6 +27,7 @@ var status_label: Label
 var look_finger := -1
 var last_look_position := Vector2.ZERO
 var generated_collision_count := 0
+var last_reported_blocker := ""
 
 
 func _ready() -> void:
@@ -53,6 +57,11 @@ func _create_world() -> void:
     palace.position = Vector3(-1.5383, 0.3, 5.0632)
     palace.scale = Vector3(0.1, 0.1, 0.1)
     add_child(palace)
+
+    # Reuse the established palace material correction in this test too.
+    var material_helper = PALACE_MATERIAL_SCRIPT.new()
+    material_helper._apply_materials(palace)
+    material_helper.free()
 
     # Generate static collision for palace meshes, keeping the original GLB.
     _add_mesh_collisions(palace)
@@ -119,6 +128,14 @@ func _create_player() -> void:
     character.name = "ExistingMaleCharacter"
     character.scale = Vector3.ONE
     body.add_child(character)
+
+    character_animator = ANIMATOR_SCRIPT.new()
+    character_animator.name = "PalaceTestCharacterAnimator"
+    body.add_child(character_animator)
+    character_animator.setup(character)
+
+    if not character_animator.initialized:
+        push_warning("Palace Walk Test: animator failed to initialize; check animation and bone names.")
 
     camera_pivot = Node3D.new()
     camera_pivot.name = "CameraPivot"
@@ -231,3 +248,13 @@ func _physics_process(delta: float) -> void:
     player.velocity.x = direction.x * WALK_SPEED
     player.velocity.z = direction.z * WALK_SPEED
     player.move_and_slide()
+    if direction.length_squared() > 0.01:
+        for i in range(player.get_slide_collision_count()):
+            var hit = player.get_slide_collision(i)
+            if hit.get_normal().y < 0.5:
+                var collider = hit.get_collider()
+                if collider is Node:
+                    var blocker_path := str(collider.get_path())
+                    if blocker_path != last_reported_blocker:
+                        last_reported_blocker = blocker_path
+                        print("Palace Walk Test: horizontal blocker: ", blocker_path)

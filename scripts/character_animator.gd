@@ -51,6 +51,7 @@ func setup(character_root: Node) -> void:
 	animation_player = AnimationPlayer.new()
 	animation_player.name = "CharacterAnimationPlayer"
 	character.add_child(animation_player)
+	animation_player.root_node = animation_player.get_path_to(character_root)
 
 	var library = AnimationLibrary.new()
 	animation_player.add_animation_library("", library)
@@ -71,31 +72,51 @@ func setup(character_root: Node) -> void:
 		"Pistol_Reload"
 	]
 
-	for animation_name in animation_names:
-		var source_name = animation_name
+	var source_names = {
+		"Idle": "Idle_Loop",
+		"Walk": "Walk_Loop",
+		"Jog_Fwd": "Jog_Fwd_Loop",
+		"Sprint": "Sprint_Loop",
+		"Jump_Start": "Jump_Start",
+		"Jump": "Jump_Loop",
+		"Jump_Land": "Jump_Land",
+		"Pistol_Idle": "Pistol_Idle_Loop",
+		"Pistol_Aim_Neutral": "Pistol_Aim_Neutral",
+		"Pistol_Aim_Up": "Pistol_Aim_Up",
+		"Pistol_Aim_Down": "Pistol_Aim_Down",
+		"Pistol_Shoot": "Pistol_Shoot",
+		"Pistol_Reload": "Pistol_Reload"
+	}
 
-		var source_animation = null
+	var created_count = 0
+
+	for animation_name in animation_names:
+		var source_name = source_names.get(animation_name, animation_name)
+		var source_animation: Animation = null
+
 		if source_player.has_animation(source_name):
 			source_animation = source_player.get_animation(source_name)
-		elif source_player.has_animation(animation_name):
-			source_animation = source_player.get_animation(animation_name)
 		else:
-			print("CharacterAnimator: no matching source clip for ", animation_name)
-
-		if source_animation == null:
-			print("CharacterAnimator: missing ", animation_name)
+			print("CharacterAnimator: missing source clip ", source_name, " for ", animation_name)
 			continue
 
 		var retargeted = _retarget_animation(source_animation)
-
-		if retargeted != null:
-			library.add_animation(animation_name, retargeted)
-			print("CharacterAnimator: created ", animation_name)
+		if retargeted != null and retargeted.get_track_count() > 0:
+			var error = library.add_animation(animation_name, retargeted)
+			if error == OK:
+				created_count += 1
+				print("CharacterAnimator: created ", animation_name, " with ", retargeted.get_track_count(), " tracks")
+			else:
+				push_warning("CharacterAnimator: could not add " + animation_name)
 
 	if source_scene != null:
 		source_scene.free()
 
 	source_player = null
+	if created_count == 0 or not library.has_animation("Idle"):
+		push_error("CharacterAnimator: no usable animations were loaded")
+		return
+
 	initialized = true
 	play("Idle", 0.28)
 
