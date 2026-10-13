@@ -88,8 +88,8 @@ func setup(character_root: Node) -> void:
 		"Pistol_Reload": "Pistol_Reload"
 	}
 
-        print("ANIMATION_DIAGNOSTIC: libraries=", source_player.get_animation_library_list())
-        print("ANIMATION_DIAGNOSTIC: animations=", source_player.get_animation_list())
+	print("ANIMATION_DIAGNOSTIC: libraries=", source_player.get_animation_library_list())
+	print("ANIMATION_DIAGNOSTIC: animations=", source_player.get_animation_list())
 
 	var created_count = 0
 
