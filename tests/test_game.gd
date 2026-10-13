@@ -164,8 +164,19 @@ func _run() -> void:
 				query.shape = shape
 				query.transform.origin = actor.global_position + Vector3(0, 0.95, 0)
 				query.collision_mask = 1
-				var terrain_body: StaticBody3D = game.arena.get_node("TerrainCollision")
-				query.exclude = [terrain_body.get_rid()]
+				var excluded_bodies: Array[RID] = []
+				if map_index == 0:
+					var terrain_body: StaticBody3D = game.arena.get_node("TerrainCollision")
+					excluded_bodies.append(terrain_body.get_rid())
+				else:
+					var pending_collision_nodes: Array[Node] = [game.arena.get_node("TerraForgeWorld")]
+					while not pending_collision_nodes.is_empty():
+						var collision_node: Node = pending_collision_nodes.pop_back()
+						for collision_child in collision_node.get_children():
+							pending_collision_nodes.append(collision_child)
+						if collision_node is StaticBody3D:
+							excluded_bodies.append((collision_node as StaticBody3D).get_rid())
+				query.exclude = excluded_bodies
 				var overlaps: Array = game.get_world_3d().direct_space_state.intersect_shape(query)
 				if not overlaps.is_empty():
 					var collider_names: Array[String] = []

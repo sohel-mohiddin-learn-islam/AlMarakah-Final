@@ -43,6 +43,8 @@ func build(map_id: int, compact: bool = false) -> void:
 
 	# Map 1 uses the real TerraForge world. Map 0 remains Qamar Dunes.
 	if _map_id == 1 and _build_terraforge_world():
+		_build_almarakah()
+		_flush_batches()
 		return
 
 	# Existing procedural terrain remains the fallback if the GLB cannot load.
