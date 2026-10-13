@@ -55,7 +55,7 @@ func _init():
         quit()
         return
 
-    var source_animation = source_player.get_animation("Walk")
+    var source_animation = source_player.get_animation("Walk_Loop")
 
     if source_animation == null:
         push_error("Walk animation not found")
