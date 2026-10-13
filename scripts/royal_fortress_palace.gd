@@ -110,6 +110,34 @@ func _build_palace() -> void:
         Vector3(5.4, 0.45, 1.8), dark_stone)
     _box("ThroneDaisUpper", Vector3(0, 0.55, -8.6),
         Vector3(4.4, 0.2, 1.4), gold)
+    # Eight broad royal steps leading to the raised throne dais.
+    # Visual treads are paired with one continuous walkable ramp collider.
+    for i in range(8):
+        var step_top: float = float(i + 1) * 0.075
+        var step_z: float = -5.65 - float(i) * 0.28
+
+        _box("ThroneApproachStep",
+            Vector3(0.0, step_top - 0.04, step_z),
+            Vector3(3.8, 0.08, 0.36), light_stone, false)
+
+        _box("ThroneStepGoldEdge",
+            Vector3(0.0, step_top - 0.012, step_z + 0.16),
+            Vector3(3.8, 0.024, 0.035), gold, false)
+
+    var throne_ramp_body := StaticBody3D.new()
+    throne_ramp_body.name = "ThroneStairRampCollision"
+    throne_ramp_body.position = Vector3(0.0, 0.26, -6.63)
+    throne_ramp_body.rotation.x = atan(0.6 / 2.6)
+
+    var throne_ramp_shape := BoxShape3D.new()
+    throne_ramp_shape.size = Vector3(3.7, 0.18, 2.68)
+
+    var throne_ramp_collider := CollisionShape3D.new()
+    throne_ramp_collider.name = "ThroneStairRampShape"
+    throne_ramp_collider.shape = throne_ramp_shape
+    throne_ramp_body.add_child(throne_ramp_collider)
+    add_child(throne_ramp_body)
+
     _box("RoyalThroneBack", Vector3(0, 1.55, -9.1),
         Vector3(2.2, 2.0, 0.35), wood)
     _box("RoyalThroneSeat", Vector3(0, 0.95, -8.55),
@@ -212,7 +240,125 @@ func _build_palace() -> void:
         _box("HallRoofAccent", Vector3(float(x), 5.65, -10.0),
             Vector3(1.2, 0.35, 0.8), gold, false)
 
+    _build_grand_palace_details(light_stone, dark_stone, gold)
+
     print("Royal Fortress Palace: custom geometry and structural collision created.")
+
+
+func _build_grand_palace_details(
+        stone: Color, dark_stone: Color, gold: Color) -> void:
+    # Monumental front facade: decorative pieces avoid blocking the doorway.
+    for side in [-1.0, 1.0]:
+        _box("GrandFacadePillar",
+            Vector3(side * 5.65, 2.85, -2.98),
+            Vector3(0.72, 5.7, 0.72), stone)
+
+        _box("GrandFacadePillarBase",
+            Vector3(side * 5.65, 0.28, -2.98),
+            Vector3(1.05, 0.45, 1.0), gold)
+
+        _box("GrandFacadePillarCapital",
+            Vector3(side * 5.65, 5.65, -2.98),
+            Vector3(1.05, 0.38, 1.0), gold)
+
+        # Tall ornamental panels flanking the central doorway.
+        _box("GrandFacadePanel",
+            Vector3(side * 3.35, 3.1, -3.075),
+            Vector3(1.15, 3.65, 0.10), dark_stone, false)
+
+        _box("GrandFacadePanelInset",
+            Vector3(side * 3.35, 3.1, -3.14),
+            Vector3(0.78, 3.1, 0.06), stone, false)
+
+        # Stepped roof shoulders give the main hall a larger silhouette.
+        _box("GrandRoofShoulder",
+            Vector3(side * 4.7, 5.55, -7.0),
+            Vector3(4.0, 0.32, 5.8), gold, false)
+
+    # Wide layered crown above the main entrance.
+    _box("GrandFacadeCrownLower",
+        Vector3(0, 5.72, -3.0),
+        Vector3(12.4, 0.32, 0.95), dark_stone, false)
+
+    _box("GrandFacadeCrownMiddle",
+        Vector3(0, 5.98, -3.0),
+        Vector3(10.8, 0.22, 0.82), gold, false)
+
+    _box("GrandFacadeCrownUpper",
+        Vector3(0, 6.23, -3.0),
+        Vector3(8.8, 0.24, 0.72), stone, false)
+
+    # Gold architectural bands across the front of the royal hall.
+    for side in [-1.0, 1.0]:
+        _box("FacadeGoldBand",
+            Vector3(side * 4.3, 4.85, -3.055),
+            Vector3(2.5, 0.12, 0.08), gold, false)
+
+    # Three domes use lightweight meshes rather than detailed imported assets.
+    var dome_positions: Array[Vector3] = [
+        Vector3(0, 6.05, -7.0),
+        Vector3(-4.45, 5.78, -6.8),
+        Vector3(4.45, 5.78, -6.8)
+    ]
+
+    var dome_scales: Array[Vector3] = [
+        Vector3(2.05, 1.35, 1.8),
+        Vector3(1.05, 0.78, 1.0),
+        Vector3(1.05, 0.78, 1.0)
+    ]
+
+    for i in range(dome_positions.size()):
+        var dome := SphereMesh.new()
+        dome.radius = 1.0
+        dome.height = 2.0
+        dome.radial_segments = 20
+        dome.rings = 12
+
+        var dome_visual := MeshInstance3D.new()
+        dome_visual.name = "RoyalDomeVisual"
+        dome_visual.mesh = dome
+        dome_visual.position = dome_positions[i]
+        dome_visual.scale = dome_scales[i]
+
+        var dome_material := StandardMaterial3D.new()
+        dome_material.albedo_color = stone
+        dome_material.roughness = 0.9
+        dome_visual.material_override = dome_material
+        add_child(dome_visual)
+
+        # Gold finial above each dome.
+        var finial := SphereMesh.new()
+        finial.radius = 0.16 if i == 0 else 0.10
+        finial.height = finial.radius * 2.0
+        finial.radial_segments = 12
+        finial.rings = 8
+
+        var finial_visual := MeshInstance3D.new()
+        finial_visual.name = "RoyalDomeFinial"
+        finial_visual.mesh = finial
+        finial_visual.position = dome_positions[i] + Vector3(
+            0, dome_scales[i].y + 0.12, 0)
+
+        var finial_material := StandardMaterial3D.new()
+        finial_material.albedo_color = gold
+        finial_material.metallic = 0.35
+        finial_material.roughness = 0.55
+        finial_visual.material_override = finial_material
+        add_child(finial_visual)
+
+    # Additional rooftop parapets and decorative merlons.
+    for x in range(-5, 6, 2):
+        _box("RoyalRoofMerlon",
+            Vector3(float(x), 5.95, -10.15),
+            Vector3(0.8, 0.55, 0.65), stone, false)
+
+    # Repeated stone reliefs add visual rhythm to the royal facade.
+    for x in [-4.7, -2.9, 2.9, 4.7]:
+        _box("RoyalFacadeRelief",
+            Vector3(x, 1.75, -3.075),
+            Vector3(0.42, 0.72, 0.08), gold, false)
+
+    print("Grand Palace details: facade, three domes and royal roof accents created.")
 
 
 func _tower(center: Vector3, stone: Color,
