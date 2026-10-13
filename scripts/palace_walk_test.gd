@@ -15,9 +15,11 @@ var player: CharacterBody3D
 var character_animator: Node
 var camera_pivot: Node3D
 var camera: Camera3D
+var character_visual: Node3D
 var movement_input := Vector2.ZERO
 var yaw := 0.0
 var pitch := -0.12
+const CHARACTER_TURN_SPEED := 9.0
 
 var controls_layer: CanvasLayer
 var controls: Variant
@@ -110,18 +112,18 @@ func _create_player() -> void:
     collider.position.y = 0.88
     player.add_child(collider)
 
-    var body := Node3D.new()
-    body.name = "CharacterVisual"
-    player.add_child(body)
+    character_visual = Node3D.new()
+    character_visual.name = "CharacterVisual"
+    player.add_child(character_visual)
 
     var character := CHARACTER_SCENE.instantiate()
     character.name = "ExistingMaleCharacter"
     character.scale = Vector3.ONE
-    body.add_child(character)
+    character_visual.add_child(character)
 
     character_animator = ANIMATOR_SCRIPT.new()
     character_animator.name = "PalaceTestCharacterAnimator"
-    body.add_child(character_animator)
+    character_visual.add_child(character_animator)
     character_animator.setup(character)
 
     if not character_animator.initialized:
@@ -234,6 +236,16 @@ func _physics_process(delta: float) -> void:
 
     if direction.length() > 1.0:
         direction = direction.normalized()
+
+    # Rotate only the character model; keep the camera/player yaw unchanged.
+    if direction.length_squared() > 0.01 and character_visual != null:
+        var local_direction := player.global_basis.inverse() * direction
+        var target_angle := atan2(-local_direction.x, -local_direction.z)
+        character_visual.rotation.y = rotate_toward(
+            character_visual.rotation.y,
+            target_angle,
+            CHARACTER_TURN_SPEED * delta
+        )
 
     player.velocity.x = direction.x * WALK_SPEED
     player.velocity.z = direction.z * WALK_SPEED
