@@ -190,6 +190,12 @@ func _run() -> void:
 			for frame in 45:
 				await physics_frame
 			check(game.player.position.y > -1.0, "player stays on ground")
+			if map_index == 1:
+				for settle_frame in 120:
+					if game.player.is_on_floor():
+						break
+					await physics_frame
+				check(game.player.is_on_floor(), "player lands on TerraForge terrain")
 			for actor in game.actors:
 				actor.set_physics_process(false)
 			if not game.is_cs:
