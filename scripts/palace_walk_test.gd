@@ -237,7 +237,7 @@ func _physics_process(delta: float) -> void:
     if direction.length() > 1.0:
         direction = direction.normalized()
 
-    # Rotate only the character model; keep the camera/player yaw unchanged.
+    # Diagnostic: compare movement direction with the character's facing.
     if direction.length_squared() > 0.01 and character_visual != null:
         var local_direction := player.global_basis.inverse() * direction
         var target_angle := atan2(-local_direction.x, -local_direction.z)
@@ -246,6 +246,17 @@ func _physics_process(delta: float) -> void:
             target_angle,
             CHARACTER_TURN_SPEED * delta
         )
+
+        if Engine.get_physics_frames() % 30 == 0:
+            var facing := -character_visual.global_basis.z
+            var move_flat := Vector3(direction.x, 0.0, direction.z).normalized()
+            var facing_flat := Vector3(facing.x, 0.0, facing.z).normalized()
+            print("FACING_DIAG input=", input,
+                " move=", move_flat,
+                " facing_minus_z=", facing_flat,
+                " dot=", move_flat.dot(facing_flat),
+                " visual_yaw=", character_visual.rotation.y,
+                " target_yaw=", target_angle)
 
     player.velocity.x = direction.x * WALK_SPEED
     player.velocity.z = direction.z * WALK_SPEED
