@@ -1,8 +1,7 @@
 extends Node3D
 
 const CONTROLS_SCRIPT = preload("res://scripts/palace_touch_controls.gd")
-const PALACE_SCENE = preload("res://assets/arabian_palace.glb")
-const PALACE_MATERIAL_SCRIPT = preload("res://scripts/palace_preview.gd")
+const ROYAL_FORTRESS_SCRIPT = preload("res://scripts/royal_fortress_palace.gd")
 const CHARACTER_SCENE = preload("res://assets/characters/quaternius/male/Superhero_Male_FullBody.gltf")
 const ANIMATOR_SCRIPT = preload("res://scripts/character_animator.gd")
 
@@ -52,31 +51,22 @@ func _create_world() -> void:
     sun.shadow_enabled = false
     add_child(sun)
 
-    var palace := PALACE_SCENE.instantiate()
-    palace.name = "PalaceUnderTest"
-    palace.position = Vector3(-1.5383, 0.3, 5.0632)
-    palace.scale = Vector3(0.1, 0.1, 0.1)
+    var palace: Node3D = ROYAL_FORTRESS_SCRIPT.new()
+    palace.name = "CustomRoyalFortressPalace"
+    palace.position = Vector3.ZERO
     add_child(palace)
-
-    # Reuse the established palace material correction in this test too.
-    var material_helper = PALACE_MATERIAL_SCRIPT.new()
-    material_helper._apply_materials(palace)
-    material_helper.free()
-
-    # Generate static collision for palace meshes, keeping the original GLB.
-    _add_mesh_collisions(palace)
 
     # Temporary outdoor floor gives the player a safe starting area.
     var floor_body := StaticBody3D.new()
     floor_body.name = "WalkTestGround"
     floor_body.collision_layer = WORLD_LAYER
     floor_body.collision_mask = 0
-    floor_body.position = Vector3(0.0, -0.2, 25.0)
+    floor_body.position = Vector3(0.0, -0.2, 0.0)
     add_child(floor_body)
 
     var floor_mesh := MeshInstance3D.new()
     var floor_box := BoxMesh.new()
-    floor_box.size = Vector3(30.0, 0.4, 30.0)
+    floor_box.size = Vector3(80.0, 0.4, 80.0)
     floor_mesh.mesh = floor_box
     var floor_material := StandardMaterial3D.new()
     floor_material.albedo_color = Color("#b6a080")
