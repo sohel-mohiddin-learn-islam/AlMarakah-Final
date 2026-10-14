@@ -392,6 +392,18 @@ func _make_terrain() -> void:
 		wasteland_outpost_centers.append(Vector2(160.0, 700.0))
 		wasteland_outpost_centers.append(Vector2(-720.0, 80.0))
 		wasteland_outpost_centers.append(Vector2(720.0, -80.0))
+		wasteland_outpost_centers.append(Vector2(-340.0, -340.0))
+		wasteland_outpost_centers.append(Vector2(340.0, -340.0))
+		wasteland_outpost_centers.append(Vector2(-340.0, 340.0))
+		wasteland_outpost_centers.append(Vector2(340.0, 340.0))
+		wasteland_outpost_centers.append(Vector2(-820.0, -440.0))
+		wasteland_outpost_centers.append(Vector2(820.0, -440.0))
+		wasteland_outpost_centers.append(Vector2(-820.0, 440.0))
+		wasteland_outpost_centers.append(Vector2(820.0, 440.0))
+		wasteland_outpost_centers.append(Vector2(-420.0, -760.0))
+		wasteland_outpost_centers.append(Vector2(420.0, -760.0))
+		wasteland_outpost_centers.append(Vector2(-420.0, 760.0))
+		wasteland_outpost_centers.append(Vector2(420.0, 760.0))
 
 	# Shared grid vertices prevent gaps between terrain cells.
 	for z in range(grid_size + 1):
@@ -771,6 +783,7 @@ func _build_wasteland() -> void:
 		)
 
 	_build_wasteland_outposts()
+	_fill_wasteland_wilderness()
 	print("WASTELAND MAP: procedural industrial desert built; compact=", _compact)
 
 
@@ -780,41 +793,151 @@ func _build_wasteland_poi(poi_name: String, center: Vector3) -> void:
 	marker.position = center
 	add_child(marker)
 
-	# Distinct visual silhouettes identify each named Wasteland destination.
-	var landmark_center: Vector3 = center + Vector3(34.0, 0.0, 0.0)
+	# Give each destination a recognizable landmark silhouette.
+	var p: Vector3 = center + Vector3(34.0, 0.0, 0.0)
 	match poi_name:
 		"Peak":
-			_box(landmark_center + Vector3(0.0, 1.5, 0.0),
-				Vector3(12.0, 3.0, 9.0), "rock", false, false)
-			_box(landmark_center + Vector3(0.0, 3.8, 0.0),
-				Vector3(7.0, 2.0, 5.0), "rock_light", false, false)
+			_rock_formation(p, 2.8)
+			_rock_formation(p + Vector3(4.0, 0.0, 3.0), 1.8)
 		"ClockTower":
-			_box(landmark_center + Vector3(0.0, 5.0, 0.0),
+			_box(p + Vector3(0.0, 5.0, 0.0),
 				Vector3(4.0, 10.0, 4.0), "plaster_dark", false, false)
-			_box(landmark_center + Vector3(0.0, 10.2, 0.0),
+			_box(p + Vector3(0.0, 10.2, 0.0),
 				Vector3(6.0, 0.6, 6.0), "trim", false, false)
-			_box(landmark_center + Vector3(0.0, 8.0, -2.1),
+			_box(p + Vector3(0.0, 8.0, -2.1),
 				Vector3(1.4, 1.4, 0.12), "landmark", false, false)
 		"Factory":
 			for side in [-1.0, 1.0]:
-				_box(landmark_center + Vector3(side * 4.0, 3.5, 0.0),
+				_box(p + Vector3(side * 4.0, 3.5, 0.0),
 					Vector3(2.0, 7.0, 2.0), "dark", false, false)
-				_box(landmark_center + Vector3(side * 4.0, 7.2, 0.0),
+				_box(p + Vector3(side * 4.0, 7.2, 0.0),
 					Vector3(2.4, 0.4, 2.4), "orange", false, false)
+			_box(p + Vector3(0.0, 2.2, 4.0),
+				Vector3(12.0, 4.4, 6.0), "plaster_dark", false, false)
 		"OldTown":
 			for side in [-1.0, 1.0]:
-				_box(landmark_center + Vector3(side * 3.5, 2.5, -4.0),
+				_box(p + Vector3(side * 3.5, 2.5, -4.0),
 					Vector3(0.8, 5.0, 0.8), "plaster_dark", false, false)
-			_box(landmark_center + Vector3(0.0, 5.0, -4.0),
+			_box(p + Vector3(0.0, 5.0, -4.0),
 				Vector3(7.8, 0.8, 0.8), "trim", false, false)
+		"SandstoneCity":
+			_box(p + Vector3(0.0, 2.0, 0.0),
+				Vector3(12.0, 4.0, 10.0), "plaster", false, false)
+			_box(p + Vector3(0.0, 4.2, 0.0),
+				Vector3(13.0, 0.3, 11.0), "trim", false, false)
+			_box(p + Vector3(0.0, 1.2, -5.1),
+				Vector3(2.0, 2.4, 0.08), "blue", false, false)
+		"MarketDistrict":
+			for side in [-1.0, 1.0]:
+				_box(p + Vector3(side * 4.0, 1.6, 0.0),
+					Vector3(0.25, 3.2, 0.25), "wood", false, false)
+				_box(p + Vector3(side * 4.0, 3.3, 0.0),
+					Vector3(4.5, 0.25, 4.0), "orange", false, false)
+			_box(p + Vector3(0.0, 0.65, 0.0),
+				Vector3(10.0, 1.3, 5.0), "wood", false, false)
+		"OasisVillage":
+			_box(p + Vector3(0.0, 0.12, 0.0),
+				Vector3(12.0, 0.24, 9.0), "blue", false, false)
+			_tree(p + Vector3(-5.0, 0.0, -3.0), 6.5)
+			_tree(p + Vector3(5.0, 0.0, 3.0), 7.0)
+		"WadiSettlement":
+			for side in [-1.0, 1.0]:
+				_box(p + Vector3(side * 3.5, 1.8, 0.0),
+					Vector3(5.0, 3.6, 5.0), "plaster", false, false)
+			_box(p + Vector3(0.0, 3.8, 0.0),
+				Vector3(13.0, 0.25, 6.0), "trim", false, false)
+		"DustyCrossroads":
+			_box(p + Vector3(0.0, 0.025, 0.0),
+				Vector3(18.0, 0.05, 5.0), "road", false, false)
+			_box(p + Vector3(0.0, 0.03, 0.0),
+				Vector3(5.0, 0.06, 18.0), "road", false, false)
+			_rock_formation(p + Vector3(10.0, 0.0, 6.0), 1.2)
+		"PalmGroveVillage":
+			_box(p + Vector3(0.0, 0.12, 0.0),
+				Vector3(9.0, 0.24, 7.0), "blue", false, false)
+			_tree(p + Vector3(-5.0, 0.0, -4.0), 7.0)
+			_tree(p + Vector3(5.0, 0.0, -4.0), 6.5)
+			_tree(p + Vector3(0.0, 0.0, 5.0), 7.5)
+		"DesertFarmstead":
+			_box(p + Vector3(0.0, 0.3, 0.0),
+				Vector3(16.0, 0.6, 12.0), "ground_alt", false, false)
+			for row in range(4):
+				_box(p + Vector3(0.0, 0.34, -4.5 + float(row) * 3.0),
+					Vector3(13.0, 0.08, 0.18), "leaf_light", false, false)
+			_box(p + Vector3(0.0, 1.8, 8.0),
+				Vector3(6.0, 3.6, 5.0), "plaster", false, false)
+		"MilitaryCamp":
+			for side in [-1.0, 1.0]:
+				_box(p + Vector3(side * 5.0, 0.8, 0.0),
+					Vector3(3.0, 1.6, 2.0), "sandbag", false, false)
+				_box(p + Vector3(side * 3.0, 1.0, 5.0),
+					Vector3(4.0, 2.0, 4.0), "dark", false, false)
+			_box(p + Vector3(0.0, 0.04, 0.0),
+				Vector3(15.0, 0.08, 12.0), "ground_alt", false, false)
+		"RadioStation":
+			_box(p + Vector3(0.0, 8.0, 0.0),
+				Vector3(0.4, 16.0, 0.4), "dark", false, false)
+			for height in [4.0, 8.0, 12.0]:
+				_box(p + Vector3(0.0, height, 0.0),
+					Vector3(7.0, 0.18, 0.18), "trim", false, false)
+			_box(p + Vector3(0.0, 0.5, 0.0),
+				Vector3(5.0, 1.0, 5.0), "plaster_dark", false, false)
+		"Waterworks":
+			_cylinder(p + Vector3(0.0, 2.5, 0.0), 3.5, 5.0, "blue")
+			_cylinder(p + Vector3(0.0, 5.2, 0.0), 3.8, 0.35, "trim")
+			_box(p + Vector3(6.0, 1.0, 0.0),
+				Vector3(5.0, 2.0, 4.0), "plaster_dark", false, false)
+		"RailwayYard":
+			for track in [-1.0, 1.0]:
+				_box(p + Vector3(0.0, 0.025, track * 2.0),
+					Vector3(20.0, 0.05, 0.18), "dark", false, false)
+				for sleeper in range(8):
+					_box(p + Vector3(-8.0 + float(sleeper) * 2.3,
+						0.05, track * 2.0),
+						Vector3(0.5, 0.08, 1.4), "wood", false, false)
+		"CargoDepot":
+			for row in range(2):
+				for column in range(3):
+					_box(p + Vector3(float(column) * 3.0 - 3.0,
+						1.0 + float(row) * 2.1, 0.0),
+						Vector3(2.7, 2.0, 2.5), "wood", false, false)
+			_box(p + Vector3(0.0, 0.05, 5.0),
+				Vector3(14.0, 0.1, 0.2), "trim", false, false)
+		"CanyonPass":
+			_rock_formation(p + Vector3(-5.0, 0.0, 0.0), 2.2)
+			_rock_formation(p + Vector3(5.0, 0.0, 0.0), 2.2)
+		"AbandonedQuarry":
+			for side in [-1.0, 1.0]:
+				_rock_formation(p + Vector3(side * 5.0, 0.0, 0.0), 2.0)
+			_box(p + Vector3(0.0, 0.2, 0.0),
+				Vector3(13.0, 0.4, 10.0), "ground_alt", false, false)
+		"RuinedFort":
+			for side in [-1.0, 1.0]:
+				_box(p + Vector3(side * 5.0, 2.0, 0.0),
+					Vector3(1.0, 4.0, 12.0), "plaster_dark", false, false)
+			_box(p + Vector3(0.0, 1.5, -5.0),
+				Vector3(10.0, 3.0, 1.0), "plaster", false, false)
+			_box(p + Vector3(0.0, 2.0, 5.0),
+				Vector3(7.0, 4.0, 1.0), "plaster_dark", false, false)
+		"HiddenOasis":
+			_box(p + Vector3(0.0, 0.12, 0.0),
+				Vector3(13.0, 0.24, 10.0), "blue", false, false)
+			_tree(p + Vector3(-5.0, 0.0, 0.0), 7.0)
+			_tree(p + Vector3(5.0, 0.0, 0.0), 7.5)
 
 
 func _build_wasteland_outposts() -> void:
-	# Preserve the existing compact Clash Squad layout.
+	# Keep the compact Clash Squad layout unchanged.
 	if _compact:
 		return
 
-	# Eight distributed settlement and industrial locations.
+	var poi_names: Array[String] = [
+		"Peak", "ClockTower", "Factory", "OldTown",
+		"SandstoneCity", "MarketDistrict", "OasisVillage", "WadiSettlement",
+		"DustyCrossroads", "PalmGroveVillage", "DesertFarmstead", "MilitaryCamp",
+		"RadioStation", "Waterworks", "RailwayYard", "CargoDepot",
+		"CanyonPass", "AbandonedQuarry", "RuinedFort", "HiddenOasis"
+	]
 	var centers: Array[Vector2] = [
 		Vector2(-610.0, -570.0),
 		Vector2(610.0, -570.0),
@@ -823,7 +946,19 @@ func _build_wasteland_outposts() -> void:
 		Vector2(-160.0, -700.0),
 		Vector2(160.0, 700.0),
 		Vector2(-720.0, 80.0),
-		Vector2(720.0, -80.0)
+		Vector2(720.0, -80.0),
+		Vector2(-340.0, -340.0),
+		Vector2(340.0, -340.0),
+		Vector2(-340.0, 340.0),
+		Vector2(340.0, 340.0),
+		Vector2(-820.0, -440.0),
+		Vector2(820.0, -440.0),
+		Vector2(-820.0, 440.0),
+		Vector2(820.0, 440.0),
+		Vector2(-420.0, -760.0),
+		Vector2(420.0, -760.0),
+		Vector2(-420.0, 760.0),
+		Vector2(420.0, 760.0)
 	]
 	var offsets: Array[Vector2] = [
 		Vector2(-19.0, -16.0),
@@ -852,19 +987,20 @@ func _build_wasteland_outposts() -> void:
 				"road", false, false
 			)
 
-		var main_building_created: bool = _wasteland_enterable_building(
+		var building_id: String = "Outpost_%d_Main" % i
+		var main_created: bool = _wasteland_enterable_building(
 			Vector3(c.x, 0.0, c.y),
 			Vector3(14.0, 5.5, 12.0),
-			"Outpost_%d_Main" % i
+			building_id
 		)
-		if i < 4:
-			var poi_names: Array[String] = ["Peak", "ClockTower", "Factory", "OldTown"]
-			if main_building_created:
-				_build_wasteland_poi(poi_names[i], Vector3(c.x, 0.0, c.y))
-			else:
-				push_warning("Skipping Wasteland POI %s: its main building could not be placed." % poi_names[i])
+
+		if main_created:
+			_build_wasteland_poi(poi_names[i], Vector3(c.x, 0.0, c.y))
 		else:
-			_add_water_tank(Vector3(c.x, 0.0, c.y + 31.0))
+			push_warning(
+				"Skipping Wasteland POI %s: main building could not be placed."
+				% poi_names[i]
+			)
 
 		for j in range(offsets.size()):
 			var o: Vector2 = offsets[j]
@@ -876,7 +1012,7 @@ func _build_wasteland_outposts() -> void:
 			)
 			_adobe_building(p, size)
 
-	# Landmarks in the outer wilderness, away from the central combat lanes.
+	# The existing outer rock ring is retained.
 	for i in range(12):
 		var angle: float = TAU * float(i) / 12.0 + 0.17
 		var radius: float = extent * 0.80
@@ -884,7 +1020,87 @@ func _build_wasteland_outposts() -> void:
 			Vector3(cos(angle) * radius, 0.0, sin(angle) * radius),
 			1.05
 		)
+func _fill_wasteland_wilderness() -> void:
+	# Never alter the compact Clash Squad arena.
+	if _compact:
+		return
 
+	# These loops have attempt limits to avoid unbounded placement retries.
+	var placed_houses: int = 0
+	var attempts: int = 0
+	while placed_houses < 24 and attempts < 24 * 24:
+		attempts += 1
+		var p: Vector3 = _random_prop_position()
+		var size := Vector3(
+			_rng.randf_range(6.5, 9.5),
+			_rng.randf_range(3.5, 4.8),
+			_rng.randf_range(6.0, 8.5)
+		)
+		if not _footprint_available(
+			p, Vector2(size.x + 2.0, size.z + 2.0), 3.0
+		):
+			continue
+		_adobe_building(p, size)
+		placed_houses += 1
+
+	var placed_trees: int = 0
+	attempts = 0
+	while placed_trees < 110 and attempts < 110 * 24:
+		attempts += 1
+		var p: Vector3 = _random_prop_position()
+		if not _footprint_available(p, Vector2(5.4, 5.4), 1.0):
+			continue
+		_tree(p, _rng.randf_range(5.5, 8.0))
+		placed_trees += 1
+
+	var placed_crates: int = 0
+	attempts = 0
+	while placed_crates < 140 and attempts < 140 * 24:
+		attempts += 1
+		var p: Vector3 = _random_prop_position()
+		var size := Vector3(
+			_rng.randf_range(1.2, 1.8),
+			_rng.randf_range(1.0, 1.5),
+			_rng.randf_range(1.2, 1.8)
+		)
+		if not _footprint_available(p, Vector2(2.4, 2.4), 0.8):
+			continue
+
+		var crate_center: Vector3 = p + Vector3.UP * (size.y * 0.5)
+		_box(crate_center, size, "wood")
+		_box(crate_center + Vector3(0.0, size.y * 0.35, size.z * 0.5 + 0.025),
+			Vector3(size.x * 0.85, 0.08, 0.05), "trim", false, false)
+		_box(crate_center + Vector3(0.0, size.y * 0.35, -size.z * 0.5 - 0.025),
+			Vector3(size.x * 0.85, 0.08, 0.05), "trim", false, false)
+		placed_crates += 1
+
+	var placed_shrubs: int = 0
+	attempts = 0
+	while placed_shrubs < 240 and attempts < 240 * 24:
+		attempts += 1
+		var p: Vector3 = _random_prop_position()
+		if not _footprint_available(p, Vector2(2.8, 2.8), 0.2):
+			continue
+		_vegetation_cluster(p, _rng.randf_range(1.0, 1.8))
+		placed_shrubs += 1
+
+	var placed_grass: int = 0
+	attempts = 0
+	while placed_grass < 200 and attempts < 200 * 24:
+		attempts += 1
+		var p: Vector3 = _random_prop_position()
+		if not _footprint_available(p, Vector2(1.6, 1.6), 0.1):
+			continue
+		_grass_patch(p, _rng.randf_range(0.8, 1.5))
+		placed_grass += 1
+
+	print(
+		"WASTELAND WILDERNESS: houses=", placed_houses,
+		" trees=", placed_trees,
+		" wooden_crates=", placed_crates,
+		" shrubs=", placed_shrubs,
+		" grass_patches=", placed_grass
+	)
 
 func _build_almarakah() -> void:
 	# Map 1: Heartlands, the fortified capital, and the outer wilderness.
