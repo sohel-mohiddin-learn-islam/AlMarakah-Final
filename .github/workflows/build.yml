@@ -69,6 +69,9 @@ jobs:
       - name: Print animation clips before regression tests
         run: godot --headless --audio-driver Dummy --path . --script tools/inspect_animation.gd
 
+      - name: Diagnose arena script parse error
+        run: godot --headless --audio-driver Dummy --path . --script tools/diagnose_arena_parse.gd
+
       - name: Import project and run every regression suite
         run: bash tools/test.sh
 
