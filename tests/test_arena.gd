@@ -20,6 +20,8 @@ func _initialize() -> void:
 func _run() -> void:
     await _test_map(0)
     await _test_map(1)
+    await _test_map(2)
+    await _test_wasteland_compact_dimensions()
 
     if failures == 0:
         print("ALMARAKAH ARENA TESTS: %d checks, 0 failures" % checks)
@@ -29,25 +31,80 @@ func _run() -> void:
     quit(1 if failures > 0 else 0)
 
 
+func _test_wasteland_compact_dimensions() -> void:
+    var arena = Arena.new()
+    root.add_child(arena)
+    arena.build(2, true)
+    await process_frame
+    check(is_equal_approx(arena.extent, 42.0),
+        "Wasteland Clash Squad retains its compact footprint")
+    check(arena.get_node_or_null("WastelandPOI_Peak") == null,
+        "Compact Clash Squad does not generate Wasteland BR landmarks")
+    var compact_enterable_count: int = 0
+    for child in arena.get_children():
+        if child.name.begins_with("WastelandEnterableBuilding_"):
+            compact_enterable_count += 1
+    check(compact_enterable_count == 0,
+        "Compact Clash Squad retains its existing building layout")
+    arena.queue_free()
+    await process_frame
+
+
 func _test_map(map_id: int) -> void:
     var arena = Arena.new()
     root.add_child(arena)
     arena.build(map_id, false)
+    if map_id == 2:
+        check(is_equal_approx(arena.extent, 960.0),
+            "Wasteland BR has a 1.92 km square footprint")
+    else:
+        check(is_equal_approx(arena.extent, 125.0),
+            "Existing full-size map dimensions remain unchanged")
     await process_frame
 
-    if map_id == 0:
+    if map_id == 2:
+        var poi_names: Array[String] = [
+            "Peak", "ClockTower", "Factory", "OldTown",
+            "SandstoneCity", "MarketDistrict", "OasisVillage", "WadiSettlement",
+            "DustyCrossroads", "PalmGroveVillage", "DesertFarmstead", "MilitaryCamp",
+            "RadioStation", "Waterworks", "RailwayYard", "CargoDepot",
+            "CanyonPass", "AbandonedQuarry", "RuinedFort", "HiddenOasis"
+        ]
+        for poi_index in range(poi_names.size()):
+            var poi_name: String = poi_names[poi_index]
+            check(arena.get_node_or_null("WastelandPOI_" + poi_name) != null,
+                "Wasteland BR generates the " + poi_name + " landmark marker")
+            check(arena.get_node_or_null("WastelandEnterableBuilding_Outpost_%d_Main" % poi_index) != null,
+                "Wasteland " + poi_name + " has its corresponding main building")
+        var enterable_count: int = 0
+        for child in arena.get_children():
+            if child.name.begins_with("WastelandEnterableBuilding_"):
+                enterable_count += 1
+        check(enterable_count >= 20,
+            "Wasteland BR generates enterable main buildings at all 20 outposts")
+
+    if map_id == 0 or map_id == 2:
         var terrain := arena.get_node_or_null("ContinuousTerrain") as MeshInstance3D
         var ground := arena.get_node_or_null("TerrainCollision") as StaticBody3D
-        check(terrain != null, "Qamar Dunes has a terrain mesh")
+        check(terrain != null, "Procedural map has a terrain mesh")
         check(terrain != null and terrain.mesh != null and terrain.mesh.get_surface_count() > 0,
-            "Qamar Dunes terrain has a surface")
-        check(ground != null, "Qamar Dunes has a ground collision body")
+            "Procedural map terrain has a surface")
+
+        var vertex_count: int = -1
+        if terrain != null and terrain.mesh != null and terrain.mesh.get_surface_count() > 0:
+            var terrain_arrays: Array = terrain.mesh.surface_get_arrays(0)
+            var terrain_vertices: PackedVector3Array = terrain_arrays[Mesh.ARRAY_VERTEX]
+            vertex_count = terrain_vertices.size()
+        if map_id == 2:
+            check(vertex_count == 37249,
+                "Wasteland BR terrain uses a 193 x 193 shared-vertex grid")
+        check(ground != null, "Procedural map has a ground collision body")
 
         var collider: CollisionShape3D = null
         if ground != null:
             collider = ground.get_node_or_null("TerrainCollisionShape") as CollisionShape3D
         check(collider != null and collider.shape != null,
-            "Qamar Dunes has a valid terrain collision shape")
+            "Procedural map has a valid terrain collision shape")
     else:
         var terraforge := arena.get_node_or_null("TerraForgeWorld") as Node3D
         check(terraforge != null, "AlMarakah instantiates the TerraForge world")
@@ -102,8 +159,11 @@ func _test_map(map_id: int) -> void:
         print("MAP ", map_id, " CENTER_RAY_HIT=",
             ray_hit.get("collider").name if ray_hit.has("collider") else "none")
         print("MAP ", map_id, " CENTER_RAY_POSITION=", ray_hit.get("position", Vector3.ZERO))
-        check(not ray_hit.is_empty(),
-            "Map %d has ground collision under its center" % map_id)
+        var hit_is_expected_ground: bool = not ray_hit.is_empty()
+        if map_id == 0 or map_id == 2:
+            hit_is_expected_ground = hit_is_expected_ground and ray_hit.has("collider") and ray_hit["collider"].name == "TerrainCollision"
+        check(hit_is_expected_ground,
+            "Map %d center ray hits the actual ground, not the fallback floor" % map_id)
     else:
         check(false, "Map %d has an accessible physics world" % map_id)
 
