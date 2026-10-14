@@ -22,7 +22,7 @@ func build(map_id: int, compact: bool = false) -> void:
 
 	_map_id = clampi(map_id, 0, 2)
 	_compact = compact
-	extent = 42.0 if compact else 125.0
+	extent = 42.0 if compact else (960.0 if _map_id == 2 else 125.0)
 	_rng.seed = 4417 + _map_id * 971 + int(compact) * 37
 	_obstacles.clear()
 	_reserved.clear()
@@ -370,7 +370,7 @@ func _make_environment() -> void:
 
 func _make_terrain() -> void:
 	# A continuous, low-poly terrain surface for mobile performance.
-	var grid_size: int = 36 if _compact else 84
+	var grid_size: int = 36 if _compact else (192 if _map_id == 2 else 84)
 	var cell_size: float = extent * 2.0 / float(grid_size)
 	var capital_x: float = extent * (0.66 if _compact else 0.42)
 	var capital_z: float = -extent * 0.42
@@ -382,6 +382,16 @@ func _make_terrain() -> void:
 	var vertices := PackedVector3Array()
 	var uvs := PackedVector2Array()
 	var indices := PackedInt32Array()
+	var wasteland_outpost_centers: Array[Vector2] = []
+	if _map_id == 2 and not _compact:
+		wasteland_outpost_centers.append(Vector2(-610.0, -570.0))
+		wasteland_outpost_centers.append(Vector2(610.0, -570.0))
+		wasteland_outpost_centers.append(Vector2(-610.0, 570.0))
+		wasteland_outpost_centers.append(Vector2(610.0, 570.0))
+		wasteland_outpost_centers.append(Vector2(-160.0, -700.0))
+		wasteland_outpost_centers.append(Vector2(160.0, 700.0))
+		wasteland_outpost_centers.append(Vector2(-720.0, 80.0))
+		wasteland_outpost_centers.append(Vector2(720.0, -80.0))
 
 	# Shared grid vertices prevent gaps between terrain cells.
 	for z in range(grid_size + 1):
@@ -437,6 +447,18 @@ func _make_terrain() -> void:
 					flat = true
 				if absf(px - capital_x) < 4.5 and pz > gate_z - 4.5 and pz < 4.5:
 					flat = true
+
+
+			if _map_id == 2 and not _compact:
+				for center in wasteland_outpost_centers:
+					if absf(px - center.x) < 42.0 and absf(pz - center.y) < 38.0:
+						flat = true
+						# Flatten the horizontal road leading toward each outpost.
+						if absf(pz - center.y) < 10.1 and px >= minf(0.0, center.x) - 5.0 and px <= maxf(0.0, center.x) + 5.0:
+							flat = true
+						# Flatten the vertical road leading toward each outpost.
+						if absf(px - center.x) < 10.1 and pz >= minf(0.0, center.y) - 5.0 and pz <= maxf(0.0, center.y) + 5.0:
+							flat = true
 
 			if flat:
 				height = 0.0
@@ -681,7 +703,79 @@ func _build_wasteland() -> void:
 			0.65 * scale_factor
 		)
 
+	_build_wasteland_outposts()
 	print("WASTELAND MAP: procedural industrial desert built; compact=", _compact)
+
+
+func _build_wasteland_outposts() -> void:
+	# Preserve the existing compact Clash Squad layout.
+	if _compact:
+		return
+
+	# Eight distributed settlement and industrial locations.
+	var centers: Array[Vector2] = [
+		Vector2(-610.0, -570.0),
+		Vector2(610.0, -570.0),
+		Vector2(-610.0, 570.0),
+		Vector2(610.0, 570.0),
+		Vector2(-160.0, -700.0),
+		Vector2(160.0, 700.0),
+		Vector2(-720.0, 80.0),
+		Vector2(720.0, -80.0)
+	]
+	var offsets: Array[Vector2] = [
+		Vector2(-19.0, -16.0),
+		Vector2(0.0, -19.0),
+		Vector2(19.0, -16.0),
+		Vector2(-19.0, 16.0),
+		Vector2(0.0, 19.0),
+		Vector2(19.0, 16.0)
+	]
+
+	for i in range(centers.size()):
+		var c: Vector2 = centers[i]
+		var road_x: float = absf(c.x) - 10.0
+		var road_z: float = absf(c.y) - 10.0
+
+		if road_x > 0.0:
+			_box(
+				Vector3(signf(c.x) * road_x * 0.5, 0.018, c.y),
+				Vector3(road_x, 0.035, 6.5),
+				"road", false, false
+			)
+		if road_z > 0.0:
+			_box(
+				Vector3(c.x, 0.019, signf(c.y) * road_z * 0.5),
+				Vector3(6.5, 0.035, road_z),
+				"road", false, false
+			)
+
+		if i % 2 == 0:
+			_adobe_building(
+				Vector3(c.x, 0.0, c.y),
+				Vector3(14.0, 5.5, 12.0)
+			)
+		else:
+			_add_water_tank(Vector3(c.x, 0.0, c.y + 31.0))
+
+		for j in range(offsets.size()):
+			var o: Vector2 = offsets[j]
+			var p := Vector3(c.x + o.x, 0.0, c.y + o.y)
+			var size := Vector3(
+				_rng.randf_range(8.0, 11.0),
+				_rng.randf_range(4.0, 5.8),
+				_rng.randf_range(7.0, 10.0)
+			)
+			_adobe_building(p, size)
+
+	# Landmarks in the outer wilderness, away from the central combat lanes.
+	for i in range(12):
+		var angle: float = TAU * float(i) / 12.0 + 0.17
+		var radius: float = extent * 0.80
+		_rock_formation(
+			Vector3(cos(angle) * radius, 0.0, sin(angle) * radius),
+			1.05
+		)
 
 
 func _build_almarakah() -> void:

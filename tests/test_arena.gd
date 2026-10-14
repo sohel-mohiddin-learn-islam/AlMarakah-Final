@@ -21,6 +21,7 @@ func _run() -> void:
     await _test_map(0)
     await _test_map(1)
     await _test_map(2)
+    await _test_wasteland_compact_dimensions()
 
     if failures == 0:
         print("ALMARAKAH ARENA TESTS: %d checks, 0 failures" % checks)
@@ -30,10 +31,27 @@ func _run() -> void:
     quit(1 if failures > 0 else 0)
 
 
+func _test_wasteland_compact_dimensions() -> void:
+    var arena = Arena.new()
+    root.add_child(arena)
+    arena.build(2, true)
+    await process_frame
+    check(is_equal_approx(arena.extent, 42.0),
+        "Wasteland Clash Squad retains its compact footprint")
+    arena.queue_free()
+    await process_frame
+
+
 func _test_map(map_id: int) -> void:
     var arena = Arena.new()
     root.add_child(arena)
     arena.build(map_id, false)
+    if map_id == 2:
+        check(is_equal_approx(arena.extent, 960.0),
+            "Wasteland BR has a 1.92 km square footprint")
+    else:
+        check(is_equal_approx(arena.extent, 125.0),
+            "Existing full-size map dimensions remain unchanged")
     await process_frame
 
     if map_id == 0 or map_id == 2:
@@ -42,6 +60,15 @@ func _test_map(map_id: int) -> void:
         check(terrain != null, "Procedural map has a terrain mesh")
         check(terrain != null and terrain.mesh != null and terrain.mesh.get_surface_count() > 0,
             "Procedural map terrain has a surface")
+
+        var vertex_count: int = -1
+        if terrain != null and terrain.mesh != null and terrain.mesh.get_surface_count() > 0:
+            var terrain_arrays: Array = terrain.mesh.surface_get_arrays(0)
+            var terrain_vertices: PackedVector3Array = terrain_arrays[Mesh.ARRAY_VERTEX]
+            vertex_count = terrain_vertices.size()
+        if map_id == 2:
+            check(vertex_count == 37249,
+                "Wasteland BR terrain uses a 193 x 193 shared-vertex grid")
         check(ground != null, "Procedural map has a ground collision body")
 
         var collider: CollisionShape3D = null
