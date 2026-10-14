@@ -1,6 +1,7 @@
 extends SceneTree
 const Rules = preload("res://scripts/rules.gd")
 const Settings = preload("res://scripts/settings.gd")
+const WeaponCatalog = preload("res://scripts/weapon_catalog.gd")
 var failures: int = 0
 var checks: int = 0
 
@@ -22,6 +23,41 @@ func _run() -> void:
 	check(Rules.participant_count("cs_ranked") == 8, "CS ranked has eight participants")
 	check(Rules.is_ranked("br_ranked") and not Rules.is_ranked("br_classic"), "ranked mode IDs are distinct")
 	check(Rules.weapon_profile("smg")["magazine_size"] > Rules.weapon_profile("marksman")["magazine_size"], "loadouts expose distinct weapon profiles")
+	var weapon_ids: Array[String] = WeaponCatalog.weapon_ids()
+	var unique_weapon_ids: Dictionary = {}
+	var expected_fire_modes: Dictionary = {
+		"Assault Rifle": "automatic",
+		"Submachine Gun": "automatic",
+		"Shotgun": "pump",
+		"Sniper Rifle": "bolt",
+		"Marksman Rifle": "semi",
+		"Light Machine Gun": "automatic",
+		"Pistol": "semi"
+	}
+	check(weapon_ids.size() == 60, "catalogue contains 60 weapons")
+	check(Rules.weapon_ids().size() == 60, "rules expose all 60 weapons")
+	check(Rules.weapon_labels().size() == 60, "all weapons have lobby labels")
+	for weapon_id in weapon_ids:
+		unique_weapon_ids[weapon_id] = true
+		var profile: Dictionary = Rules.weapon_profile(weapon_id)
+		var category: String = String(profile.get("category", ""))
+		check(expected_fire_modes.has(category) and String(profile.get("fire_mode", "")) == String(expected_fire_modes.get(category, "")), "weapon fire mode matches category: " + weapon_id)
+		check(String(profile.get("id", "")) == weapon_id, "profile resolves requested weapon: " + weapon_id)
+		check(float(profile.get("damage", 0.0)) > 0.0 and int(profile.get("magazine_size", 0)) > 0 and int(profile.get("reserve", -1)) >= 0, "weapon has valid combat stats: " + weapon_id)
+		check(float(profile.get("range", 0.0)) > 0.0 and float(profile.get("recoil", 0.0)) > 0.0 and int(profile.get("pellets", 0)) >= 1 and float(profile.get("spread", -1.0)) >= 0.0, "weapon has valid range, recoil, pellets, and spread: " + weapon_id)
+	check(unique_weapon_ids.size() == 60, "all 60 weapon IDs are unique")
+	check(Rules.is_valid_weapon_id("rifle") and Rules.is_valid_weapon_id("awm") and Rules.is_valid_weapon_id("m870"), "valid IDs include legacy, sniper, and shotgun weapons")
+	check(not Rules.is_valid_weapon_id("not_a_weapon"), "unknown weapon IDs are rejected")
+	check(float(Rules.weapon_profile("rifle")["damage"]) == 26.0 and int(Rules.weapon_profile("rifle")["magazine_size"]) == 30, "legacy rifle stats are preserved")
+	check(float(Rules.weapon_profile("smg")["damage"]) == 18.0 and int(Rules.weapon_profile("smg")["magazine_size"]) == 36, "legacy SMG stats are preserved")
+	check(float(Rules.weapon_profile("marksman")["damage"]) == 48.0 and int(Rules.weapon_profile("marksman")["magazine_size"]) == 12, "legacy marksman stats are preserved")
+	var rifle_profile: Dictionary = Rules.weapon_profile("rifle")
+	var sniper_profile: Dictionary = Rules.weapon_profile("awm")
+	var shotgun_profile: Dictionary = Rules.weapon_profile("m870")
+	check(float(rifle_profile["range"]) == 200.0 and int(rifle_profile["pellets"]) == 1, "legacy rifle keeps its range and single projectile")
+	check(float(sniper_profile["range"]) == 300.0 and int(sniper_profile["pellets"]) == 1, "AWM has long range and one projectile")
+	check(float(shotgun_profile["range"]) == 38.0 and int(shotgun_profile["pellets"]) == 8, "M870 has close range and eight pellets")
+	check(float(shotgun_profile["spread"]) > float(sniper_profile["spread"]), "shotgun spread exceeds sniper spread")
 	check(Rules.radius_at(0, 125) == 125, "zone starts full sized")
 	check(Rules.radius_at(25, 125) == 125, "zone grace period")
 	check(Rules.radius_at(1000, 125) == 3, "zone has minimum radius")

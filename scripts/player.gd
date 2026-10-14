@@ -17,6 +17,11 @@ var weapon_damage: float = 26.0
 var fire_interval: float = 0.14
 var reload_seconds: float = 1.7
 var move_speed: float = 7.2
+var weapon_range: float = 200.0
+var weapon_recoil_strength: float = 0.10
+var weapon_pellets: int = 1
+var weapon_spread: float = 0.008
+var weapon_fire_mode: String = "automatic"
 var move_acceleration: float = 28.0
 var move_deceleration: float = 34.0
 var turn_speed: float = 14.0
@@ -64,6 +69,7 @@ var network_sprinting: bool = false
 var network_grounded: bool = true
 var network_snapshot_age: float = 0.0
 var network_fire_requested: bool = false
+var fire_was_pressed: bool = false
 var network_fire_aiming: bool = false
 
 
@@ -283,6 +289,8 @@ func _physics_process(delta: float) -> void:
 	var direction: Vector3 = Basis(Vector3.UP, yaw) * Vector3(movement.x, 0, movement.y)
 	var sprinting: bool = ((hud.sprinting if is_local_player else network_sprinting_input) and not ads and movement.length() > 0.05)
 	var fire: bool = (hud.firing or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT))) if is_local_player else network_fire_requested
+	var fire_trigger: bool = fire and (weapon_fire_mode == "automatic" or not fire_was_pressed)
+	fire_was_pressed = fire
 	if is_local_player:
 		_send_network_fire(fire, ads)
 	var body_turn_rate: float = ads_body_turn_speed if ads else body_turn_speed
@@ -354,15 +362,13 @@ func _physics_process(delta: float) -> void:
 		if muzzle_flash_time <= 0.0 and is_instance_valid(muzzle_flash):
 			muzzle_flash.visible = false
 
-	if fire and shot_time <= 0 and reload_time <= 0:
+	if fire_trigger and shot_time <= 0 and reload_time <= 0:
 		if is_local_player and game.networked_match and not multiplayer.is_server():
 			pass
 		elif ammo > 0:
 			_shoot()
 		else:
 			reload_weapon()
-		if network_fire_requested:
-			network_fire_requested = false
 
 func _nearest_vehicle() -> Node:
 	if not is_instance_valid(game) or not "vehicles" in game:
@@ -418,14 +424,20 @@ func _configure_loadout() -> void:
 	fire_interval = float(profile["fire_interval"])
 	reload_seconds = float(profile["reload_seconds"])
 	move_speed = float(profile["move_speed"])
+	weapon_range = maxf(1.0, float(profile.get("range", 200.0)))
+	weapon_recoil_strength = maxf(0.01, float(profile.get("recoil", 0.10)))
+	weapon_pellets = maxi(1, int(profile.get("pellets", 1)))
+	weapon_spread = maxf(0.0, float(profile.get("spread", 0.008)))
+	weapon_fire_mode = String(profile.get("fire_mode", "automatic"))
 	ammo = magazine_size
 	reserve = reserve_capacity
 	reload_time = 0.0
 	shot_time = 0.0
+	fire_was_pressed = false
 
 func _shoot() -> void:
-	weapon_recoil = 1.0
-	weapon_recoil_rotation = 0.10
+	weapon_recoil = clampf(weapon_recoil_strength / 0.10, 0.25, 3.0)
+	weapon_recoil_rotation = weapon_recoil_strength
 	if animator != null:
 		animator.play_shoot()
 	if is_instance_valid(muzzle_flash):
@@ -443,9 +455,9 @@ func _shoot() -> void:
 		ray_origin = camera.global_position
 		if ads and bool(settings.data.aim_assist):
 			forward = game.assisted_direction(ray_origin, forward, self)
-	var query = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + forward * 200, 3, [get_rid()])
+	var query = PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + forward * weapon_range, 3, [get_rid()])
 	var hit: Dictionary = get_world_3d().direct_space_state.intersect_ray(query)
-	var target: Vector3 = hit.get("position", ray_origin + forward * 200)
+	var target: Vector3 = hit.get("position", ray_origin + forward * weapon_range)
 
 	# Third-person shots originate from the rifle muzzle but preserve camera aim.
 	if is_instance_valid(weapon_muzzle):
@@ -459,11 +471,24 @@ func _shoot() -> void:
 		body.rotation.y = lerp_angle(body.rotation.y, target_yaw, 0.45)
 		character_visual.rotation.y = 0.0
 	# Fire from the rifle muzzle so the weapon and hit ray share one origin.
-	game.fire_ray(ray_origin, (target - ray_origin).normalized(), self, weapon_damage, 200.0)
+	var shot_direction: Vector3 = (target - ray_origin).normalized()
+	var spread_rng := RandomNumberGenerator.new()
+	spread_rng.randomize()
+	var right: Vector3 = shot_direction.cross(Vector3.UP).normalized()
+	if right.length_squared() < 0.001:
+		right = Vector3.RIGHT
+	var up: Vector3 = right.cross(shot_direction).normalized()
+	for _pellet_index in range(weapon_pellets):
+		var pellet_direction: Vector3 = (
+			shot_direction
+			+ right * spread_rng.randf_range(-weapon_spread, weapon_spread)
+			+ up * spread_rng.randf_range(-weapon_spread, weapon_spread)
+		).normalized()
+		game.fire_ray(ray_origin, pellet_direction, self, weapon_damage, weapon_range)
 	if game.networked_match and multiplayer.is_server() and not _is_local_player():
 		for peer_id in multiplayer.get_peers():
 			game.network_play_remote_fire.rpc_id(peer_id, network_peer_id, pitch)
-	pitch = clampf(pitch + 0.008, -1.1, 0.85)
+	pitch = clampf(pitch + weapon_recoil_strength * 0.08, -1.1, 0.85)
 	sound.play()
 
 @rpc("authority", "reliable", "call_remote")

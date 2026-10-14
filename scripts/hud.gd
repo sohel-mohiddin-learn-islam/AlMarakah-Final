@@ -28,8 +28,9 @@ signal spectator_previous
 signal spectator_next
 
 const Radar = preload("res://scripts/radar.gd")
-const LOADOUT_IDS = ["rifle", "smg", "marksman"]
-const LOADOUT_LABELS = {"rifle": "Rifle", "smg": "SMG", "marksman": "Marksman"}
+const WeaponCatalog = preload("res://scripts/weapon_catalog.gd")
+var LOADOUT_IDS: Array[String] = WeaponCatalog.weapon_ids()
+var LOADOUT_LABELS: Dictionary = WeaponCatalog.weapon_labels()
 const MODE_IDS = ["br_classic", "br_ranked", "cs_classic", "cs_ranked"]
 
 const POSITIONS = {
