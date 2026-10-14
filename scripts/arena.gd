@@ -604,70 +604,70 @@ func _adobe_building(center: Vector3, size: Vector3) -> void:
 
 
 func _wasteland_enterable_building(
-        center: Vector3, size: Vector3, building_id: String
+	center: Vector3, size: Vector3, building_id: String
 ) -> bool:
-        # Validate once before adding the individual wall sections.
-        if not _footprint_available(
-                center, Vector2(size.x + 1.0, size.z + 1.0), 1.0
-        ):
-                return false
+	# Validate once before adding the individual wall sections.
+	if not _footprint_available(
+		center, Vector2(size.x + 1.0, size.z + 1.0), 1.0
+	):
+		return false
 
-        var marker := Node3D.new()
-        marker.name = "WastelandEnterableBuilding_" + building_id
-        marker.position = center
-        add_child(marker)
+	var marker := Node3D.new()
+	marker.name = "WastelandEnterableBuilding_" + building_id
+	marker.position = center
+	add_child(marker)
 
-        var thickness: float = 0.28
-        var door_width: float = minf(1.7, size.x * 0.28)
-        var door_height: float = minf(2.25, size.y - 0.5)
-        var segment_width: float = (size.x - door_width) * 0.5
-        var wall_material: String = "plaster" if _rng.randf() > 0.3 else "plaster_dark"
-        var front_z: float = center.z - size.z * 0.5 + thickness * 0.5
-        var back_z: float = center.z + size.z * 0.5 - thickness * 0.5
+	var thickness: float = 0.28
+	var door_width: float = minf(1.7, size.x * 0.28)
+	var door_height: float = minf(2.25, size.y - 0.5)
+	var segment_width: float = (size.x - door_width) * 0.5
+	var wall_material: String = "plaster" if _rng.randf() > 0.3 else "plaster_dark"
+	var front_z: float = center.z - size.z * 0.5 + thickness * 0.5
+	var back_z: float = center.z + size.z * 0.5 - thickness * 0.5
 
-        # Floor and front wall sections leave a real walk-through doorway.
-        _box(center + Vector3(0.0, 0.07, 0.0),
-                Vector3(size.x, 0.14, size.z), "ground_alt", true, false)
-        _box(Vector3(center.x - door_width * 0.5 - segment_width * 0.5,
-                size.y * 0.5, front_z),
-                Vector3(segment_width, size.y, thickness), wall_material, true, false)
-        _box(Vector3(center.x + door_width * 0.5 + segment_width * 0.5,
-                size.y * 0.5, front_z),
-                Vector3(segment_width, size.y, thickness), wall_material, true, false)
+	# Floor and front wall sections leave a real walk-through doorway.
+	_box(center + Vector3(0.0, 0.07, 0.0),
+		Vector3(size.x, 0.14, size.z), "ground_alt", true, false)
+	_box(Vector3(center.x - door_width * 0.5 - segment_width * 0.5,
+		size.y * 0.5, front_z),
+		Vector3(segment_width, size.y, thickness), wall_material, true, false)
+	_box(Vector3(center.x + door_width * 0.5 + segment_width * 0.5,
+		size.y * 0.5, front_z),
+		Vector3(segment_width, size.y, thickness), wall_material, true, false)
 
-        # The lintel begins above the doorway, leaving its opening clear.
-        _box(Vector3(center.x, (size.y + door_height) * 0.5, front_z),
-                Vector3(door_width, size.y - door_height, thickness),
-                wall_material, true, false)
+	# The lintel begins above the doorway, leaving its opening clear.
+	_box(Vector3(center.x, (size.y + door_height) * 0.5, front_z),
+		Vector3(door_width, size.y - door_height, thickness),
+		wall_material, true, false)
 
-        # Enclose the back and sides while leaving the interior unobstructed.
-        _box(Vector3(center.x, size.y * 0.5, back_z),
-                Vector3(size.x, size.y, thickness), wall_material, true, false)
-        _box(Vector3(center.x - size.x * 0.5 + thickness * 0.5,
-                size.y * 0.5, center.z),
-                Vector3(thickness, size.y, size.z - thickness * 2.0),
-                wall_material, true, false)
-        _box(Vector3(center.x + size.x * 0.5 - thickness * 0.5,
-                size.y * 0.5, center.z),
-                Vector3(thickness, size.y, size.z - thickness * 2.0),
-                wall_material, true, false)
+	# Enclose the back and sides while leaving the interior unobstructed.
+	_box(Vector3(center.x, size.y * 0.5, back_z),
+		Vector3(size.x, size.y, thickness), wall_material, true, false)
+	_box(Vector3(center.x - size.x * 0.5 + thickness * 0.5,
+		size.y * 0.5, center.z),
+		Vector3(thickness, size.y, size.z - thickness * 2.0),
+		wall_material, true, false)
+	_box(Vector3(center.x + size.x * 0.5 - thickness * 0.5,
+		size.y * 0.5, center.z),
+		Vector3(thickness, size.y, size.z - thickness * 2.0),
+		wall_material, true, false)
 
-        # Non-solid trim and roof avoid blocking the doorway or camera.
-        for side in [-1.0, 1.0]:
-                _box(Vector3(center.x + side * door_width * 0.5,
-                        door_height * 0.5, front_z - 0.025),
-                        Vector3(0.12, door_height, 0.08), "trim", false, false)
-        _box(Vector3(center.x, door_height + 0.06, front_z - 0.025),
-                Vector3(door_width + 0.12, 0.12, 0.08), "trim", false, false)
-        _box(center + Vector3.UP * (size.y + 0.12),
-                Vector3(size.x + 0.5, 0.24, size.z + 0.5),
-                "roof", false, false)
+	# Non-solid trim and roof avoid blocking the doorway or camera.
+	for side in [-1.0, 1.0]:
+		_box(Vector3(center.x + side * door_width * 0.5,
+			door_height * 0.5, front_z - 0.025),
+			Vector3(0.12, door_height, 0.08), "trim", false, false)
+	_box(Vector3(center.x, door_height + 0.06, front_z - 0.025),
+		Vector3(door_width + 0.12, 0.12, 0.08), "trim", false, false)
+	_box(center + Vector3.UP * (size.y + 0.12),
+		Vector3(size.x + 0.5, 0.24, size.z + 0.5),
+		"roof", false, false)
 
-        _obstacles.append(Rect2(
-                Vector2(center.x - size.x * 0.5, center.z - size.z * 0.5),
-                Vector2(size.x, size.z)
-        ))
-        return true
+	_obstacles.append(Rect2(
+		Vector2(center.x - size.x * 0.5, center.z - size.z * 0.5),
+		Vector2(size.x, size.z)
+	))
+	return true
 
 
 func _market_stall(center: Vector3) -> void:
