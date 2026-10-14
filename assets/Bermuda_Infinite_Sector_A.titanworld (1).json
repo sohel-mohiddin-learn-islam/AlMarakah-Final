@@ -1,0 +1,2929 @@
+{
+  "formatVersion": "2.1.0",
+  "projectName": "Bermuda_Infinite_Sector_A",
+  "createdDate": "2026-10-14T06:47:35.277Z",
+  "terrainSettings": {
+    "seed": 4210,
+    "scale": 1,
+    "octaves": 5,
+    "persistence": 0.48,
+    "lacunarity": 2.1,
+    "maxHeight": 120,
+    "seaLevel": 10,
+    "ridgeWeight": 0.45,
+    "terraceSteps": 0,
+    "erosionStrength": 0.3
+  },
+  "worldPartitionSettings": {
+    "chunkSize": 120,
+    "streamRadius": 4,
+    "chunkSegmentsLOD0": 32,
+    "chunkSegmentsLOD1": 16,
+    "chunkSegmentsLOD2": 8,
+    "showChunkBorders": false,
+    "showWireframe": false,
+    "freezeStreaming": false
+  },
+  "atmosphereSettings": {
+    "timeOfDay": 14,
+    "sunIntensity": 1,
+    "fogDensity": 0.00028,
+    "waterElevation": 0,
+    "enableShadows": true
+  },
+  "sculptData": {
+    "sculptOffsets": [],
+    "biomeOverrides": []
+  },
+  "placedAssets": [
+    {
+      "id": "asset_settle_suburban_house_-50_65_0",
+      "name": "Suburban Residence 1",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        -50,
+        59.1,
+        65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_-38_51_1",
+      "name": "Avenue Lamp N1",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        -38,
+        52.9,
+        51
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_-18_65_2",
+      "name": "Suburban Residence 2",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        -18,
+        54.4,
+        65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_-6_51_3",
+      "name": "Avenue Lamp N2",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        -6,
+        50.1,
+        51
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_14_65_4",
+      "name": "Suburban Residence 3",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        14,
+        51,
+        65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_26_51_5",
+      "name": "Avenue Lamp N3",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        26,
+        44.2,
+        51
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_46_65_6",
+      "name": "Suburban Residence 4",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        46,
+        41.8,
+        65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_58_51_7",
+      "name": "Avenue Lamp N4",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        58,
+        37,
+        51
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_78_65_8",
+      "name": "Suburban Residence 5",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        78,
+        31.7,
+        65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_90_51_9",
+      "name": "Avenue Lamp N5",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        90,
+        27.4,
+        51
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_110_65_10",
+      "name": "Suburban Residence 6",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        110,
+        27.9,
+        65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_122_51_11",
+      "name": "Avenue Lamp N6",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        122,
+        21.2,
+        51
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_142_65_12",
+      "name": "Suburban Residence 7",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        142,
+        26.6,
+        65
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_154_51_13",
+      "name": "Avenue Lamp N7",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        154,
+        20.4,
+        51
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_-45_15_14",
+      "name": "Suburban Residence 8",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        -45,
+        51.2,
+        15
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_-33_29_15",
+      "name": "Avenue Lamp S1",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        -33,
+        55.7,
+        29
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_-13_15_16",
+      "name": "Suburban Residence 9",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        -13,
+        50.3,
+        15
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_-1_29_17",
+      "name": "Avenue Lamp S2",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        -1,
+        47.5,
+        29
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_19_15_18",
+      "name": "Suburban Residence 10",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        19,
+        38.2,
+        15
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_31_29_19",
+      "name": "Avenue Lamp S3",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        31,
+        38.3,
+        29
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_51_15_20",
+      "name": "Suburban Residence 11",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        51,
+        19.7,
+        15
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_63_29_21",
+      "name": "Avenue Lamp S4",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        63,
+        24.8,
+        29
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_83_15_22",
+      "name": "Suburban Residence 12",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        83,
+        14.5,
+        15
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_95_29_23",
+      "name": "Avenue Lamp S5",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        95,
+        21,
+        29
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_115_15_24",
+      "name": "Suburban Residence 13",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        115,
+        15.9,
+        15
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_127_29_25",
+      "name": "Avenue Lamp S6",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        127,
+        19.4,
+        29
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_suburban_house_147_15_26",
+      "name": "Suburban Residence 14",
+      "modelUrl": "procedural://suburban_house",
+      "position": [
+        147,
+        12.3,
+        15
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_159_29_27",
+      "name": "Avenue Lamp S7",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        159,
+        13.3,
+        29
+      ],
+      "rotation": [
+        0,
+        3.141592653589793,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_roadside_gas_station_195_40_28",
+      "name": "Central Highway Gas & Mart",
+      "modelUrl": "procedural://roadside_gas_station",
+      "position": [
+        195,
+        17.9,
+        40
+      ],
+      "rotation": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        2,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 1320,
+      "vertices": 990,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_water_tower_210_110_29",
+      "name": "Central Township Water Tower",
+      "modelUrl": "procedural://water_tower",
+      "position": [
+        210,
+        24.7,
+        110
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        2,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 880,
+      "vertices": 640,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_village_bungalow_12_125_30",
+      "name": "Oak Cottage 1",
+      "modelUrl": "procedural://village_bungalow",
+      "position": [
+        12,
+        49.4,
+        125
+      ],
+      "rotation": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 760,
+      "vertices": 580,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_village_bungalow_48_125_31",
+      "name": "Oak Cottage 2",
+      "modelUrl": "procedural://village_bungalow",
+      "position": [
+        48,
+        45.2,
+        125
+      ],
+      "rotation": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 760,
+      "vertices": 580,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_village_bungalow_84_125_32",
+      "name": "Oak Cottage 3",
+      "modelUrl": "procedural://village_bungalow",
+      "position": [
+        84,
+        39.7,
+        125
+      ],
+      "rotation": [
+        0,
+        -1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        1
+      ],
+      "category": "buildings",
+      "triangles": 760,
+      "vertices": 580,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_village_bungalow_15_-45_33",
+      "name": "Garden Bungalow S1",
+      "modelUrl": "procedural://village_bungalow",
+      "position": [
+        15,
+        5.4,
+        -45
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 760,
+      "vertices": 580,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_village_bungalow_65_-45_34",
+      "name": "Garden Bungalow S2",
+      "modelUrl": "procedural://village_bungalow",
+      "position": [
+        65,
+        10.6,
+        -45
+      ],
+      "rotation": [
+        0,
+        1.5707963267948966,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        0
+      ],
+      "category": "buildings",
+      "triangles": 760,
+      "vertices": 580,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_cyberpunk_skyscraper_-95_40_35",
+      "name": "Township Commerce Tower",
+      "modelUrl": "procedural://cyberpunk_skyscraper",
+      "position": [
+        -95,
+        46.7,
+        40
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "chunkCoord": [
+        -1,
+        0
+      ],
+      "category": "cyberpunk",
+      "triangles": 1420,
+      "vertices": 980,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_luxury_villa_340_-270_36",
+      "name": "Ocean Villa 1",
+      "modelUrl": "procedural://coastal_luxury_villa",
+      "position": [
+        340,
+        37.9,
+        -270
+      ],
+      "rotation": [
+        0,
+        0.3,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        3,
+        -2
+      ],
+      "category": "buildings",
+      "triangles": 1450,
+      "vertices": 1050,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tropical_palm_tall_354_-278_37",
+      "name": "Seaside Palm 1",
+      "modelUrl": "procedural://tropical_palm_tall",
+      "position": [
+        354,
+        39,
+        -278
+      ],
+      "rotation": [
+        0,
+        4.725093560237306,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        3,
+        -2
+      ],
+      "category": "nature",
+      "triangles": 480,
+      "vertices": 390,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_luxury_villa_395_-290_38",
+      "name": "Ocean Villa 2",
+      "modelUrl": "procedural://coastal_luxury_villa",
+      "position": [
+        395,
+        37.7,
+        -290
+      ],
+      "rotation": [
+        0,
+        0.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        3,
+        -2
+      ],
+      "category": "buildings",
+      "triangles": 1450,
+      "vertices": 1050,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tropical_palm_tall_409_-298_39",
+      "name": "Seaside Palm 2",
+      "modelUrl": "procedural://tropical_palm_tall",
+      "position": [
+        409,
+        37.7,
+        -298
+      ],
+      "rotation": [
+        0,
+        5.882472952158475,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        3,
+        -2
+      ],
+      "category": "nature",
+      "triangles": 480,
+      "vertices": 390,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_luxury_villa_450_-320_40",
+      "name": "Ocean Villa 3",
+      "modelUrl": "procedural://coastal_luxury_villa",
+      "position": [
+        450,
+        44.3,
+        -320
+      ],
+      "rotation": [
+        0,
+        0.1,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 1450,
+      "vertices": 1050,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tropical_palm_tall_464_-328_41",
+      "name": "Seaside Palm 3",
+      "modelUrl": "procedural://tropical_palm_tall",
+      "position": [
+        464,
+        43.7,
+        -328
+      ],
+      "rotation": [
+        0,
+        3.704753081288054,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        4,
+        -3
+      ],
+      "category": "nature",
+      "triangles": 480,
+      "vertices": 390,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_luxury_villa_510_-345_42",
+      "name": "Ocean Villa 4",
+      "modelUrl": "procedural://coastal_luxury_villa",
+      "position": [
+        510,
+        52.2,
+        -345
+      ],
+      "rotation": [
+        0,
+        -0.1,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 1450,
+      "vertices": 1050,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tropical_palm_tall_524_-353_43",
+      "name": "Seaside Palm 4",
+      "modelUrl": "procedural://tropical_palm_tall",
+      "position": [
+        524,
+        45.1,
+        -353
+      ],
+      "rotation": [
+        0,
+        0.6589765398156089,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        4,
+        -3
+      ],
+      "category": "nature",
+      "triangles": 480,
+      "vertices": 390,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_luxury_villa_360_-370_44",
+      "name": "Ocean Villa 5",
+      "modelUrl": "procedural://coastal_luxury_villa",
+      "position": [
+        360,
+        28.8,
+        -370
+      ],
+      "rotation": [
+        0,
+        0.4,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        3,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 1450,
+      "vertices": 1050,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tropical_palm_tall_374_-378_45",
+      "name": "Seaside Palm 5",
+      "modelUrl": "procedural://tropical_palm_tall",
+      "position": [
+        374,
+        31.5,
+        -378
+      ],
+      "rotation": [
+        0,
+        1.2431302974807579,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        3,
+        -3
+      ],
+      "category": "nature",
+      "triangles": 480,
+      "vertices": 390,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_luxury_villa_420_-400_46",
+      "name": "Ocean Villa 6",
+      "modelUrl": "procedural://coastal_luxury_villa",
+      "position": [
+        420,
+        40.7,
+        -400
+      ],
+      "rotation": [
+        0,
+        0.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 1450,
+      "vertices": 1050,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tropical_palm_tall_434_-408_47",
+      "name": "Seaside Palm 6",
+      "modelUrl": "procedural://tropical_palm_tall",
+      "position": [
+        434,
+        41.6,
+        -408
+      ],
+      "rotation": [
+        0,
+        0.8510547334123653,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        4,
+        -3
+      ],
+      "category": "nature",
+      "triangles": 480,
+      "vertices": 390,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_luxury_villa_480_-430_48",
+      "name": "Ocean Villa 7",
+      "modelUrl": "procedural://coastal_luxury_villa",
+      "position": [
+        480,
+        49,
+        -430
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 1450,
+      "vertices": 1050,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tropical_palm_tall_494_-438_49",
+      "name": "Seaside Palm 7",
+      "modelUrl": "procedural://tropical_palm_tall",
+      "position": [
+        494,
+        52.2,
+        -438
+      ],
+      "rotation": [
+        0,
+        0.3494287584869453,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        4,
+        -4
+      ],
+      "category": "nature",
+      "triangles": 480,
+      "vertices": 390,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_luxury_villa_540_-450_50",
+      "name": "Ocean Villa 8",
+      "modelUrl": "procedural://coastal_luxury_villa",
+      "position": [
+        540,
+        65.8,
+        -450
+      ],
+      "rotation": [
+        0,
+        -0.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        5,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 1450,
+      "vertices": 1050,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tropical_palm_tall_554_-458_51",
+      "name": "Seaside Palm 8",
+      "modelUrl": "procedural://tropical_palm_tall",
+      "position": [
+        554,
+        61.3,
+        -458
+      ],
+      "rotation": [
+        0,
+        0.9526892734659567,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        5,
+        -4
+      ],
+      "category": "nature",
+      "triangles": 480,
+      "vertices": 390,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_coastal_lighthouse_635_-340_52",
+      "name": "Cape Solitude Lighthouse",
+      "modelUrl": "procedural://coastal_lighthouse",
+      "position": [
+        635,
+        20.5,
+        -340
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ],
+      "chunkCoord": [
+        5,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 980,
+      "vertices": 720,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_610_-325_53",
+      "name": "Harbor Crate Red",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        610,
+        24.2,
+        -325
+      ],
+      "rotation": [
+        0,
+        0.4,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        5,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_612_-318_54",
+      "name": "Harbor Crate Blue",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        612,
+        22.7,
+        -318
+      ],
+      "rotation": [
+        0,
+        0.4,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        5,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_620_-355_55",
+      "name": "Lighthouse Access Lamp",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        620,
+        24.2,
+        -355
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        5,
+        -3
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_military_bunker_-430_390_56",
+      "name": "Fort Bermuda Command Bunker",
+      "modelUrl": "procedural://military_bunker",
+      "position": [
+        -430,
+        22.5,
+        390
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.2,
+        1.1,
+        1.2
+      ],
+      "chunkCoord": [
+        -4,
+        3
+      ],
+      "category": "military",
+      "triangles": 890,
+      "vertices": 620,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_military_radar_dish_-400_430_57",
+      "name": "Early Warning Radar Array",
+      "modelUrl": "procedural://military_radar_dish",
+      "position": [
+        -400,
+        44.7,
+        430
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.1,
+        1.1,
+        1.1
+      ],
+      "chunkCoord": [
+        -3,
+        4
+      ],
+      "category": "military",
+      "triangles": 1120,
+      "vertices": 860,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tactical_compound_house_-480_350_58",
+      "name": "Alpha Barracks Compound",
+      "modelUrl": "procedural://tactical_compound_house",
+      "position": [
+        -480,
+        15,
+        350
+      ],
+      "rotation": [
+        0,
+        0.5,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        3
+      ],
+      "category": "military",
+      "triangles": 1280,
+      "vertices": 920,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tactical_compound_house_-370_350_59",
+      "name": "Bravo Armory Compound",
+      "modelUrl": "procedural://tactical_compound_house",
+      "position": [
+        -370,
+        30.5,
+        350
+      ],
+      "rotation": [
+        0,
+        -0.4,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        3
+      ],
+      "category": "military",
+      "triangles": 1280,
+      "vertices": 920,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_tactical_compound_house_-440_460_60",
+      "name": "Charlie Recon Compound",
+      "modelUrl": "procedural://tactical_compound_house",
+      "position": [
+        -440,
+        43.2,
+        460
+      ],
+      "rotation": [
+        0,
+        3.1,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        4
+      ],
+      "category": "military",
+      "triangles": 1280,
+      "vertices": 920,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_sniper_watchtower_-550_480_61",
+      "name": "Northwest Perimeter Tower",
+      "modelUrl": "procedural://sniper_watchtower",
+      "position": [
+        -550,
+        30.3,
+        480
+      ],
+      "rotation": [
+        0,
+        0.8,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -5,
+        4
+      ],
+      "category": "military",
+      "triangles": 640,
+      "vertices": 512,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_sniper_watchtower_-320_480_62",
+      "name": "Northeast Perimeter Tower",
+      "modelUrl": "procedural://sniper_watchtower",
+      "position": [
+        -320,
+        29.7,
+        480
+      ],
+      "rotation": [
+        0,
+        -0.8,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        4
+      ],
+      "category": "military",
+      "triangles": 640,
+      "vertices": 512,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_sniper_watchtower_-550_300_63",
+      "name": "Southwest Perimeter Tower",
+      "modelUrl": "procedural://sniper_watchtower",
+      "position": [
+        -550,
+        29.8,
+        300
+      ],
+      "rotation": [
+        0,
+        2.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -5,
+        3
+      ],
+      "category": "military",
+      "triangles": 640,
+      "vertices": 512,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_sniper_watchtower_-320_300_64",
+      "name": "Southeast Perimeter Tower",
+      "modelUrl": "procedural://sniper_watchtower",
+      "position": [
+        -320,
+        28.9,
+        300
+      ],
+      "rotation": [
+        0,
+        -2.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        3
+      ],
+      "category": "military",
+      "triangles": 640,
+      "vertices": 512,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_combat_apc_vehicle_-460_315_65",
+      "name": "Patrol APC Convoy Lead",
+      "modelUrl": "procedural://combat_apc_vehicle",
+      "position": [
+        -460,
+        19.4,
+        315
+      ],
+      "rotation": [
+        0,
+        0.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        3
+      ],
+      "category": "vehicles",
+      "triangles": 1650,
+      "vertices": 1220,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_combat_apc_vehicle_-435_310_66",
+      "name": "Patrol APC Heavy Unit",
+      "modelUrl": "procedural://combat_apc_vehicle",
+      "position": [
+        -435,
+        21.4,
+        310
+      ],
+      "rotation": [
+        0,
+        0.1,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        3
+      ],
+      "category": "vehicles",
+      "triangles": 1650,
+      "vertices": 1220,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_airdrop_loot_crate_-470_420_67",
+      "name": "Fort Supply Drop 01",
+      "modelUrl": "procedural://airdrop_loot_crate",
+      "position": [
+        -470,
+        22.5,
+        420
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        4
+      ],
+      "category": "military",
+      "triangles": 520,
+      "vertices": 410,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_log_cabin_house_360_360_68",
+      "name": "Pine Valley Log Cabin 1",
+      "modelUrl": "procedural://log_cabin_house",
+      "position": [
+        360,
+        37.4,
+        360
+      ],
+      "rotation": [
+        0,
+        0.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        3,
+        3
+      ],
+      "category": "buildings",
+      "triangles": 890,
+      "vertices": 670,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_log_cabin_house_420_380_69",
+      "name": "Pine Valley Log Cabin 2",
+      "modelUrl": "procedural://log_cabin_house",
+      "position": [
+        420,
+        39.2,
+        380
+      ],
+      "rotation": [
+        0,
+        -0.3,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        3
+      ],
+      "category": "buildings",
+      "triangles": 890,
+      "vertices": 670,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_log_cabin_house_480_370_70",
+      "name": "Pine Valley Log Cabin 3",
+      "modelUrl": "procedural://log_cabin_house",
+      "position": [
+        480,
+        29.6,
+        370
+      ],
+      "rotation": [
+        0,
+        0.5,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        3
+      ],
+      "category": "buildings",
+      "triangles": 890,
+      "vertices": 670,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_log_cabin_house_380_450_71",
+      "name": "Pine Valley Log Cabin 4",
+      "modelUrl": "procedural://log_cabin_house",
+      "position": [
+        380,
+        28.4,
+        450
+      ],
+      "rotation": [
+        0,
+        1.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        3,
+        4
+      ],
+      "category": "buildings",
+      "triangles": 890,
+      "vertices": 670,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_log_cabin_house_440_460_72",
+      "name": "Pine Valley Log Cabin 5",
+      "modelUrl": "procedural://log_cabin_house",
+      "position": [
+        440,
+        36.2,
+        460
+      ],
+      "rotation": [
+        0,
+        -0.8,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        4
+      ],
+      "category": "buildings",
+      "triangles": 890,
+      "vertices": 670,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_log_cabin_house_510_440_73",
+      "name": "Pine Valley Log Cabin 6",
+      "modelUrl": "procedural://log_cabin_house",
+      "position": [
+        510,
+        38.8,
+        440
+      ],
+      "rotation": [
+        0,
+        0.1,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        4
+      ],
+      "category": "buildings",
+      "triangles": 890,
+      "vertices": 670,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_log_cabin_house_410_530_74",
+      "name": "Pine Valley Log Cabin 7",
+      "modelUrl": "procedural://log_cabin_house",
+      "position": [
+        410,
+        24.3,
+        530
+      ],
+      "rotation": [
+        0,
+        0.4,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        3,
+        4
+      ],
+      "category": "buildings",
+      "triangles": 890,
+      "vertices": 670,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_log_cabin_house_490_520_75",
+      "name": "Pine Valley Log Cabin 8",
+      "modelUrl": "procedural://log_cabin_house",
+      "position": [
+        490,
+        29.5,
+        520
+      ],
+      "rotation": [
+        0,
+        -0.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        4,
+        4
+      ],
+      "category": "buildings",
+      "triangles": 890,
+      "vertices": 670,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_sniper_watchtower_530_560_76",
+      "name": "Pine Peak Fire Lookout",
+      "modelUrl": "procedural://sniper_watchtower",
+      "position": [
+        530,
+        27.7,
+        560
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ],
+      "chunkCoord": [
+        4,
+        5
+      ],
+      "category": "military",
+      "triangles": 640,
+      "vertices": 512,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_industrial_warehouse_-440_-420_77",
+      "name": "Dock Logistics Warehouse A",
+      "modelUrl": "procedural://industrial_warehouse",
+      "position": [
+        -440,
+        38.3,
+        -420
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 950,
+      "vertices": 710,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_industrial_warehouse_-440_-480_78",
+      "name": "Dock Logistics Warehouse B",
+      "modelUrl": "procedural://industrial_warehouse",
+      "position": [
+        -440,
+        39.1,
+        -480
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 950,
+      "vertices": 710,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_water_tower_-350_-420_79",
+      "name": "Harbor Water Tower",
+      "modelUrl": "procedural://water_tower",
+      "position": [
+        -350,
+        33.4,
+        -420
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 880,
+      "vertices": 640,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-520_-430_80",
+      "name": "Cargo Container [0,0]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -520,
+        49.9,
+        -430
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-508_-430_81",
+      "name": "Cargo Container [0,1]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -508,
+        49.2,
+        -430
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-496_-430_82",
+      "name": "Cargo Container [0,2]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -496,
+        50.4,
+        -430
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-484_-430_83",
+      "name": "Cargo Container [0,3]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -484,
+        51.8,
+        -430
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-520_-422_84",
+      "name": "Cargo Container [1,0]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -520,
+        48.3,
+        -422
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-508_-422_85",
+      "name": "Cargo Container [1,1]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -508,
+        47.1,
+        -422
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-496_-422_86",
+      "name": "Cargo Container [1,2]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -496,
+        49.5,
+        -422
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-484_-422_87",
+      "name": "Cargo Container [1,3]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -484,
+        50.6,
+        -422
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-520_-414_88",
+      "name": "Cargo Container [2,0]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -520,
+        45.8,
+        -414
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-508_-414_89",
+      "name": "Cargo Container [2,1]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -508,
+        46.4,
+        -414
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-496_-414_90",
+      "name": "Cargo Container [2,2]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -496,
+        49.1,
+        -414
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_shipping_container_-484_-414_91",
+      "name": "Cargo Container [2,3]",
+      "modelUrl": "procedural://shipping_container",
+      "position": [
+        -484,
+        50.3,
+        -414
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -4,
+        -3
+      ],
+      "category": "buildings",
+      "triangles": 240,
+      "vertices": 180,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_-400_-370_92",
+      "name": "Dock Gate Lamp 1",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        -400,
+        28.5,
+        -370
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        -3
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_-400_-430_93",
+      "name": "Dock Gate Lamp 2",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        -400,
+        35.6,
+        -430
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        -4
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_street_lantern_post_-400_-490_94",
+      "name": "Dock Gate Lamp 3",
+      "modelUrl": "procedural://street_lantern_post",
+      "position": [
+        -400,
+        38,
+        -490
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        -4
+      ],
+      "category": "props",
+      "triangles": 320,
+      "vertices": 240,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_fighter_jet_wrecks_30_-490_95",
+      "name": "Supersonic Jet Fuselage Wreck",
+      "modelUrl": "procedural://fighter_jet_wrecks",
+      "position": [
+        30,
+        39.1,
+        -490
+      ],
+      "rotation": [
+        0,
+        -0.6,
+        0
+      ],
+      "scale": [
+        1.3,
+        1.3,
+        1.3
+      ],
+      "chunkCoord": [
+        0,
+        -4
+      ],
+      "category": "vehicles",
+      "triangles": 1820,
+      "vertices": 1410,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_airdrop_loot_crate_55_-480_96",
+      "name": "Emergency Supply Drop A",
+      "modelUrl": "procedural://airdrop_loot_crate",
+      "position": [
+        55,
+        38.8,
+        -480
+      ],
+      "rotation": [
+        0,
+        0.4,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        -4
+      ],
+      "category": "military",
+      "triangles": 520,
+      "vertices": 410,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_airdrop_loot_crate_10_-510_97",
+      "name": "Emergency Supply Drop B",
+      "modelUrl": "procedural://airdrop_loot_crate",
+      "position": [
+        10,
+        38.3,
+        -510
+      ],
+      "rotation": [
+        0,
+        -0.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        0,
+        -4
+      ],
+      "category": "military",
+      "triangles": 520,
+      "vertices": 410,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_desert_cliff_arch_-60_-460_98",
+      "name": "Scrap Canyon Stone Arch",
+      "modelUrl": "procedural://desert_cliff_arch",
+      "position": [
+        -60,
+        27.3,
+        -460
+      ],
+      "rotation": [
+        0,
+        0.8,
+        0
+      ],
+      "scale": [
+        1.2,
+        1.2,
+        1.2
+      ],
+      "chunkCoord": [
+        0,
+        -4
+      ],
+      "category": "nature",
+      "triangles": 840,
+      "vertices": 610,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_village_bungalow_80_-440_99",
+      "name": "Outpost Salvage Cabin",
+      "modelUrl": "procedural://village_bungalow",
+      "position": [
+        80,
+        39.4,
+        -440
+      ],
+      "rotation": [
+        0,
+        1.5,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        1,
+        -4
+      ],
+      "category": "buildings",
+      "triangles": 760,
+      "vertices": 580,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_desert_cliff_arch_-360_-40_100",
+      "name": "Grand Canyon Rock Arch",
+      "modelUrl": "procedural://desert_cliff_arch",
+      "position": [
+        -360,
+        37.3,
+        -40
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        1.4,
+        1.4,
+        1.4
+      ],
+      "chunkCoord": [
+        -3,
+        0
+      ],
+      "category": "nature",
+      "triangles": 840,
+      "vertices": 610,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_military_bunker_-340_50_101",
+      "name": "Desert Ridge Outpost Bunker",
+      "modelUrl": "procedural://military_bunker",
+      "position": [
+        -340,
+        37.3,
+        50
+      ],
+      "rotation": [
+        0,
+        1.2,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        0
+      ],
+      "category": "military",
+      "triangles": 890,
+      "vertices": 620,
+      "optimized": true
+    },
+    {
+      "id": "asset_settle_sniper_watchtower_-390_20_102",
+      "name": "Desert Canyon Sniper Post",
+      "modelUrl": "procedural://sniper_watchtower",
+      "position": [
+        -390,
+        33.6,
+        20
+      ],
+      "rotation": [
+        0,
+        0.5,
+        0
+      ],
+      "scale": [
+        1,
+        1,
+        1
+      ],
+      "chunkCoord": [
+        -3,
+        0
+      ],
+      "category": "military",
+      "triangles": 640,
+      "vertices": 512,
+      "optimized": true
+    }
+  ],
+  "chunksSummary": {
+    "totalActiveChunks": 49,
+    "chunkSize": 120,
+    "streamRadius": 4
+  }
+}
