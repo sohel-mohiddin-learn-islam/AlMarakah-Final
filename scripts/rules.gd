@@ -11,6 +11,16 @@ const CS_ROUND_SECONDS: float = 90.0
 const ZONE_WAIT: float = 25.0
 const ZONE_SHRINK_SECONDS: float = 240.0
 const MODE_IDS: Array[String] = ["br_classic", "br_ranked", "cs_classic", "cs_ranked"]
+const WeaponCatalog = preload("res://scripts/weapon_catalog.gd")
+
+static func weapon_ids() -> Array[String]:
+	return WeaponCatalog.weapon_ids()
+
+static func weapon_labels() -> Dictionary:
+	return WeaponCatalog.weapon_labels()
+
+static func is_valid_weapon_id(weapon_id: String) -> bool:
+	return WeaponCatalog.weapon_ids().has(weapon_id)
 
 static func base_mode(mode: String) -> String:
 	return "cs" if mode.begins_with("cs") else "br"
@@ -32,16 +42,7 @@ static func rating_delta(mode: String, won: bool) -> int:
 	return (30 if base_mode(mode) == "cs" else 25) if won else (-20 if base_mode(mode) == "cs" else -15)
 
 static func weapon_profile(weapon_id: String) -> Dictionary:
-	match weapon_id:
-		"smg":
-			return {"id": "smg", "magazine_size": 36, "reserve": 216, "damage": 18.0,
-				"fire_interval": 0.085, "reload_seconds": 1.55, "move_speed": 7.6}
-		"marksman":
-			return {"id": "marksman", "magazine_size": 12, "reserve": 96, "damage": 48.0,
-				"fire_interval": 0.48, "reload_seconds": 2.0, "move_speed": 6.5}
-		_:
-			return {"id": "rifle", "magazine_size": 30, "reserve": 180, "damage": 26.0,
-				"fire_interval": 0.14, "reload_seconds": 1.7, "move_speed": 7.2}
+	return WeaponCatalog.weapon_profile(weapon_id)
 
 static func radius_at(elapsed: float, initial_radius: float) -> float:
 	var progress: float = clampf((elapsed - ZONE_WAIT) / ZONE_SHRINK_SECONDS, 0.0, 1.0)

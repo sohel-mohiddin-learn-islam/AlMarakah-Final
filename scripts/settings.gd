@@ -1,6 +1,8 @@
 extends RefCounted
 ## Device-local preferences. Ranked ratings are explicitly local practice data;
 ## they are not an account, leaderboard, or authenticated competitive rank.
+const WeaponCatalog = preload("res://scripts/weapon_catalog.gd")
+
 const DEFAULTS = {
 	"camera_sensitivity": 1.0,
 	"ads_sensitivity": 0.65,
@@ -39,7 +41,7 @@ func _validate() -> void:
 	data.ads_sensitivity = clampf(float(data.ads_sensitivity), 0.2, 3.0)
 	data.hud_scale = clampf(float(data.hud_scale), 0.7, 1.5)
 	data.hud_opacity = clampf(float(data.hud_opacity), 0.3, 1.0)
-	if String(data.weapon_id) not in ["rifle", "smg", "marksman"]:
+	if not WeaponCatalog.weapon_ids().has(String(data.weapon_id)):
 		data.weapon_id = "rifle"
 	if String(data.get("character_id", "azlan")) not in ["azlan", "ayla"]:
 		data.character_id = "azlan"
