@@ -356,7 +356,7 @@ func _start_match_local(selected_mode: String, selected_map: int) -> void:
 	mode = Rules.base_mode(mode_id)
 	is_cs = mode == "cs"
 	ranked = Rules.is_ranked(mode_id)
-	map_id = clampi(selected_map, 0, 1)
+	map_id = clampi(selected_map, 0, 2)
 	kills = 0
 	score = [0, 0]
 	round_number = 1

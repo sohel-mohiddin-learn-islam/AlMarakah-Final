@@ -20,6 +20,7 @@ func _initialize() -> void:
 func _run() -> void:
     await _test_map(0)
     await _test_map(1)
+    await _test_map(2)
 
     if failures == 0:
         print("ALMARAKAH ARENA TESTS: %d checks, 0 failures" % checks)
@@ -35,19 +36,19 @@ func _test_map(map_id: int) -> void:
     arena.build(map_id, false)
     await process_frame
 
-    if map_id == 0:
+    if map_id == 0 or map_id == 2:
         var terrain := arena.get_node_or_null("ContinuousTerrain") as MeshInstance3D
         var ground := arena.get_node_or_null("TerrainCollision") as StaticBody3D
-        check(terrain != null, "Qamar Dunes has a terrain mesh")
+        check(terrain != null, "Procedural map has a terrain mesh")
         check(terrain != null and terrain.mesh != null and terrain.mesh.get_surface_count() > 0,
-            "Qamar Dunes terrain has a surface")
-        check(ground != null, "Qamar Dunes has a ground collision body")
+            "Procedural map terrain has a surface")
+        check(ground != null, "Procedural map has a ground collision body")
 
         var collider: CollisionShape3D = null
         if ground != null:
             collider = ground.get_node_or_null("TerrainCollisionShape") as CollisionShape3D
         check(collider != null and collider.shape != null,
-            "Qamar Dunes has a valid terrain collision shape")
+            "Procedural map has a valid terrain collision shape")
     else:
         var terraforge := arena.get_node_or_null("TerraForgeWorld") as Node3D
         check(terraforge != null, "AlMarakah instantiates the TerraForge world")
@@ -102,8 +103,11 @@ func _test_map(map_id: int) -> void:
         print("MAP ", map_id, " CENTER_RAY_HIT=",
             ray_hit.get("collider").name if ray_hit.has("collider") else "none")
         print("MAP ", map_id, " CENTER_RAY_POSITION=", ray_hit.get("position", Vector3.ZERO))
-        check(not ray_hit.is_empty(),
-            "Map %d has ground collision under its center" % map_id)
+        var hit_is_expected_ground: bool = not ray_hit.is_empty()
+        if map_id == 0 or map_id == 2:
+            hit_is_expected_ground = hit_is_expected_ground and ray_hit.has("collider") and ray_hit["collider"].name == "TerrainCollision"
+        check(hit_is_expected_ground,
+            "Map %d center ray hits the actual ground, not the fallback floor" % map_id)
     else:
         check(false, "Map %d has an accessible physics world" % map_id)
 

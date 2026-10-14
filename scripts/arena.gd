@@ -20,7 +20,7 @@ func build(map_id: int, compact: bool = false) -> void:
 		remove_child(child)
 		child.queue_free()
 
-	_map_id = posmod(map_id, 2)
+	_map_id = clampi(map_id, 0, 2)
 	_compact = compact
 	extent = 42.0 if compact else 125.0
 	_rng.seed = 4417 + _map_id * 971 + int(compact) * 37
@@ -67,6 +67,8 @@ func build(map_id: int, compact: bool = false) -> void:
 
 	if _map_id == 0:
 		_build_dunes()
+	elif _map_id == 2:
+		_build_wasteland()
 	else:
 		_build_almarakah()
 
@@ -169,30 +171,52 @@ func _add_terraforge_boundary_box(at: Vector3, dimensions: Vector3) -> void:
 
 
 func _spawn_ground_y(px: float, pz: float) -> float:
-	if _map_id == 1:
-		# TerraForge's highest terrain vertices are approximately Y=14.
-		# Start above them so physics can settle characters onto the mesh.
-		return 17.0
+        if _map_id == 1:
+                # TerraForge's highest terrain vertices are approximately Y=14.
+                return 17.0
 
-	var height: float
-	height = (sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4 + sin((px + pz) * 0.025) * 1.1) * 0.45
-	var offset: float = 24.0 if _compact else 42.0
-	var path_length: float = (42.0 if _compact else 84.0) + offset
-	var path_width: float = (3.2 if _compact else 5.5) + 1.2
-	var flat: bool = minf(absf(px), absf(pz)) < 4.8
-	if absf(absf(pz) - offset) < path_width and absf(px) < path_length * 0.5 + path_width:
-		flat = true
-	if absf(absf(px) - offset) < path_width and absf(pz) < path_length * 0.5 + path_width:
-		flat = true
-	for area in _reserved:
-		if area.has_point(Vector2(px, pz)):
-			flat = true
-			break
-	if absf(px) < 19.0 and absf(pz) < 19.0:
-		flat = true
-	if flat:
-		height = 0.0
-	return height + 0.35
+        var height: float
+        if _map_id == 2:
+                height = sin(px * 0.052) * 1.7 + cos(pz * 0.047) * 1.5
+                height += sin((px + pz) * 0.031) * 1.0
+                height *= 0.38
+        else:
+                height = sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4
+                height += sin((px + pz) * 0.025) * 1.1
+                height *= 0.45
+
+        var reach: float = 42.0 if _compact else 84.0
+        var offset: float = 24.0 if _compact else 42.0
+        var path_length: float = reach + offset
+        var path_width: float = (3.2 if _compact else 5.5) + 1.2
+        var flat: bool = minf(absf(px), absf(pz)) < (4.8 if _map_id == 0 else 3.8)
+
+        if absf(absf(pz) - offset) < path_width and absf(px) < path_length * 0.5 + path_width:
+                flat = true
+        if absf(absf(px) - offset) < path_width and absf(pz) < path_length * 0.5 + path_width:
+                flat = true
+
+        for area in _reserved:
+                if area.has_point(Vector2(px, pz)):
+                        flat = true
+                        break
+
+        if _map_id == 0:
+                if absf(px) < 19.0 and absf(pz) < 19.0:
+                        flat = true
+        else:
+                var capital_x: float = extent * (0.66 if _compact else 0.42)
+                var capital_z: float = -extent * 0.42
+                var capital_half: float = 10.0 if _compact else 25.0
+                if absf(px - capital_x) < capital_half + 8.0 and absf(pz - capital_z) < capital_half + 8.0:
+                        flat = true
+                var gate_z: float = capital_z - capital_half
+                if absf(pz - gate_z) < 4.5 and px > -5.0 and px < capital_x + 5.0:
+                        flat = true
+                if absf(px - capital_x) < 4.5 and pz > gate_z - 4.5 and pz < 4.5:
+                        flat = true
+
+        return (0.0 if flat else height) + 0.35
 
 
 func spawn_points(count: int, teams: bool = false) -> Array[Vector3]:
@@ -269,18 +293,18 @@ func _spawn_clear(point: Vector3, others: Array[Vector3], spacing: float) -> boo
 
 func _make_palette() -> void:
 	var colors: Dictionary = {
-		"ground": Color("d8b47a") if _map_id == 0 else Color("68855c"),
-				"ground_alt": Color("c9a66d") if _map_id == 0 else Color("5f7d54"),
-				"ground_light": Color("e2c18a") if _map_id == 0 else Color("789568"),
-		"road": Color("e8ca91") if _map_id == 0 else Color("9c9a7b"),
-		"wall": Color("c99760") if _map_id == 0 else Color("697b78"),
+		"ground": Color("b99a70") if _map_id == 2 else (Color("d8b47a") if _map_id == 0 else Color("68855c")),
+		"ground_alt": Color("a98b64") if _map_id == 2 else (Color("c9a66d") if _map_id == 0 else Color("5f7d54")),
+		"ground_light": Color("d0b184") if _map_id == 2 else (Color("e2c18a") if _map_id == 0 else Color("789568")),
+		"road": Color("b8a080") if _map_id == 2 else (Color("e8ca91") if _map_id == 0 else Color("9c9a7b")),
+		"wall": Color("786b5b") if _map_id == 2 else (Color("c99760") if _map_id == 0 else Color("697b78")),
 		"plaster": Color("f0d7ab"), "plaster_dark": Color("c48055"),
 		"trim": Color("f6e8c8"), "dark": Color("343e43"),
 		"wood": Color("775647"), "roof": Color("476a73"),
 		"blue": Color("348f9b"), "orange": Color("df8c46"),
-		"rock": Color("b18c68") if _map_id == 0 else Color("7d8986"),
-		"rock_light": Color("d0ad7e") if _map_id == 0 else Color("a1aaa0"),
-				"landmark": Color("8f6f55") if _map_id == 0 else Color("5b6968"),
+		"rock": Color("8d7b68") if _map_id == 2 else (Color("b18c68") if _map_id == 0 else Color("7d8986")),
+		"rock_light": Color("b3a087") if _map_id == 2 else (Color("d0ad7e") if _map_id == 0 else Color("a1aaa0")),
+		"landmark": Color("65584b") if _map_id == 2 else (Color("8f6f55") if _map_id == 0 else Color("5b6968")),
 		"leaf": Color("3b7059"), "leaf_light": Color("639466"),
 		"water": Color("488f9a"), "sandbag": Color("b4ad83"),
 	}
@@ -321,24 +345,24 @@ func _make_environment() -> void:
 	var environment: Environment = Environment.new()
 	var sky: Sky = Sky.new()
 	var sky_material: ProceduralSkyMaterial = ProceduralSkyMaterial.new()
-	sky_material.sky_top_color = Color("6599be") if _map_id == 0 else Color("6196b0")
-	sky_material.sky_horizon_color = Color("f2dbb0") if _map_id == 0 else Color("cfdfcf")
-	sky_material.ground_bottom_color = Color("917756") if _map_id == 0 else Color("506850")
+	sky_material.sky_top_color = Color("b8a58d") if _map_id == 2 else (Color("6599be") if _map_id == 0 else Color("6196b0"))
+	sky_material.sky_horizon_color = Color("e1c6a0") if _map_id == 2 else (Color("f2dbb0") if _map_id == 0 else Color("cfdfcf"))
+	sky_material.ground_bottom_color = Color("75604b") if _map_id == 2 else (Color("917756") if _map_id == 0 else Color("506850"))
 	sky_material.ground_horizon_color = sky_material.sky_horizon_color
 	sky.sky_material = sky_material
 	environment.background_mode = Environment.BG_SKY
 	environment.sky = sky
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	environment.ambient_light_color = Color("fff0d4") if _map_id == 0 else Color("d9e9f2")
-	environment.ambient_light_energy = 0.58 if _map_id == 0 else 0.70
+	environment.ambient_light_color = Color("e5cba6") if _map_id == 2 else (Color("fff0d4") if _map_id == 0 else Color("d9e9f2"))
+	environment.ambient_light_energy = 0.64 if _map_id == 2 else (0.58 if _map_id == 0 else 0.70)
 	environment.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
 	world.environment = environment
 	add_child(world)
 	var sun: DirectionalLight3D = DirectionalLight3D.new()
 	sun.name = "AfternoonSun"
-	sun.rotation_degrees = Vector3(-52.0, -32.0 if _map_id == 0 else 38.0, 0.0)
-	sun.light_color = Color("ffe3b5") if _map_id == 0 else Color("fff2db")
-	sun.light_energy = 1.22 if _map_id == 0 else 1.08
+	sun.rotation_degrees = Vector3(-52.0, -18.0 if _map_id == 2 else (-32.0 if _map_id == 0 else 38.0), 0.0)
+	sun.light_color = Color("f2d2a3") if _map_id == 2 else (Color("ffe3b5") if _map_id == 0 else Color("fff2db"))
+	sun.light_energy = 1.16 if _map_id == 2 else (1.22 if _map_id == 0 else 1.08)
 	# No realtime shadow atlas, SSAO or fog: works with the mobile compatibility renderer.
 	sun.shadow_enabled = false
 	add_child(sun)
@@ -370,6 +394,11 @@ func _make_terrain() -> void:
 				height = sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4
 				height += sin((px + pz) * 0.025) * 1.1
 				height *= 0.45
+			elif _map_id == 2:
+				# Broad, wind-worn ridges for the industrial wasteland.
+				height = sin(px * 0.052) * 1.7 + cos(pz * 0.047) * 1.5
+				height += sin((px + pz) * 0.031) * 1.0
+				height *= 0.38
 			else:
 				height = sin(px * 0.035) * 2.4 + cos(pz * 0.04) * 2.0
 				height += sin((px - pz) * 0.022) * 1.8
@@ -579,6 +608,80 @@ func _add_water_tank(center: Vector3) -> void:
 	_cylinder(center + Vector3.UP * 3.0, 1.7, 2.8, "blue")
 	_instance("cone", center + Vector3.UP * 4.6, Vector3(3.6, 0.6, 3.6), "trim")
 
+
+
+
+func _build_wasteland() -> void:
+	# Industrial desert map. Keep all dimensions inside the selected arena,
+	# including the smaller Clash Squad layout.
+	var scale_factor: float = 0.32 if _compact else 1.0
+	var cx: float = extent * (0.66 if _compact else 0.42)
+	var cz: float = -extent * 0.42
+	var half: float = 15.0 * scale_factor
+	var wall_height: float = 3.2 * scale_factor
+	var wall_thickness: float = 1.0 * scale_factor
+	var shed_size: Vector3 = Vector3(7.0, 4.0, 6.0) * scale_factor
+
+	# Broad dusty approach roads.
+	_box(Vector3(0.0, -0.12, 0.0),
+		Vector3(5.0 * scale_factor, 0.24, extent * 1.65),
+		"road", false, false)
+	_box(Vector3(0.0, -0.10, 0.0),
+		Vector3(extent * 1.65, 0.20, 4.0 * scale_factor),
+		"road", false, false)
+
+	# A fortified industrial compound with an open front entrance.
+	_box(Vector3(cx, wall_height * 0.5, cz - half),
+		Vector3(half * 2.0, wall_height, wall_thickness),
+		"wall")
+	_box(Vector3(cx - half, wall_height * 0.5, cz),
+		Vector3(wall_thickness, wall_height, half * 2.0),
+		"wall")
+	_box(Vector3(cx + half, wall_height * 0.5, cz),
+		Vector3(wall_thickness, wall_height, half * 2.0),
+		"wall")
+	_box(Vector3(cx - half * 0.55, wall_height * 0.5, cz + half),
+		Vector3(half * 0.9, wall_height, wall_thickness),
+		"wall")
+	_box(Vector3(cx + half * 0.55, wall_height * 0.5, cz + half),
+		Vector3(half * 0.9, wall_height, wall_thickness),
+		"wall")
+
+	# Four low industrial sheds with space between them for combat.
+	for side_x in [-1.0, 1.0]:
+		for side_z in [-1.0, 1.0]:
+			var p := Vector3(
+				cx + side_x * half * 0.48,
+				0.0,
+				cz + side_z * half * 0.43
+			)
+			_box(p + Vector3(0.0, shed_size.y * 0.5, 0.0),
+				shed_size, "dark")
+			_box(p + Vector3(0.0, shed_size.y + 0.12 * scale_factor, 0.0),
+				Vector3(shed_size.x + 0.5 * scale_factor,
+					0.24 * scale_factor,
+					shed_size.z + 0.5 * scale_factor),
+				"roof", false, false)
+
+	# Scattered cover and rocky landmarks outside the compound.
+	for i in range(8):
+		var angle: float = TAU * float(i) / 8.0
+		var radius: float = extent * 0.48
+		var px: float = cos(angle) * radius
+		var pz: float = sin(angle) * radius
+		_box(Vector3(px, 0.55 * scale_factor, pz),
+			Vector3(2.4, 1.1, 1.5) * scale_factor,
+			"sandbag")
+
+	for i in range(5):
+		var angle: float = TAU * float(i) / 5.0 + 0.3
+		var radius: float = extent * 0.66
+		_rock_formation(
+			Vector3(cos(angle) * radius, 0.0, sin(angle) * radius),
+			0.65 * scale_factor
+		)
+
+	print("WASTELAND MAP: procedural industrial desert built; compact=", _compact)
 
 
 func _build_almarakah() -> void:

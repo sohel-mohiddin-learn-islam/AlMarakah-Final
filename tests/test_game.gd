@@ -147,7 +147,7 @@ func _run() -> void:
 		check(game.ranked and game.mode_id == ranked_mode, "%s starts as local ranked practice" % ranked_mode)
 		check(game.actors.size() == Rules.participant_count(ranked_mode), "%s participant count" % ranked_mode)
 		game.return_to_menu()
-	for map_index in 2:
+	for map_index in 3:
 		for match_mode in ["br", "cs"]:
 			game.start_match(match_mode, map_index)
 			await physics_frame
@@ -165,7 +165,7 @@ func _run() -> void:
 				query.transform.origin = actor.global_position + Vector3(0, 0.95, 0)
 				query.collision_mask = 1
 				var excluded_bodies: Array[RID] = []
-				if map_index == 0:
+				if map_index == 0 or map_index == 2:
 					var terrain_body: StaticBody3D = game.arena.get_node("TerrainCollision")
 					excluded_bodies.append(terrain_body.get_rid())
 				else:
@@ -190,12 +190,12 @@ func _run() -> void:
 			for frame in 45:
 				await physics_frame
 			check(game.player.position.y > -1.0, "player stays on ground")
-			if map_index == 1:
+			if map_index == 1 or map_index == 2:
 				for settle_frame in 120:
 					if game.player.is_on_floor():
 						break
 					await physics_frame
-				check(game.player.is_on_floor(), "player lands on TerraForge terrain")
+				check(game.player.is_on_floor(), "player lands on map terrain")
 			for actor in game.actors:
 				actor.set_physics_process(false)
 			if not game.is_cs:

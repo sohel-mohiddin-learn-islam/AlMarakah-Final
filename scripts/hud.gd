@@ -215,6 +215,7 @@ func _build_lobby() -> void:
 		map_picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		map_picker.add_theme_font_size_override("font_size", 15)
 		map_picker.add_item("The Realm of Almarakah — Map 1", 1)
+		map_picker.add_item("Wasteland — Industrial Ruins", 2)
 		map_picker.select(0)
 		column.add_child(map_picker)
 
