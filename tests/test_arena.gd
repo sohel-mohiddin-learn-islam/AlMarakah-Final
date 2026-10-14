@@ -38,6 +38,14 @@ func _test_wasteland_compact_dimensions() -> void:
     await process_frame
     check(is_equal_approx(arena.extent, 42.0),
         "Wasteland Clash Squad retains its compact footprint")
+    check(arena.get_node_or_null("WastelandPOI_Peak") == null,
+        "Compact Clash Squad does not generate Wasteland BR landmarks")
+    var compact_enterable_count: int = 0
+    for child in arena.get_children():
+        if child.name.begins_with("WastelandEnterableBuilding_"):
+            compact_enterable_count += 1
+    check(compact_enterable_count == 0,
+        "Compact Clash Squad retains its existing building layout")
     arena.queue_free()
     await process_frame
 
@@ -53,6 +61,21 @@ func _test_map(map_id: int) -> void:
         check(is_equal_approx(arena.extent, 125.0),
             "Existing full-size map dimensions remain unchanged")
     await process_frame
+
+    if map_id == 2:
+        var poi_names: Array[String] = ["Peak", "ClockTower", "Factory", "OldTown"]
+        for poi_index in range(poi_names.size()):
+            var poi_name: String = poi_names[poi_index]
+            check(arena.get_node_or_null("WastelandPOI_" + poi_name) != null,
+                "Wasteland BR generates the " + poi_name + " landmark marker")
+            check(arena.get_node_or_null("WastelandEnterableBuilding_Outpost_%d_Main" % poi_index) != null,
+                "Wasteland " + poi_name + " has its corresponding main building")
+        var enterable_count: int = 0
+        for child in arena.get_children():
+            if child.name.begins_with("WastelandEnterableBuilding_"):
+                enterable_count += 1
+        check(enterable_count >= 8,
+            "Wasteland BR generates enterable main buildings at outposts")
 
     if map_id == 0 or map_id == 2:
         var terrain := arena.get_node_or_null("ContinuousTerrain") as MeshInstance3D
