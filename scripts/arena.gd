@@ -171,52 +171,52 @@ func _add_terraforge_boundary_box(at: Vector3, dimensions: Vector3) -> void:
 
 
 func _spawn_ground_y(px: float, pz: float) -> float:
-        if _map_id == 1:
-                # TerraForge's highest terrain vertices are approximately Y=14.
-                return 17.0
+	if _map_id == 1:
+		# TerraForge's highest terrain vertices are approximately Y=14.
+		return 17.0
 
-        var height: float
-        if _map_id == 2:
-                height = sin(px * 0.052) * 1.7 + cos(pz * 0.047) * 1.5
-                height += sin((px + pz) * 0.031) * 1.0
-                height *= 0.38
-        else:
-                height = sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4
-                height += sin((px + pz) * 0.025) * 1.1
-                height *= 0.45
+	var height: float
+	if _map_id == 2:
+		height = sin(px * 0.052) * 1.7 + cos(pz * 0.047) * 1.5
+		height += sin((px + pz) * 0.031) * 1.0
+		height *= 0.38
+	else:
+		height = sin(px * 0.045) * 1.8 + cos(pz * 0.055) * 1.4
+		height += sin((px + pz) * 0.025) * 1.1
+		height *= 0.45
 
-        var reach: float = 42.0 if _compact else 84.0
-        var offset: float = 24.0 if _compact else 42.0
-        var path_length: float = reach + offset
-        var path_width: float = (3.2 if _compact else 5.5) + 1.2
-        var flat: bool = minf(absf(px), absf(pz)) < (4.8 if _map_id == 0 else 3.8)
+	var reach: float = 42.0 if _compact else 84.0
+	var offset: float = 24.0 if _compact else 42.0
+	var path_length: float = reach + offset
+	var path_width: float = (3.2 if _compact else 5.5) + 1.2
+	var flat: bool = minf(absf(px), absf(pz)) < (4.8 if _map_id == 0 else 3.8)
 
-        if absf(absf(pz) - offset) < path_width and absf(px) < path_length * 0.5 + path_width:
-                flat = true
-        if absf(absf(px) - offset) < path_width and absf(pz) < path_length * 0.5 + path_width:
-                flat = true
+	if absf(absf(pz) - offset) < path_width and absf(px) < path_length * 0.5 + path_width:
+		flat = true
+	if absf(absf(px) - offset) < path_width and absf(pz) < path_length * 0.5 + path_width:
+		flat = true
 
-        for area in _reserved:
-                if area.has_point(Vector2(px, pz)):
-                        flat = true
-                        break
+	for area in _reserved:
+		if area.has_point(Vector2(px, pz)):
+			flat = true
+			break
 
-        if _map_id == 0:
-                if absf(px) < 19.0 and absf(pz) < 19.0:
-                        flat = true
-        else:
-                var capital_x: float = extent * (0.66 if _compact else 0.42)
-                var capital_z: float = -extent * 0.42
-                var capital_half: float = 10.0 if _compact else 25.0
-                if absf(px - capital_x) < capital_half + 8.0 and absf(pz - capital_z) < capital_half + 8.0:
-                        flat = true
-                var gate_z: float = capital_z - capital_half
-                if absf(pz - gate_z) < 4.5 and px > -5.0 and px < capital_x + 5.0:
-                        flat = true
-                if absf(px - capital_x) < 4.5 and pz > gate_z - 4.5 and pz < 4.5:
-                        flat = true
+	if _map_id == 0:
+		if absf(px) < 19.0 and absf(pz) < 19.0:
+			flat = true
+	else:
+		var capital_x: float = extent * (0.66 if _compact else 0.42)
+		var capital_z: float = -extent * 0.42
+		var capital_half: float = 10.0 if _compact else 25.0
+		if absf(px - capital_x) < capital_half + 8.0 and absf(pz - capital_z) < capital_half + 8.0:
+			flat = true
+		var gate_z: float = capital_z - capital_half
+		if absf(pz - gate_z) < 4.5 and px > -5.0 and px < capital_x + 5.0:
+			flat = true
+		if absf(px - capital_x) < 4.5 and pz > gate_z - 4.5 and pz < 4.5:
+			flat = true
 
-        return (0.0 if flat else height) + 0.35
+	return (0.0 if flat else height) + 0.35
 
 
 func spawn_points(count: int, teams: bool = false) -> Array[Vector3]:
