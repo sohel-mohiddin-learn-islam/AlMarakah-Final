@@ -117,6 +117,9 @@ func _physics_process(delta: float) -> void:
 	if not alive or not is_instance_valid(game) or not game.match_active:
 		velocity = Vector3.ZERO
 		return
+	if game.transport_phase:
+		velocity = Vector3.ZERO
+		return
 	_sense_left -= delta
 	_steer_left -= delta
 	_shot_left -= delta

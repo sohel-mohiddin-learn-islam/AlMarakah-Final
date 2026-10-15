@@ -186,6 +186,10 @@ func _run() -> void:
 	for map_index in 3:
 		for match_mode in ["br", "cs"]:
 			game.start_match(match_mode, map_index)
+			if match_mode == "br":
+				check(game.transport_phase, "offline BR starts transport flight")
+				game.drop_from_transport()
+				check(not game.transport_phase, "BR drop ends transport flight")
 			await physics_frame
 			check(game.actors.size() == Rules.participant_count(match_mode), "actor count %s map %d" % [match_mode, map_index])
 			check(game.arena._obstacles.size() > 10, "map scenery and cover built %s map %d" % [match_mode, map_index])

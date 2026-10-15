@@ -6,6 +6,7 @@ on:
       - main
       - feature/realistic-character
       - feature/wasteland-submit
+      - test/transport-plane-20261015
   pull_request:
   workflow_dispatch:
 

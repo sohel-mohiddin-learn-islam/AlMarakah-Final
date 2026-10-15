@@ -270,6 +270,10 @@ func _physics_process(delta: float) -> void:
 			animator.update_state(network_movement_amount, network_grounded, network_aiming, network_sprinting, delta, network_pitch, network_movement)
 		return
 
+	if game.transport_phase:
+		velocity = Vector3.ZERO
+		mouse_look = Vector2.ZERO
+		return
 	var is_local_player: bool = _is_local_player()
 	ads = (hud.aiming or (Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT))) if is_local_player else (network_fire_aiming if network_fire_requested else network_aiming_input)
 	if is_local_player and ads and hud.sprinting:

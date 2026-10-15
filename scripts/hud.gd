@@ -900,6 +900,13 @@ func show_settings() -> void:
 func show_match() -> void:
 	_show("match")
 
+func set_drop_mode(enabled: bool) -> void:
+	CAPTIONS["jump"] = "DROP" if enabled else "JUMP"
+	if pads.has("jump"):
+		var caption: Label = pads["jump"].get_child(0) as Label
+		if is_instance_valid(caption):
+			caption.text = CAPTIONS["jump"]
+
 func show_editor() -> void:
 	layout_before_edit = settings.data.hud_positions.duplicate(true)
 	_show("editor")

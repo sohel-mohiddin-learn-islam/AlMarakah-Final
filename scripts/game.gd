@@ -7,6 +7,7 @@ const Bot = preload("res://scripts/bot.gd")
 const Player = preload("res://scripts/player.gd")
 const Vehicle = preload("res://scripts/vehicle.gd")
 const HUD = preload("res://scripts/hud.gd")
+const TRANSPORT_DURATION: float = 8.0
 
 var settings: RefCounted
 var hud: CanvasLayer
@@ -21,6 +22,11 @@ var mode_id: String = "br_classic"
 var ranked: bool = false
 var map_id: int = 1
 var zone_radius: float = 125.0
+var transport_plane: Node3D
+var transport_phase: bool = false
+var transport_elapsed: float = 0.0
+var transport_start: Vector3 = Vector3.ZERO
+var transport_end: Vector3 = Vector3.ZERO
 var elapsed: float = 0.0
 var damage_clock: float = 0.0
 var hud_clock: float = 0.0
@@ -394,6 +400,11 @@ func _clear_world() -> void:
 	spectator_target = null
 	zone_visual = null
 	tracer_count = 0
+	transport_phase = false
+	transport_elapsed = 0.0
+	transport_plane = null
+	if is_instance_valid(hud):
+		hud.set_drop_mode(false)
 	if is_instance_valid(world):
 		remove_child(world)
 		world.queue_free()
@@ -444,11 +455,76 @@ func _begin_round() -> void:
 			actors.append(bot)
 	if not is_cs:
 		_create_zone()
+		if not networked_match and not dedicated_server_mode:
+			_start_transport_flight()
 	match_active = true
 	hud.show_match()
 	if not OS.has_feature("mobile") and DisplayServer.get_name() != "headless":
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	_update_hud()
+
+func _start_transport_flight() -> void:
+	if is_cs or networked_match or dedicated_server_mode or not is_instance_valid(arena):
+		return
+	transport_start = Vector3(-arena.extent * 0.72, 22.0, -arena.extent * 0.72)
+	transport_end = Vector3(arena.extent * 0.72, 22.0, arena.extent * 0.72)
+	transport_elapsed = 0.0
+	transport_phase = true
+	if is_instance_valid(hud):
+		hud.jump_requested = false
+		hud.set_drop_mode(true)
+
+	transport_plane = Node3D.new()
+	transport_plane.name = "TransportPlane"
+	world.add_child(transport_plane)
+	transport_plane.global_position = transport_start
+	_add_transport_plane_part(transport_plane, "Fuselage", Vector3(1.8, 1.1, 10.0), Vector3.ZERO, Color("68747c"))
+	_add_transport_plane_part(transport_plane, "Wings", Vector3(12.0, 0.25, 2.8), Vector3(0.0, 0.25, 0.0), Color("849099"))
+	_add_transport_plane_part(transport_plane, "TailWings", Vector3(4.5, 0.2, 1.5), Vector3(0.0, 0.8, 4.0), Color("68747c"))
+	_add_transport_plane_part(transport_plane, "TailFin", Vector3(0.25, 1.8, 1.4), Vector3(0.0, 1.0, 4.0), Color("59656d"))
+	_position_transport_actors()
+
+func _add_transport_plane_part(parent: Node3D, part_name: String, part_size: Vector3, offset: Vector3, tint: Color) -> void:
+	var part := MeshInstance3D.new()
+	part.name = part_name
+	var mesh := BoxMesh.new()
+	mesh.size = part_size
+	var material := StandardMaterial3D.new()
+	material.albedo_color = tint
+	mesh.material = material
+	part.mesh = mesh
+	part.position = offset
+	parent.add_child(part)
+
+func _position_transport_actors() -> void:
+	if not transport_phase or not is_instance_valid(transport_plane):
+		return
+	for i in range(actors.size()):
+		var actor: Node3D = actors[i]
+		if not is_instance_valid(actor) or not actor.get("alive"):
+			continue
+		var row: int = int(i / 4)
+		var column: int = i % 4
+		actor.global_position = transport_plane.global_position + Vector3((float(column) - 1.5) * 1.8, 2.0, float(row) * 2.0)
+		if actor is CharacterBody3D:
+			(actor as CharacterBody3D).velocity = Vector3.ZERO
+
+func drop_from_transport() -> void:
+	if not transport_phase:
+		return
+	transport_phase = false
+	transport_elapsed = 0.0
+	if is_instance_valid(transport_plane):
+		transport_plane.queue_free()
+	transport_plane = null
+	for actor in actors:
+		if not is_instance_valid(actor):
+			continue
+		if actor is CharacterBody3D:
+			(actor as CharacterBody3D).velocity.y = -1.0
+	if is_instance_valid(hud):
+		hud.jump_requested = false
+		hud.set_drop_mode(false)
 
 func _spawn_vehicles() -> void:
 	var vehicle := Vehicle.new()
@@ -488,6 +564,15 @@ func _physics_process(delta: float) -> void:
 			_begin_round()
 		return
 	if not match_active:
+		return
+	if transport_phase:
+		transport_elapsed += delta
+		var flight_progress: float = clampf(transport_elapsed / TRANSPORT_DURATION, 0.0, 1.0)
+		if is_instance_valid(transport_plane):
+			transport_plane.global_position = transport_start.lerp(transport_end, flight_progress)
+		_position_transport_actors()
+		if (is_instance_valid(hud) and hud.jump_requested) or transport_elapsed >= TRANSPORT_DURATION:
+			drop_from_transport()
 		return
 	elapsed += delta
 	if is_cs:
